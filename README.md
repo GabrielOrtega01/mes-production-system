@@ -6,7 +6,7 @@ Semestre: Décimo
 
 Integrantes:
 - Gabriel Augusto Ortega Martínez
-- Jhonathan David Rojas Medina
+- Jhonathan David Rojas Molina
 
 Docente:
 - Eliecer Montero Ojeda
