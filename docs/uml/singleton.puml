@@ -1,0 +1,61 @@
+@startuml singleton
+title Patron Singleton en el MES - ConfiguracionPlanta\nPatrones de Software, UTS
+
+skinparam classAttributeIconSize 0
+hide empty members
+
+class ConfiguracionPlanta <<Singleton>> {
+    - {static} instancia : ConfiguracionPlanta
+    - nombrePlanta : String
+    - turnoActivo : String
+    - umbralOee : double
+    --
+    - ConfiguracionPlanta()
+    + {static} getInstancia() : ConfiguracionPlanta
+    + getNombrePlanta() : String
+    + getTurnoActivo() : String
+    + setTurnoActivo(turnoActivo : String) : void
+    + getUmbralOee() : double
+    + setUmbralOee(umbralOee : double) : void
+}
+
+class LineaProduccion {
+    - codigo : String
+    + LineaProduccion(codigo : String)
+    + producirPieza(numero : int) : String
+}
+
+class PuestoInspeccion {
+    + evaluar(oeeMedido : double) : String
+}
+
+class Main {
+    + {static} main(args : String[]) : void
+}
+
+ConfiguracionPlanta "1" o-- "1" ConfiguracionPlanta : instancia\n(auto-referencia estatica) >
+
+LineaProduccion "0..*" ..> "1" ConfiguracionPlanta : getInstancia() >
+PuestoInspeccion "0..*" ..> "1" ConfiguracionPlanta : getInstancia() >
+Main ..> LineaProduccion : <<create>>
+Main ..> PuestoInspeccion : <<create>>
+Main ..> ConfiguracionPlanta : getInstancia() >
+
+note right of ConfiguracionPlanta
+  Los tres elementos del patron:
+  (1) atributo estatico privado "instancia"
+  (2) constructor privado -> impide "new"
+  (3) metodo estatico getInstancia()
+
+  Multiplicidad clave: sin importar cuantos
+  clientes existan (0..*), siempre apuntan a
+  la MISMA y unica instancia (1).
+end note
+
+note bottom of LineaProduccion
+  Ambos clientes leen y escriben el mismo
+  estado global de la planta: turno activo
+  y umbral de OEE.
+end note
+
+@enduml

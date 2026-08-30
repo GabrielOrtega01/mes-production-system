@@ -1,0 +1,13 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "type": "java",
+      "name": "Demostracion Singleton (Main)",
+      "request": "launch",
+      "mainClass": "co.edu.uts.mes.Main",
+      "classPaths": ["${workspaceFolder}/target/classes"],
+      "console": "integratedTerminal"
+    }
+  ]
+}
