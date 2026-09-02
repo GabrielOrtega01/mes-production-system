@@ -3,6 +3,7 @@
 **Asignatura:** Patrones de Software
 **Programa:** Ingenieria de Sistemas — Unidades Tecnologicas de Santander (UTS)
 **Docente:** Eliecer Montero Ojeda
+
 **Video** https://www.youtube.com/watch?v=ALtJFTv_e2M
 
 <<<<<<< HEAD
