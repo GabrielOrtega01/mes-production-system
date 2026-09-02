@@ -4,9 +4,8 @@
 **Programa:** Ingenieria de Sistemas — Unidades Tecnologicas de Santander (UTS)
 **Docente:** Eliecer Montero Ojeda
 
-**Video** https://www.youtube.com/watch?v=ALtJFTv_e2M
-
 <<<<<<< HEAD
+**Video** https://www.youtube.com/watch?v=ALtJFTv_e2M
 Integrantes:
 - Gabriel Augusto Ortega Martínez
 - Jhonathan David Rojas Molina
