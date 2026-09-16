@@ -1,0 +1,49 @@
+@startuml
+title Patron Singleton - ConfiguracionPlanta (FabricaViva)
+
+skinparam classAttributeIconSize 0
+skinparam defaultFontName Arial
+skinparam class {
+  BackgroundColor #FFFFFF
+  BorderColor #333333
+}
+
+class ConfiguracionPlanta <<Singleton>> {
+  - {static} instancia : ConfiguracionPlanta
+  - nombrePlanta : String
+  - turnoActivo : String
+  - umbralOee : double
+  --
+  - ConfiguracionPlanta()
+  + {static} getInstancia() : ConfiguracionPlanta
+  + getNombrePlanta() : String
+  + getTurnoActivo() : String
+  + setTurnoActivo(turnoActivo : String) : void
+  + getUmbralOee() : double
+  + setUmbralOee(umbralOee : double) : void
+}
+
+class LineaProduccion <<Cliente>> {
+  - codigo : String
+  --
+  + LineaProduccion(codigo : String)
+  + producirPieza(numero : int) : String
+}
+
+class PuestoInspeccion <<Cliente>> {
+  + evaluar(oeeMedido : double) : String
+}
+
+ConfiguracionPlanta "1" --> "0..1" ConfiguracionPlanta : instancia
+LineaProduccion ..> ConfiguracionPlanta : <<use>>\ngetInstancia()
+PuestoInspeccion ..> ConfiguracionPlanta : <<use>>\ngetInstancia()
+
+note left of ConfiguracionPlanta
+  Constructor privado: nadie puede
+  hacer "new ConfiguracionPlanta()".
+  getInstancia() crea el objeto la
+  primera vez y luego devuelve
+  siempre el mismo.
+end note
+
+@enduml

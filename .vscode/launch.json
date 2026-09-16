@@ -3,9 +3,41 @@
   "configurations": [
     {
       "type": "java",
-      "name": "Demostracion Singleton (Main)",
+      "name": "1. Prueba Singleton",
       "request": "launch",
-      "mainClass": "co.edu.uts.mes.Main",
+      "mainClass": "com.fabricaviva.PruebaSingleton",
+      "classPaths": ["${workspaceFolder}/target/classes"],
+      "console": "integratedTerminal"
+    },
+    {
+      "type": "java",
+      "name": "2. Prueba Factory Method",
+      "request": "launch",
+      "mainClass": "com.fabricaviva.PruebaFactoryMethod",
+      "classPaths": ["${workspaceFolder}/target/classes"],
+      "console": "integratedTerminal"
+    },
+    {
+      "type": "java",
+      "name": "3. Prueba Builder",
+      "request": "launch",
+      "mainClass": "com.fabricaviva.PruebaBuilder",
+      "classPaths": ["${workspaceFolder}/target/classes"],
+      "console": "integratedTerminal"
+    },
+    {
+      "type": "java",
+      "name": "4. Prueba Abstract Factory",
+      "request": "launch",
+      "mainClass": "com.fabricaviva.PruebaAbstractFactory",
+      "classPaths": ["${workspaceFolder}/target/classes"],
+      "console": "integratedTerminal"
+    },
+    {
+      "type": "java",
+      "name": "5. Prueba Prototype",
+      "request": "launch",
+      "mainClass": "com.fabricaviva.PruebaPrototype",
       "classPaths": ["${workspaceFolder}/target/classes"],
       "console": "integratedTerminal"
     }

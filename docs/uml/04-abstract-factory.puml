@@ -1,0 +1,90 @@
+@startuml
+title Patron Abstract Factory - FabricaEquipos (FabricaViva)
+
+skinparam classAttributeIconSize 0
+skinparam defaultFontName Arial
+skinparam class {
+  BackgroundColor #FFFFFF
+  BorderColor #333333
+}
+
+class EstacionTrabajo <<Cliente>> {
+  - nombre : String
+  - controlador : ControladorMaquina
+  - sensor : SensorProduccion
+  --
+  + EstacionTrabajo(nombre : String, fabrica : FabricaEquipos)
+  + procesarOrden(referenciaOrden : String, piezas : int) : void
+  + equiposCompatibles() : boolean
+}
+
+interface ControladorMaquina <<ProductoAbstracto>> {
+  + protocolo() : String
+  + iniciarCiclo(referenciaOrden : String) : String
+}
+
+interface FabricaEquipos <<FabricaAbstracta>> {
+  + crearControlador() : ControladorMaquina
+  + crearSensor() : SensorProduccion
+}
+
+interface SensorProduccion <<ProductoAbstracto>> {
+  + protocolo() : String
+  + reportarConteo(piezas : int) : String
+}
+
+package "Familia Siemens (protocolo OPC-UA)" {
+  class ControladorSiemens <<ProductoConcreto>> {
+    + protocolo() : String
+    + iniciarCiclo(referenciaOrden : String) : String
+  }
+  class FabricaEquiposSiemens <<FabricaConcreta>> {
+    + crearControlador() : ControladorMaquina
+    + crearSensor() : SensorProduccion
+  }
+  class SensorSiemens <<ProductoConcreto>> {
+    + protocolo() : String
+    + reportarConteo(piezas : int) : String
+  }
+}
+
+package "Familia Fanuc (protocolo FOCAS)" {
+  class ControladorFanuc <<ProductoConcreto>> {
+    + protocolo() : String
+    + iniciarCiclo(referenciaOrden : String) : String
+  }
+  class FabricaEquiposFanuc <<FabricaConcreta>> {
+    + crearControlador() : ControladorMaquina
+    + crearSensor() : SensorProduccion
+  }
+  class SensorFanuc <<ProductoConcreto>> {
+    + protocolo() : String
+    + reportarConteo(piezas : int) : String
+  }
+}
+
+' Cliente
+EstacionTrabajo "1" --> "1" ControladorMaquina : controlador
+EstacionTrabajo ..> FabricaEquipos : <<use>>
+EstacionTrabajo "1" --> "1" SensorProduccion : sensor
+
+' Realizaciones
+ControladorMaquina <|.. ControladorSiemens
+FabricaEquipos <|.. FabricaEquiposSiemens
+SensorProduccion <|.. SensorSiemens
+ControladorMaquina <|.. ControladorFanuc
+FabricaEquipos <|.. FabricaEquiposFanuc
+SensorProduccion <|.. SensorFanuc
+
+' Cada fabrica crea los productos de su propia familia
+ControladorSiemens <.left. FabricaEquiposSiemens : <<create>>
+FabricaEquiposSiemens .right.> SensorSiemens : <<create>>
+ControladorFanuc <.left. FabricaEquiposFanuc : <<create>>
+FabricaEquiposFanuc .right.> SensorFanuc : <<create>>
+
+' Orden visual: fila Siemens arriba, fila Fanuc abajo
+ControladorSiemens -[hidden]down- ControladorFanuc
+FabricaEquiposSiemens -[hidden]down- FabricaEquiposFanuc
+SensorSiemens -[hidden]down- SensorFanuc
+
+@enduml

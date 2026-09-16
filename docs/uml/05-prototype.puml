@@ -1,0 +1,49 @@
+@startuml
+title Patron Prototype - EspecificacionPieza (FabricaViva)
+
+skinparam classAttributeIconSize 0
+skinparam defaultFontName Arial
+skinparam class {
+  BackgroundColor #FFFFFF
+  BorderColor #333333
+}
+
+interface "Prototipo<T>" as Prototipo <<Prototipo>> {
+  + clonar() : T
+}
+
+class EspecificacionPieza <<PrototipoConcreto>> {
+  - codigo : String
+  - material : String
+  - tolerancia : double
+  - pasosControlCalidad : List<String>
+  --
+  + EspecificacionPieza(codigo : String, material : String, tolerancia : double)
+  - EspecificacionPieza(original : EspecificacionPieza)
+  + clonar() : EspecificacionPieza
+  + agregarPasoControlCalidad(paso : String) : void
+  + getTolerancia() : double
+  + getCantidadControles() : int
+  + setTolerancia(tolerancia : double) : void
+  + toString() : String
+}
+
+class CatalogoEspecificaciones <<Cliente>> {
+  - prototipos : Map<String, EspecificacionPieza>
+  --
+  + registrar(clave : String, prototipo : EspecificacionPieza) : void
+  + obtenerCopia(clave : String) : EspecificacionPieza
+}
+
+Prototipo <|.. EspecificacionPieza : <<bind>> T -> EspecificacionPieza
+CatalogoEspecificaciones "1" o-- "0..*" EspecificacionPieza : prototipos
+CatalogoEspecificaciones ..> Prototipo : pide clonar()
+
+note right of EspecificacionPieza
+  clonar() usa el constructor de copia
+  privado y crea una lista nueva de
+  controles de calidad: cada copia es
+  independiente del original.
+end note
+
+@enduml

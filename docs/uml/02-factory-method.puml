@@ -1,0 +1,69 @@
+@startuml
+title Patron Factory Method - FabricaOrden (FabricaViva)
+
+skinparam classAttributeIconSize 0
+skinparam defaultFontName Arial
+skinparam class {
+  BackgroundColor #FFFFFF
+  BorderColor #333333
+}
+
+class ModuloOrdenes <<Cliente>> {
+  - fabricaEstandar : FabricaOrden
+  - fabricaUrgente : FabricaOrden
+  - ordenes : List<OrdenProduccion>
+  --
+  + crear(referencia : String, cantidad : int, urgente : boolean) : OrdenProduccion
+  + getOrdenes() : List<OrdenProduccion>
+}
+
+abstract class FabricaOrden <<Creador>> {
+  + nuevaOrden(referencia : String, cantidad : int) : OrdenProduccion
+  # {abstract} crearOrden(referencia : String, cantidad : int) : OrdenProduccion
+}
+
+class FabricaOrdenEstandar <<CreadorConcreto>> {
+  # crearOrden(referencia : String, cantidad : int) : OrdenProduccion
+}
+
+class FabricaOrdenUrgente <<CreadorConcreto>> {
+  # crearOrden(referencia : String, cantidad : int) : OrdenProduccion
+}
+
+class OrdenProduccion <<Producto>> {
+  - referencia : String
+  - cantidad : int
+  - prioridad : Prioridad
+  - bitacora : List<String>
+  --
+  + OrdenProduccion(referencia : String, cantidad : int, prioridad : Prioridad)
+  + registrar(evento : String) : void
+  + getReferencia() : String
+  + getCantidad() : int
+  + getPrioridad() : Prioridad
+  + getBitacora() : List<String>
+  + toString() : String
+}
+
+enum Prioridad {
+  NORMAL
+  ALTA
+}
+
+FabricaOrden <|-- FabricaOrdenEstandar
+FabricaOrden <|-- FabricaOrdenUrgente
+
+ModuloOrdenes "1" --> "2" FabricaOrden : usa >
+ModuloOrdenes "1" o-- "0..*" OrdenProduccion : ordenes
+
+FabricaOrdenEstandar ..> OrdenProduccion : <<create>>
+FabricaOrdenUrgente ..> OrdenProduccion : <<create>>
+OrdenProduccion "0..*" --> "1" Prioridad : prioridad
+
+note bottom of FabricaOrden
+  nuevaOrden() fija el procedimiento de alta.
+  crearOrden() es el metodo fabrica: cada
+  subclase decide que orden se crea.
+end note
+
+@enduml

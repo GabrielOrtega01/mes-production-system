@@ -1,0 +1,82 @@
+@startuml
+title Patron Builder - GeneradorReportes (FabricaViva)
+
+skinparam classAttributeIconSize 0
+skinparam defaultFontName Arial
+skinparam class {
+  BackgroundColor #FFFFFF
+  BorderColor #333333
+}
+
+class GeneradorReportes <<Director>> {
+  + construirReporte(builder : ReporteOeeBuilder, metricas : MetricasTurno, equipo : String, turno : String) : ReporteOee
+}
+
+abstract class ReporteOeeBuilder <<Builder>> {
+  # reporte : ReporteOee
+  --
+  + reiniciar() : void
+  + establecerEquipoYTurno(equipo : String, turno : String) : void
+  + calcularDisponibilidad(metricas : MetricasTurno) : void
+  + calcularRendimiento(metricas : MetricasTurno) : void
+  + calcularCalidad(metricas : MetricasTurno) : void
+  + calcularOeeFinal() : void
+  + {abstract} agregarDesglose() : void
+  + obtenerReporte() : ReporteOee
+}
+
+class ReporteResumidoBuilder <<ConstructorConcreto>> {
+  + agregarDesglose() : void
+}
+
+class ReporteDetalladoBuilder <<ConstructorConcreto>> {
+  + agregarDesglose() : void
+}
+
+class ReporteOee <<Producto>> {
+  - equipo : String
+  - turno : String
+  - disponibilidad : double
+  - rendimiento : double
+  - calidad : double
+  - oee : double
+  - desglose : String
+  --
+  + getDisponibilidad() : double
+  + getRendimiento() : double
+  + getCalidad() : double
+  + getOee() : double
+  + setDesglose(desglose : String) : void
+  + toString() : String
+}
+
+class MetricasTurno {
+  - tiempoPlanificadoMin : double
+  - tiempoParadasMin : double
+  - tiempoCicloIdealMin : double
+  - piezasProducidas : int
+  - piezasBuenas : int
+  --
+  + getTiempoPlanificadoMin() : double
+  + getTiempoOperativoMin() : double
+  + getTiempoCicloIdealMin() : double
+  + getPiezasProducidas() : int
+  + getPiezasBuenas() : int
+}
+
+ReporteOeeBuilder <|-- ReporteResumidoBuilder
+ReporteOeeBuilder <|-- ReporteDetalladoBuilder
+
+GeneradorReportes ..> ReporteOeeBuilder : <<use>>\ndirige los pasos
+ReporteOeeBuilder "1" --> "0..1" ReporteOee : reporte
+ReporteOeeBuilder ..> MetricasTurno : lee
+GeneradorReportes ..> MetricasTurno
+
+note right of ReporteOeeBuilder
+  Los calculos de disponibilidad,
+  rendimiento y calidad estan aqui una
+  sola vez. Cada constructor concreto
+  solo cambia agregarDesglose().
+end note
+
+@enduml
