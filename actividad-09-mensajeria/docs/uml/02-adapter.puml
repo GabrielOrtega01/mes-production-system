@@ -1,0 +1,90 @@
+@startuml
+title Patron Adapter - Cada proveedor externo bajo una sola interfaz
+
+skinparam classAttributeIconSize 0
+skinparam defaultFontName Arial
+skinparam class {
+  BackgroundColor #FFFFFF
+  BorderColor #333333
+}
+
+abstract class EstrategiaEnvio <<Cliente>> {
+  + {abstract} enviar(mensaje : Mensaje) : List<ResultadoEnvio>
+}
+
+interface CanalMensajeria <<Objetivo>> {
+  + nombre() : String
+  + disponible() : boolean
+  + enviar(mensaje : Mensaje) : void
+}
+
+class AdaptadorSendGrid <<Adaptador>> {
+  - api : SendGridApi
+  --
+  + nombre() : String
+  + disponible() : boolean
+  + enviar(mensaje : Mensaje) : void
+}
+
+class AdaptadorTwilio <<Adaptador>> {
+  - {static} CODIGO_CREADO : int = 201
+  - api : TwilioApi
+  - numeroEmisor : String
+  --
+  + nombre() : String
+  + disponible() : boolean
+  + enviar(mensaje : Mensaje) : void
+}
+
+class AdaptadorFcm <<Adaptador>> {
+  - api : FcmApi
+  --
+  + nombre() : String
+  + disponible() : boolean
+  + enviar(mensaje : Mensaje) : void
+}
+
+class AdaptadorWebhook <<Adaptador>> {
+  - {static} RESPUESTA_OK : String = "HTTP 204"
+  - cliente : WebhookHttpClient
+  --
+  + nombre() : String
+  + disponible() : boolean
+  + enviar(mensaje : Mensaje) : void
+}
+
+package "proveedores externos (no se pueden modificar)" {
+  class SendGridApi <<Adaptado>> {
+    + send(toEmail : String, subject : String, htmlBody : String) : String
+  }
+  class TwilioApi <<Adaptado>> {
+    + sendSms(fromNumber : String, toNumber : String, body : String) : int
+  }
+  class FcmApi <<Adaptado>> {
+    + push(deviceToken : String, data : Map<String, String>) : Map<String, Object>
+  }
+  class WebhookHttpClient <<Adaptado>> {
+    + post(url : String, jsonPayload : String) : String
+  }
+}
+
+EstrategiaEnvio ..> CanalMensajeria : <<use>>
+
+CanalMensajeria <|.. AdaptadorSendGrid
+CanalMensajeria <|.. AdaptadorTwilio
+CanalMensajeria <|.. AdaptadorFcm
+CanalMensajeria <|.. AdaptadorWebhook
+
+AdaptadorSendGrid "1" *-- "1" SendGridApi : envuelve
+AdaptadorTwilio "1" *-- "1" TwilioApi : envuelve
+AdaptadorFcm "1" *-- "1" FcmApi : envuelve
+AdaptadorWebhook "1" *-- "1" WebhookHttpClient : envuelve
+
+note bottom of SendGridApi
+  Las cuatro firmas son incompatibles entre si:
+  cambian los parametros y el tipo de respuesta.
+  El adaptador traduce en ambos sentidos, incluidos
+  los errores, que se convierten en EnvioFallidoException.
+end note
+
+@enduml

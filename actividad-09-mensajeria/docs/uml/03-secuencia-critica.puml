@@ -1,0 +1,50 @@
+@startuml
+title Envio de un mensaje con prioridad CRITICA
+
+skinparam defaultFontName Arial
+skinparam sequenceMessageAlign center
+
+actor "Sistema origen" as Cliente
+participant "PlataformaMensajeria" as Plataforma
+participant "EnvioCritico\n<<Abstraccion>>" as Critico
+participant "AdaptadorFcm\n<<Adaptador>>" as Adaptador
+participant "FcmApi\n<<Adaptado>>" as Proveedor
+
+Cliente -> Plataforma : notificar(mensaje, CRITICA)
+activate Plataforma
+Plataforma -> Critico : enviar(mensaje)
+activate Critico
+Critico -> Critico : canalesDisponibles()
+
+loop por cada canal disponible
+  Critico -> Adaptador : enviar(mensaje)
+  activate Adaptador
+  Adaptador -> Adaptador : traducir a Map(title, body)
+  Adaptador -> Proveedor : push(deviceToken, data)
+  activate Proveedor
+  Proveedor --> Adaptador : success = 0 (proveedor caido)
+  deactivate Proveedor
+  Adaptador --> Critico : EnvioFallidoException
+  deactivate Adaptador
+
+  note right of Critico
+    Solo la prioridad decide
+    si vale la pena reintentar
+  end note
+
+  Critico -> Adaptador : enviar(mensaje) [intento 2]
+  activate Adaptador
+  Adaptador -> Proveedor : push(deviceToken, data)
+  activate Proveedor
+  Proveedor --> Adaptador : success = 1
+  deactivate Proveedor
+  Adaptador --> Critico : entregado
+  deactivate Adaptador
+end
+
+Critico --> Plataforma : List<ResultadoEnvio>
+deactivate Critico
+Plataforma --> Cliente : resultados por canal
+deactivate Plataforma
+
+@enduml

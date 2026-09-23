@@ -1,0 +1,110 @@
+@startuml
+title Patron Bridge - Prioridades (abstraccion) y Canales (implementacion)
+
+skinparam classAttributeIconSize 0
+skinparam defaultFontName Arial
+skinparam class {
+  BackgroundColor #FFFFFF
+  BorderColor #333333
+}
+
+class PlataformaMensajeria <<Cliente>> {
+  - estrategias : Map<Prioridad, EstrategiaEnvio>
+  --
+  + registrar(estrategia : EstrategiaEnvio) : void
+  + notificar(mensaje : Mensaje, prioridad : Prioridad) : List<ResultadoEnvio>
+  + prioridadesRegistradas() : List<Prioridad>
+}
+
+abstract class EstrategiaEnvio <<Abstraccion>> {
+  - canales : List<CanalMensajeria>
+  --
+  + {abstract} prioridad() : Prioridad
+  + {abstract} enviar(mensaje : Mensaje) : List<ResultadoEnvio>
+  # canalesDisponibles() : List<CanalMensajeria>
+  # intentar(canal : CanalMensajeria, mensaje : Mensaje, maxIntentos : int) : ResultadoEnvio
+}
+
+class EnvioCritico <<AbstraccionRefinada>> {
+  - {static} MAX_INTENTOS : int = 3
+  --
+  + prioridad() : Prioridad
+  + enviar(mensaje : Mensaje) : List<ResultadoEnvio>
+}
+
+class EnvioAlto <<AbstraccionRefinada>> {
+  - {static} CANALES_USADOS : int = 2
+  --
+  + prioridad() : Prioridad
+  + enviar(mensaje : Mensaje) : List<ResultadoEnvio>
+}
+
+class EnvioNormal <<AbstraccionRefinada>> {
+  + prioridad() : Prioridad
+  + enviar(mensaje : Mensaje) : List<ResultadoEnvio>
+}
+
+class EnvioDiferido <<AbstraccionRefinada>> {
+  - cola : Deque<Mensaje>
+  --
+  + prioridad() : Prioridad
+  + enviar(mensaje : Mensaje) : List<ResultadoEnvio>
+  + pendientes() : int
+  + procesarCola() : List<ResultadoEnvio>
+}
+
+class EnvioProgramado <<AbstraccionRefinada>> {
+  - {static} MAX_INTENTOS : int = 2
+  --
+  + prioridad() : Prioridad
+  + enviar(mensaje : Mensaje) : List<ResultadoEnvio>
+}
+
+interface CanalMensajeria <<Implementador>> {
+  + nombre() : String
+  + disponible() : boolean
+  + enviar(mensaje : Mensaje) : void
+}
+
+class AdaptadorSendGrid <<ImplementadorConcreto>>
+class AdaptadorTwilio <<ImplementadorConcreto>>
+class AdaptadorFcm <<ImplementadorConcreto>>
+class AdaptadorWebhook <<ImplementadorConcreto>>
+class AdaptadorTelegram <<ImplementadorConcreto>>
+
+PlataformaMensajeria "1" o-- "0..*" EstrategiaEnvio : estrategias
+
+EstrategiaEnvio <|-- EnvioCritico
+EstrategiaEnvio <|-- EnvioAlto
+EstrategiaEnvio <|-- EnvioNormal
+EstrategiaEnvio <|-- EnvioDiferido
+EstrategiaEnvio <|-- EnvioProgramado
+
+EstrategiaEnvio "1" o-- "1..*" CanalMensajeria : canales (el puente)
+
+CanalMensajeria <|.. AdaptadorSendGrid
+CanalMensajeria <|.. AdaptadorTwilio
+CanalMensajeria <|.. AdaptadorFcm
+CanalMensajeria <|.. AdaptadorWebhook
+CanalMensajeria <|.. AdaptadorTelegram
+
+' Las prioridades se apilan a la izquierda y los canales a la derecha
+EnvioCritico -[hidden]down- EnvioAlto
+EnvioAlto -[hidden]down- EnvioNormal
+EnvioNormal -[hidden]down- EnvioDiferido
+EnvioDiferido -[hidden]down- EnvioProgramado
+
+AdaptadorSendGrid -[hidden]down- AdaptadorTwilio
+AdaptadorTwilio -[hidden]down- AdaptadorFcm
+AdaptadorFcm -[hidden]down- AdaptadorWebhook
+AdaptadorWebhook -[hidden]down- AdaptadorTelegram
+
+note bottom of CanalMensajeria
+  Las dos jerarquias crecen por separado:
+  una prioridad nueva es una subclase mas
+  arriba y un canal nuevo es una clase mas
+  abajo. Ninguna de las dos obliga a tocar
+  la otra.
+end note
+
+@enduml
