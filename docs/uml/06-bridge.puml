@@ -1,0 +1,66 @@
+@startuml
+title Patron Bridge - AlertaProduccion (FabricaViva)
+
+skinparam classAttributeIconSize 0
+skinparam defaultFontName Arial
+skinparam class {
+  BackgroundColor #FFFFFF
+  BorderColor #333333
+}
+
+abstract class AlertaProduccion <<Abstraccion>> {
+  # canal : CanalAlerta
+  # turno : String
+  --
+  + AlertaProduccion(canal : CanalAlerta, turno : String)
+  + {abstract} disparar(descripcion : String) : void
+}
+
+interface CanalAlerta <<Implementador>> {
+  + emitir(codigo : String, descripcion : String, turno : String) : void
+}
+
+class AlertaMantenimiento <<AbstraccionRefinada>> {
+  + AlertaMantenimiento(canal : CanalAlerta, turno : String)
+  + disparar(descripcion : String) : void
+}
+
+class AlertaCalidad <<AbstraccionRefinada>> {
+  + AlertaCalidad(canal : CanalAlerta, turno : String)
+  + disparar(descripcion : String) : void
+}
+
+class AlertaParada <<AbstraccionRefinada>> {
+  + AlertaParada(canal : CanalAlerta, turno : String)
+  + disparar(descripcion : String) : void
+}
+
+class ConsolaAlerta <<ImplementadorConcreto>> {
+  + emitir(codigo : String, descripcion : String, turno : String) : void
+}
+
+class BitacoraAlerta <<ImplementadorConcreto>> {
+  - registros : List<String>
+  --
+  + emitir(codigo : String, descripcion : String, turno : String) : void
+  + getRegistros() : List<String>
+}
+
+' Puente: Abstraccion mantiene referencia al Implementador
+AlertaProduccion "1" o--> "1" CanalAlerta : canal
+
+' Jerarquia de abstraccion
+AlertaProduccion <|-- AlertaMantenimiento
+AlertaProduccion <|-- AlertaCalidad
+AlertaProduccion <|-- AlertaParada
+
+' Jerarquia de implementacion
+CanalAlerta <|.. ConsolaAlerta
+CanalAlerta <|.. BitacoraAlerta
+
+' Orden visual
+AlertaMantenimiento -[hidden]right- AlertaCalidad
+AlertaCalidad -[hidden]right- AlertaParada
+ConsolaAlerta -[hidden]right- BitacoraAlerta
+
+@enduml

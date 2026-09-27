@@ -3,30 +3,6 @@
   "configurations": [
     {
       "type": "java",
-      "name": "Actividad 9 - Prueba Bridge",
-      "request": "launch",
-      "mainClass": "com.mensajeria.pruebas.PruebaBridge",
-      "classPaths": ["${workspaceFolder}/actividad-09-mensajeria/target/classes"],
-      "console": "integratedTerminal"
-    },
-    {
-      "type": "java",
-      "name": "Actividad 9 - Prueba Adapter",
-      "request": "launch",
-      "mainClass": "com.mensajeria.pruebas.PruebaAdapter",
-      "classPaths": ["${workspaceFolder}/actividad-09-mensajeria/target/classes"],
-      "console": "integratedTerminal"
-    },
-    {
-      "type": "java",
-      "name": "Actividad 9 - Prueba Extensibilidad",
-      "request": "launch",
-      "mainClass": "com.mensajeria.pruebas.PruebaExtensibilidad",
-      "classPaths": ["${workspaceFolder}/actividad-09-mensajeria/target/classes"],
-      "console": "integratedTerminal"
-    },
-    {
-      "type": "java",
       "name": "1. Prueba Singleton",
       "request": "launch",
       "mainClass": "com.fabricaviva.PruebaSingleton",
@@ -62,6 +38,22 @@
       "name": "5. Prueba Prototype",
       "request": "launch",
       "mainClass": "com.fabricaviva.PruebaPrototype",
+      "classPaths": ["${workspaceFolder}/target/classes"],
+      "console": "integratedTerminal"
+    },
+    {
+      "type": "java",
+      "name": "6. Prueba Bridge",
+      "request": "launch",
+      "mainClass": "com.fabricaviva.PruebaBridge",
+      "classPaths": ["${workspaceFolder}/target/classes"],
+      "console": "integratedTerminal"
+    },
+    {
+      "type": "java",
+      "name": "7. Prueba Adapter",
+      "request": "launch",
+      "mainClass": "com.fabricaviva.PruebaAdapter",
       "classPaths": ["${workspaceFolder}/target/classes"],
       "console": "integratedTerminal"
     }

@@ -1,0 +1,54 @@
+@startuml
+title Patron Adapter - Integracion ERP (FabricaViva)
+
+skinparam classAttributeIconSize 0
+skinparam defaultFontName Arial
+skinparam class {
+  BackgroundColor #FFFFFF
+  BorderColor #333333
+}
+
+interface RegistroProduccion <<Objetivo>> {
+  + leerCantidadProducida(referencia : String) : int
+  + registrarCierreTurno(turno : String, piezas : int) : void
+}
+
+class RegistroInternoMes <<ImplementacionNativa>> {
+  - conteos : Map<String, Integer>
+  --
+  + cargarConteo(referencia : String, cantidad : int) : void
+  + leerCantidadProducida(referencia : String) : int
+  + registrarCierreTurno(turno : String, piezas : int) : void
+}
+
+class AdaptadorErp <<Adaptador>> {
+  - erp : SistemaErpLegado
+  --
+  + AdaptadorErp(erp : SistemaErpLegado)
+  + leerCantidadProducida(referencia : String) : int
+  + registrarCierreTurno(turno : String, piezas : int) : void
+}
+
+class SistemaErpLegado <<Adaptado>> {
+  + consultarVolumen(codigoProducto : String) : String
+  + cerrarJornada(codigoProducto : String, volumen : int, observacion : String) : void
+}
+
+class PruebaAdapter <<Cliente>> {
+  + main(args : String[]) : void
+}
+
+' Realizaciones del objetivo
+RegistroProduccion <|.. RegistroInternoMes
+RegistroProduccion <|.. AdaptadorErp
+
+' El adaptador envuelve al adaptado
+AdaptadorErp "1" --> "1" SistemaErpLegado : erp
+
+' El cliente solo conoce el objetivo
+PruebaAdapter ..> RegistroProduccion : <<use>>
+
+' Orden visual
+RegistroInternoMes -[hidden]right- AdaptadorErp
+
+@enduml
