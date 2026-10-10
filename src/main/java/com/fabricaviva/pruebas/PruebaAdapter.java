@@ -1,4 +1,4 @@
-package com.fabricaviva;
+package com.fabricaviva.pruebas;
 
 import com.fabricaviva.integracion.AdaptadorErp;
 import com.fabricaviva.integracion.RegistroInternoMes;

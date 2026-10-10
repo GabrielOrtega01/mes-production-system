@@ -1,4 +1,4 @@
-package com.fabricaviva;
+package com.fabricaviva.pruebas;
 
 import com.fabricaviva.alertas.AlertaCalidad;
 import com.fabricaviva.alertas.AlertaMantenimiento;

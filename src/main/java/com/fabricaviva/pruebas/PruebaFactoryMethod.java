@@ -1,4 +1,4 @@
-package com.fabricaviva;
+package com.fabricaviva.pruebas;
 
 import com.fabricaviva.ordenes.FabricaOrden;
 import com.fabricaviva.ordenes.FabricaOrdenEstandar;

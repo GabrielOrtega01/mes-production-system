@@ -1,4 +1,4 @@
-package com.fabricaviva;
+package com.fabricaviva.pruebas;
 
 import com.fabricaviva.calidad.PuestoInspeccion;
 import com.fabricaviva.config.ConfiguracionPlanta;

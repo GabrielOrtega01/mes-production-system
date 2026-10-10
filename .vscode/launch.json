@@ -5,7 +5,7 @@
       "type": "java",
       "name": "1. Prueba Singleton",
       "request": "launch",
-      "mainClass": "com.fabricaviva.PruebaSingleton",
+      "mainClass": "com.fabricaviva.pruebas.PruebaSingleton",
       "classPaths": ["${workspaceFolder}/target/classes"],
       "console": "integratedTerminal"
     },
@@ -13,7 +13,7 @@
       "type": "java",
       "name": "2. Prueba Factory Method",
       "request": "launch",
-      "mainClass": "com.fabricaviva.PruebaFactoryMethod",
+      "mainClass": "com.fabricaviva.pruebas.PruebaFactoryMethod",
       "classPaths": ["${workspaceFolder}/target/classes"],
       "console": "integratedTerminal"
     },
@@ -21,7 +21,7 @@
       "type": "java",
       "name": "3. Prueba Builder",
       "request": "launch",
-      "mainClass": "com.fabricaviva.PruebaBuilder",
+      "mainClass": "com.fabricaviva.pruebas.PruebaBuilder",
       "classPaths": ["${workspaceFolder}/target/classes"],
       "console": "integratedTerminal"
     },
@@ -29,7 +29,7 @@
       "type": "java",
       "name": "4. Prueba Abstract Factory",
       "request": "launch",
-      "mainClass": "com.fabricaviva.PruebaAbstractFactory",
+      "mainClass": "com.fabricaviva.pruebas.PruebaAbstractFactory",
       "classPaths": ["${workspaceFolder}/target/classes"],
       "console": "integratedTerminal"
     },
@@ -37,7 +37,7 @@
       "type": "java",
       "name": "5. Prueba Prototype",
       "request": "launch",
-      "mainClass": "com.fabricaviva.PruebaPrototype",
+      "mainClass": "com.fabricaviva.pruebas.PruebaPrototype",
       "classPaths": ["${workspaceFolder}/target/classes"],
       "console": "integratedTerminal"
     },
@@ -45,7 +45,7 @@
       "type": "java",
       "name": "6. Prueba Bridge",
       "request": "launch",
-      "mainClass": "com.fabricaviva.PruebaBridge",
+      "mainClass": "com.fabricaviva.pruebas.PruebaBridge",
       "classPaths": ["${workspaceFolder}/target/classes"],
       "console": "integratedTerminal"
     },
@@ -53,13 +53,13 @@
       "type": "java",
       "name": "7. Prueba Adapter",
       "request": "launch",
-      "mainClass": "com.fabricaviva.PruebaAdapter",
+      "mainClass": "com.fabricaviva.pruebas.PruebaAdapter",
       "classPaths": ["${workspaceFolder}/target/classes"],
       "console": "integratedTerminal"
     },
     {
       "type": "java",
-      "name": "8. JUnit — Composite y Decorator (academica)",
+      "name": "8. JUnit — Composite y Decorator",
       "request": "launch",
       "mainClass": "org.junit.platform.console.ConsoleLauncher",
       "args": [

@@ -1,4 +1,4 @@
-package com.fabricaviva;
+package com.fabricaviva.pruebas;
 
 import com.fabricaviva.reportes.GeneradorReportes;
 import com.fabricaviva.reportes.MetricasTurno;

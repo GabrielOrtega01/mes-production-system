@@ -1,4 +1,4 @@
-package com.fabricaviva;
+package com.fabricaviva.pruebas;
 
 import com.fabricaviva.prototipo.CatalogoEspecificaciones;
 import com.fabricaviva.prototipo.EspecificacionPieza;

@@ -1,4 +1,4 @@
-package com.fabricaviva;
+package com.fabricaviva.pruebas;
 
 import com.fabricaviva.equipos.EstacionTrabajo;
 import com.fabricaviva.equipos.fanuc.FabricaEquiposFanuc;
