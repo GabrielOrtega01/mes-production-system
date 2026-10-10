@@ -1,0 +1,100 @@
+@startuml 00-modelo-dominio
+title FabricaViva (MES) - Modelo de dominio\nPatrones de Software, UTS
+
+skinparam classAttributeIconSize 0
+skinparam linetype ortho
+hide empty members
+
+package "ordenes" {
+    enum Prioridad {
+        NORMAL
+        ALTA
+    }
+
+    class OrdenProduccion {
+        - id : String
+        - referencia : String
+        - cantidad : int
+        - prioridad : Prioridad
+        - creadaEn : LocalDateTime
+        - bitacora : List<String>
+        - estado : EstadoOrden
+        + programar() : void
+        + iniciar() : void
+        + cerrar() : void
+        + registrar(evento : String) : void
+    }
+}
+
+package "calidad" {
+    class UnidadFabricada {
+        - id : String
+        - ordenId : String
+        - medidas : Map<String, Double>
+        - defectosVisuales : int
+        + medida(caracteristica : String) : double
+    }
+
+    class ResultadoInspeccion {
+        - unidadId : String
+        - ordenId : String
+        - conforme : boolean
+        - motivo : String
+        - validador : String
+        - momento : LocalDateTime
+    }
+
+    class RegistroTrazabilidad {
+        - ordenId : String
+        - tipo : String
+        - detalle : String
+        - momento : LocalDateTime
+    }
+}
+
+package "integracion" {
+    abstract class EquipoIndustrial {
+        - id : String
+        - protocolo : ProtocoloEquipo
+        + ejecutarTrabajo(ordenId : String) : String
+        + disponible() : boolean
+        + tipo() : String
+    }
+
+    class MaquinaCNC {
+        - programaG : String
+    }
+
+    class RobotEnsamblador {
+        - ejes : int
+    }
+}
+
+package "oee" {
+    class MetricasTurno {
+        - tiempoPlanificadoMin : double
+        - tiempoParadaMin : double
+        - piezasTotales : int
+        - piezasBuenas : int
+        - cicloIdealSeg : double
+        + tiempoOperativoMin() : double
+    }
+
+    class ResultadoOee {
+        - equipoId : String
+        - disponibilidad : double
+        - rendimiento : double
+        - calidad : double
+        - oee : double
+        - claseMundial : boolean
+    }
+}
+
+OrdenProduccion "1" o-- "*" UnidadFabricada : origina
+UnidadFabricada "1" o-- "*" ResultadoInspeccion : es evaluada
+OrdenProduccion "1" o-- "*" RegistroTrazabilidad : deja
+OrdenProduccion "*" --> "*" EquipoIndustrial : se ejecuta en
+EquipoIndustrial "1" o-- "*" MetricasTurno : reporta
+MetricasTurno "1" --> "1" ResultadoOee : calcula
+
+@enduml
