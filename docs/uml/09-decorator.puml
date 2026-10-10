@@ -1,5 +1,5 @@
 @startuml
-title Patron Decorator - Calculo de Matricula (UTS)
+title Patron Decorator - Costo de Orden de Produccion (FabricaViva MES)
 
 skinparam classAttributeIconSize 0
 skinparam defaultFontName Arial
@@ -8,71 +8,73 @@ skinparam class {
   BorderColor #333333
 }
 
-interface CalculoMatricula <<Componente>> {
+interface CalculoCostoOrden <<Componente>> {
   + calcularCosto() : double
   + describir() : String
 }
 
-class MatriculaBase <<ComponenteConcreto>> {
-  - {static} COSTO_BASE : double = 5000000
+class CostoBaseOrden <<ComponenteConcreto>> {
+  - codigoOrden : String
+  - costoBase : double
   --
+  + CostoBaseOrden(codigoOrden : String, costoBase : double)
   + calcularCosto() : double
   + describir() : String
 }
 
-abstract class DecoradorMatricula <<DecoradorAbstracto>> {
-  # componente : CalculoMatricula
+abstract class DecoradorCosto <<DecoradorAbstracto>> {
+  # componente : CalculoCostoOrden
   --
-  + DecoradorMatricula(componente : CalculoMatricula)
+  + DecoradorCosto(componente : CalculoCostoOrden)
 }
 
-class BecaMerito <<DecoradorConcreto>> {
-  + BecaMerito(componente : CalculoMatricula)
+class RecargoPrioritario <<DecoradorConcreto>> {
+  + RecargoPrioritario(componente : CalculoCostoOrden)
   + calcularCosto() : double
   + describir() : String
 }
 
-class DescuentoHermanos <<DecoradorConcreto>> {
-  + DescuentoHermanos(componente : CalculoMatricula)
+class CargoHorasExtra <<DecoradorConcreto>> {
+  + CargoHorasExtra(componente : CalculoCostoOrden)
   + calcularCosto() : double
   + describir() : String
 }
 
-class DescuentoProntoPago <<DecoradorConcreto>> {
-  + DescuentoProntoPago(componente : CalculoMatricula)
+class DescuentoVolumen <<DecoradorConcreto>> {
+  + DescuentoVolumen(componente : CalculoCostoOrden)
   + calcularCosto() : double
   + describir() : String
 }
 
-class RecargoIntersemestral <<DecoradorConcreto>> {
-  + RecargoIntersemestral(componente : CalculoMatricula)
+class DescuentoClientePreferente <<DecoradorConcreto>> {
+  + DescuentoClientePreferente(componente : CalculoCostoOrden)
   + calcularCosto() : double
   + describir() : String
 }
 
 class PruebaDecorator <<Cliente>> {
-  + main(args : String[]) : void
+  + pruebas JUnit 5 (9)
 }
 
-' Realizaciones del contrato
-CalculoMatricula <|.. MatriculaBase
-CalculoMatricula <|.. DecoradorMatricula
+' Realizaciones
+CalculoCostoOrden <|.. CostoBaseOrden
+CalculoCostoOrden <|.. DecoradorCosto
 
-' Jerarquia de decoradores
-DecoradorMatricula <|-- BecaMerito
-DecoradorMatricula <|-- DescuentoHermanos
-DecoradorMatricula <|-- DescuentoProntoPago
-DecoradorMatricula <|-- RecargoIntersemestral
+' Jerarquía decoradores
+DecoradorCosto <|-- RecargoPrioritario
+DecoradorCosto <|-- CargoHorasExtra
+DecoradorCosto <|-- DescuentoVolumen
+DecoradorCosto <|-- DescuentoClientePreferente
 
-' El decorador envuelve al componente
-DecoradorMatricula "1" o--> "1" CalculoMatricula : componente
+' Envoltorio
+DecoradorCosto "1" o--> "1" CalculoCostoOrden : componente
 
 ' Cliente
-PruebaDecorator ..> CalculoMatricula : <<use>>
+PruebaDecorator ..> CalculoCostoOrden : <<use>>
 
 ' Orden visual
-BecaMerito -[hidden]right- DescuentoHermanos
-DescuentoHermanos -[hidden]right- DescuentoProntoPago
-DescuentoProntoPago -[hidden]right- RecargoIntersemestral
+RecargoPrioritario -[hidden]right- CargoHorasExtra
+CargoHorasExtra -[hidden]right- DescuentoVolumen
+DescuentoVolumen -[hidden]right- DescuentoClientePreferente
 
 @enduml

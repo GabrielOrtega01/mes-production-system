@@ -65,8 +65,8 @@
       "args": [
         "execute",
         "--class-path", "${workspaceFolder}/target/classes",
-        "--select-class=com.academica.pruebas.PruebaComposite",
-        "--select-class=com.academica.pruebas.PruebaDecorator"
+        "--select-class=com.fabricaviva.pruebas.PruebaComposite",
+        "--select-class=com.fabricaviva.pruebas.PruebaDecorator"
       ],
       "classPaths": [
         "${workspaceFolder}/target/classes",

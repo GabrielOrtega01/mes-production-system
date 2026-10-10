@@ -1,5 +1,5 @@
 @startuml
-title Patron Composite - Jerarquia Academica (FabricaViva / UTS)
+title Patron Composite - Jerarquia de Produccion (FabricaViva MES)
 
 skinparam classAttributeIconSize 0
 skinparam defaultFontName Arial
@@ -8,79 +8,75 @@ skinparam class {
   BorderColor #333333
 }
 
-interface ElementoAcademico <<Componente>> {
-  + getPromedio() : double
-  + getTotalEstudiantes() : int
+interface UnidadProduccion <<Componente>> {
+  + getCapacidadTotal() : double
+  + getTotalMaquinas() : int
   + mostrar(prefijo : String) : void
 }
 
-class Estudiante <<Hoja>> {
+class Maquina <<Hoja>> {
   - nombre : String
-  - promedio : double
+  - capacidad : double
   --
-  + Estudiante(nombre : String, promedio : double)
-  + getPromedio() : double
-  + getTotalEstudiantes() : int
+  + Maquina(nombre : String, capacidad : double)
+  + getCapacidadTotal() : double
+  + getTotalMaquinas() : int
+  + mostrar(prefijo : String) : void
+  + getNombre() : String
+}
+
+class Estacion <<Composite>> {
+  - nombre : String
+  - hijos : List<UnidadProduccion>
+  --
+  + Estacion(nombre : String)
+  + agregar(u : UnidadProduccion) : void
+  + quitar(u : UnidadProduccion) : void
+  + getCapacidadTotal() : double
+  + getTotalMaquinas() : int
   + mostrar(prefijo : String) : void
 }
 
-class Curso <<Composite>> {
+class LineaProduccion <<Composite>> {
   - nombre : String
-  - elementos : List<ElementoAcademico>
+  - hijos : List<UnidadProduccion>
   --
-  + Curso(nombre : String)
-  + agregar(e : ElementoAcademico) : void
-  + quitar(e : ElementoAcademico) : void
-  + getPromedio() : double
-  + getTotalEstudiantes() : int
+  + LineaProduccion(nombre : String)
+  + agregar(u : UnidadProduccion) : void
+  + quitar(u : UnidadProduccion) : void
+  + getCapacidadTotal() : double
+  + getTotalMaquinas() : int
   + mostrar(prefijo : String) : void
 }
 
-class Programa <<Composite>> {
+class Planta <<Composite>> {
   - nombre : String
-  - elementos : List<ElementoAcademico>
+  - hijos : List<UnidadProduccion>
   --
-  + Programa(nombre : String)
-  + agregar(e : ElementoAcademico) : void
-  + quitar(e : ElementoAcademico) : void
-  + getPromedio() : double
-  + getTotalEstudiantes() : int
-  + mostrar(prefijo : String) : void
-}
-
-class Facultad <<Composite>> {
-  - nombre : String
-  - elementos : List<ElementoAcademico>
-  --
-  + Facultad(nombre : String)
-  + agregar(e : ElementoAcademico) : void
-  + quitar(e : ElementoAcademico) : void
-  + getPromedio() : double
-  + getTotalEstudiantes() : int
+  + Planta(nombre : String)
+  + agregar(u : UnidadProduccion) : void
+  + quitar(u : UnidadProduccion) : void
+  + getCapacidadTotal() : double
+  + getTotalMaquinas() : int
   + mostrar(prefijo : String) : void
 }
 
 class PruebaComposite <<Cliente>> {
-  + main(args : String[]) : void
+  + pruebas JUnit 5 (11)
 }
 
 ' Realizaciones
-ElementoAcademico <|.. Estudiante
-ElementoAcademico <|.. Curso
-ElementoAcademico <|.. Programa
-ElementoAcademico <|.. Facultad
+UnidadProduccion <|.. Maquina
+UnidadProduccion <|.. Estacion
+UnidadProduccion <|.. LineaProduccion
+UnidadProduccion <|.. Planta
 
-' Composicion recursiva: los composites contienen ElementoAcademico
-Curso      "1" o--> "0..*" ElementoAcademico : elementos
-Programa   "1" o--> "0..*" ElementoAcademico : elementos
-Facultad   "1" o--> "0..*" ElementoAcademico : elementos
+' Composicion recursiva
+Estacion       "1" o--> "*" UnidadProduccion : hijos
+LineaProduccion "1" o--> "*" UnidadProduccion : hijos
+Planta          "1" o--> "*" UnidadProduccion : hijos
 
-' El cliente usa el contrato comun
-PruebaComposite ..> ElementoAcademico : <<use>>
-
-' Orden visual
-Estudiante -[hidden]right- Curso
-Curso      -[hidden]right- Programa
-Programa   -[hidden]right- Facultad
+' Cliente
+PruebaComposite ..> UnidadProduccion : <<use>>
 
 @enduml
