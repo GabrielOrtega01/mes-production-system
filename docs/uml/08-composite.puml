@@ -37,11 +37,11 @@ class Estacion <<Composite>> {
   + mostrar(prefijo : String) : void
 }
 
-class LineaProduccion <<Composite>> {
+class LineaFabricacion <<Composite>> {
   - nombre : String
   - hijos : List<UnidadProduccion>
   --
-  + LineaProduccion(nombre : String)
+  + LineaFabricacion(nombre : String)
   + agregar(u : UnidadProduccion) : void
   + quitar(u : UnidadProduccion) : void
   + getCapacidadTotal() : double
@@ -68,12 +68,12 @@ class PruebaComposite <<Cliente>> {
 ' Realizaciones
 UnidadProduccion <|.. Maquina
 UnidadProduccion <|.. Estacion
-UnidadProduccion <|.. LineaProduccion
+UnidadProduccion <|.. LineaFabricacion
 UnidadProduccion <|.. Planta
 
 ' Composicion recursiva
 Estacion       "1" o--> "*" UnidadProduccion : hijos
-LineaProduccion "1" o--> "*" UnidadProduccion : hijos
+LineaFabricacion "1" o--> "*" UnidadProduccion : hijos
 Planta          "1" o--> "*" UnidadProduccion : hijos
 
 ' Cliente

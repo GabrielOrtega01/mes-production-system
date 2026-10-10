@@ -15,7 +15,7 @@ class PruebaComposite {
     private Maquina soldadora;
     private Estacion estacion1;
     private Estacion estacion2;
-    private LineaProduccion linea;
+    private LineaFabricacion linea;
     private Planta planta;
 
     @BeforeEach
@@ -31,7 +31,7 @@ class PruebaComposite {
         estacion2 = new Estacion("Ensamble");
         estacion2.agregar(soldadora);
 
-        linea = new LineaProduccion("Línea A");
+        linea = new LineaFabricacion("Línea A");
         linea.agregar(estacion1);
         linea.agregar(estacion2);
 

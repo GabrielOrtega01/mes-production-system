@@ -1,32 +1,19 @@
 package com.fabricaviva.produccion;
 
-import java.util.ArrayList;
-import java.util.List;
+import com.fabricaviva.config.ConfiguracionPlanta;
 
-/** Composite concreto: línea de producción que agrupa estaciones. */
-public class LineaProduccion implements UnidadProduccion {
+/** Primer módulo que usa la configuración: etiqueta cada pieza con el turno. */
+public class LineaProduccion {
 
-    private final String nombre;
-    private final List<UnidadProduccion> hijos = new ArrayList<>();
+    private final String codigo;
 
-    public LineaProduccion(String nombre) { this.nombre = nombre; }
-
-    public void agregar(UnidadProduccion u) { hijos.add(u); }
-    public void quitar(UnidadProduccion u)  { hijos.remove(u); }
-
-    @Override
-    public double getCapacidadTotal() {
-        return hijos.stream().mapToDouble(UnidadProduccion::getCapacidadTotal).sum();
+    public LineaProduccion(String codigo) {
+        this.codigo = codigo;
     }
 
-    @Override
-    public int getTotalMaquinas() {
-        return hijos.stream().mapToInt(UnidadProduccion::getTotalMaquinas).sum();
-    }
-
-    @Override
-    public void mostrar(String prefijo) {
-        System.out.printf("%s[Línea] %s%n", prefijo, nombre);
-        hijos.forEach(h -> h.mostrar(prefijo + "  "));
+    public String producirPieza(int numero) {
+        ConfiguracionPlanta config = ConfiguracionPlanta.getInstancia();
+        return "LineaProduccion " + codigo + " -> pieza " + numero
+                + " fabricada en turno " + config.getTurnoActivo();
     }
 }
