@@ -59,6 +59,22 @@
     },
     {
       "type": "java",
+      "name": "9. Prueba Decorator Profundizacion",
+      "request": "launch",
+      "mainClass": "com.fabricaviva.pruebas.PruebaDecoratorProfundizacion",
+      "classPaths": ["${workspaceFolder}/target/classes"],
+      "console": "integratedTerminal"
+    },
+    {
+      "type": "java",
+      "name": "10. Prueba Facade",
+      "request": "launch",
+      "mainClass": "com.fabricaviva.pruebas.PruebaFacade",
+      "classPaths": ["${workspaceFolder}/target/classes"],
+      "console": "integratedTerminal"
+    },
+    {
+      "type": "java",
       "name": "8. JUnit — Composite y Decorator",
       "request": "launch",
       "mainClass": "org.junit.platform.console.ConsoleLauncher",

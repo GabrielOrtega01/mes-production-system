@@ -1,0 +1,61 @@
+@startuml 10-decorator-profundizacion
+title Patrón Decorator (Profundización) — ReporteTurno MES
+
+interface ReporteTurno {
+    + generar() : String
+    + describir() : String
+}
+
+class ReporteBaseTurno {
+    - codigoTurno : String
+    - piezasProducidas : int
+    - oee : double
+    + generar() : String
+    + describir() : String
+}
+
+abstract class DecoradorReporteTurno {
+    # componente : ReporteTurno
+    + generar() : String
+    + describir() : String
+}
+
+class EncabezadoPlanta {
+    - nombrePlanta : String
+    + generar() : String
+    + describir() : String
+}
+
+class FirmaJefeTurno {
+    - nombreJefe : String
+    + generar() : String
+    + describir() : String
+}
+
+class MarcaAguaBorrador {
+    + generar() : String
+    + describir() : String
+}
+
+class SeccionObservaciones {
+    - observaciones : String
+    + generar() : String
+    + describir() : String
+}
+
+ReporteTurno <|.. ReporteBaseTurno
+ReporteTurno <|.. DecoradorReporteTurno
+DecoradorReporteTurno o--> ReporteTurno : componente
+DecoradorReporteTurno <|-- EncabezadoPlanta
+DecoradorReporteTurno <|-- FirmaJefeTurno
+DecoradorReporteTurno <|-- MarcaAguaBorrador
+DecoradorReporteTurno <|-- SeccionObservaciones
+
+note right of DecoradorReporteTurno
+  Gamma et al. (1994), p. 175
+  Decorator: añade responsabilidades
+  dinámicamente sin modificar el
+  componente base.
+end note
+
+@enduml

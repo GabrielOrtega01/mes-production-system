@@ -1,0 +1,35 @@
+@startuml 11-facade
+title Patrón Facade — ControlTurnoFacade MES
+
+rectangle "«Cliente»\nPruebaFacade" as cliente
+
+rectangle "ControlTurnoFacade" as facade {
+    rectangle "- config : ConfiguracionPlanta\n- modulo : ModuloOrdenes\n- planta : Planta\n- registro : RegistroProduccion\n- canal : CanalAlerta" as attrs
+    rectangle "+ iniciarTurno(turno)\n+ crearOrden(ref, cantidad, urgente)\n+ consultarCapacidadTotal()\n+ calcularCostoConAjustes(...)\n+ cerrarTurno(turno, piezas)" as ops
+}
+
+rectangle "Subsistemas" {
+    rectangle "ConfiguracionPlanta\n(Singleton)" as s1
+    rectangle "ModuloOrdenes\n(Factory Method)" as s2
+    rectangle "Planta / Composite" as s3
+    rectangle "RegistroProduccion\n(Adapter)" as s4
+    rectangle "AlertaProduccion\n(Bridge)" as s5
+    rectangle "CalculoCostoOrden\n(Decorator)" as s6
+}
+
+cliente --> facade : «usa»
+facade --> s1 : setTurnoActivo / getNombrePlanta
+facade --> s2 : crear()
+facade --> s3 : getCapacidadTotal()
+facade --> s4 : registrarCierreTurno()
+facade --> s5 : disparar()
+facade --> s6 : calcularCosto()
+
+note right of facade
+  Gamma et al. (1994), p. 185
+  Facade: interfaz unificada que
+  simplifica el acceso a un
+  subsistema complejo.
+end note
+
+@enduml
