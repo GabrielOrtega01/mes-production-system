@@ -56,6 +56,23 @@
       "mainClass": "com.fabricaviva.PruebaAdapter",
       "classPaths": ["${workspaceFolder}/target/classes"],
       "console": "integratedTerminal"
+    },
+    {
+      "type": "java",
+      "name": "8. JUnit — Composite y Decorator (academica)",
+      "request": "launch",
+      "mainClass": "org.junit.platform.console.ConsoleLauncher",
+      "args": [
+        "execute",
+        "--class-path", "${workspaceFolder}/target/classes",
+        "--select-class=com.academica.pruebas.PruebaComposite",
+        "--select-class=com.academica.pruebas.PruebaDecorator"
+      ],
+      "classPaths": [
+        "${workspaceFolder}/target/classes",
+        "${workspaceFolder}/lib/junit-platform-console-standalone-1.10.3.jar"
+      ],
+      "console": "integratedTerminal"
     }
   ]
 }

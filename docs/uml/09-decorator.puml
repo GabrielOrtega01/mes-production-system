@@ -1,0 +1,78 @@
+@startuml
+title Patron Decorator - Calculo de Matricula (UTS)
+
+skinparam classAttributeIconSize 0
+skinparam defaultFontName Arial
+skinparam class {
+  BackgroundColor #FFFFFF
+  BorderColor #333333
+}
+
+interface CalculoMatricula <<Componente>> {
+  + calcularCosto() : double
+  + describir() : String
+}
+
+class MatriculaBase <<ComponenteConcreto>> {
+  - {static} COSTO_BASE : double = 5000000
+  --
+  + calcularCosto() : double
+  + describir() : String
+}
+
+abstract class DecoradorMatricula <<DecoradorAbstracto>> {
+  # componente : CalculoMatricula
+  --
+  + DecoradorMatricula(componente : CalculoMatricula)
+}
+
+class BecaMerito <<DecoradorConcreto>> {
+  + BecaMerito(componente : CalculoMatricula)
+  + calcularCosto() : double
+  + describir() : String
+}
+
+class DescuentoHermanos <<DecoradorConcreto>> {
+  + DescuentoHermanos(componente : CalculoMatricula)
+  + calcularCosto() : double
+  + describir() : String
+}
+
+class DescuentoProntoPago <<DecoradorConcreto>> {
+  + DescuentoProntoPago(componente : CalculoMatricula)
+  + calcularCosto() : double
+  + describir() : String
+}
+
+class RecargoIntersemestral <<DecoradorConcreto>> {
+  + RecargoIntersemestral(componente : CalculoMatricula)
+  + calcularCosto() : double
+  + describir() : String
+}
+
+class PruebaDecorator <<Cliente>> {
+  + main(args : String[]) : void
+}
+
+' Realizaciones del contrato
+CalculoMatricula <|.. MatriculaBase
+CalculoMatricula <|.. DecoradorMatricula
+
+' Jerarquia de decoradores
+DecoradorMatricula <|-- BecaMerito
+DecoradorMatricula <|-- DescuentoHermanos
+DecoradorMatricula <|-- DescuentoProntoPago
+DecoradorMatricula <|-- RecargoIntersemestral
+
+' El decorador envuelve al componente
+DecoradorMatricula "1" o--> "1" CalculoMatricula : componente
+
+' Cliente
+PruebaDecorator ..> CalculoMatricula : <<use>>
+
+' Orden visual
+BecaMerito -[hidden]right- DescuentoHermanos
+DescuentoHermanos -[hidden]right- DescuentoProntoPago
+DescuentoProntoPago -[hidden]right- RecargoIntersemestral
+
+@enduml

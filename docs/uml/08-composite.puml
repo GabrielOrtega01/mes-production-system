@@ -1,0 +1,86 @@
+@startuml
+title Patron Composite - Jerarquia Academica (FabricaViva / UTS)
+
+skinparam classAttributeIconSize 0
+skinparam defaultFontName Arial
+skinparam class {
+  BackgroundColor #FFFFFF
+  BorderColor #333333
+}
+
+interface ElementoAcademico <<Componente>> {
+  + getPromedio() : double
+  + getTotalEstudiantes() : int
+  + mostrar(prefijo : String) : void
+}
+
+class Estudiante <<Hoja>> {
+  - nombre : String
+  - promedio : double
+  --
+  + Estudiante(nombre : String, promedio : double)
+  + getPromedio() : double
+  + getTotalEstudiantes() : int
+  + mostrar(prefijo : String) : void
+}
+
+class Curso <<Composite>> {
+  - nombre : String
+  - elementos : List<ElementoAcademico>
+  --
+  + Curso(nombre : String)
+  + agregar(e : ElementoAcademico) : void
+  + quitar(e : ElementoAcademico) : void
+  + getPromedio() : double
+  + getTotalEstudiantes() : int
+  + mostrar(prefijo : String) : void
+}
+
+class Programa <<Composite>> {
+  - nombre : String
+  - elementos : List<ElementoAcademico>
+  --
+  + Programa(nombre : String)
+  + agregar(e : ElementoAcademico) : void
+  + quitar(e : ElementoAcademico) : void
+  + getPromedio() : double
+  + getTotalEstudiantes() : int
+  + mostrar(prefijo : String) : void
+}
+
+class Facultad <<Composite>> {
+  - nombre : String
+  - elementos : List<ElementoAcademico>
+  --
+  + Facultad(nombre : String)
+  + agregar(e : ElementoAcademico) : void
+  + quitar(e : ElementoAcademico) : void
+  + getPromedio() : double
+  + getTotalEstudiantes() : int
+  + mostrar(prefijo : String) : void
+}
+
+class PruebaComposite <<Cliente>> {
+  + main(args : String[]) : void
+}
+
+' Realizaciones
+ElementoAcademico <|.. Estudiante
+ElementoAcademico <|.. Curso
+ElementoAcademico <|.. Programa
+ElementoAcademico <|.. Facultad
+
+' Composicion recursiva: los composites contienen ElementoAcademico
+Curso      "1" o--> "0..*" ElementoAcademico : elementos
+Programa   "1" o--> "0..*" ElementoAcademico : elementos
+Facultad   "1" o--> "0..*" ElementoAcademico : elementos
+
+' El cliente usa el contrato comun
+PruebaComposite ..> ElementoAcademico : <<use>>
+
+' Orden visual
+Estudiante -[hidden]right- Curso
+Curso      -[hidden]right- Programa
+Programa   -[hidden]right- Facultad
+
+@enduml
