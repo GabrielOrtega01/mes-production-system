@@ -1,0 +1,38 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Compilar (Java 24)",
+      "type": "shell",
+      "command": "javac",
+      "args": [
+        "--release", "24",
+        "-encoding", "UTF-8",
+        "-cp", "${workspaceFolder}/lib/junit-platform-console-standalone-1.10.3.jar",
+        "-d", "${workspaceFolder}/target/classes",
+        "${workspaceFolder}/src/main/java/com/fabricaviva/alertas/*.java",
+        "${workspaceFolder}/src/main/java/com/fabricaviva/calidad/*.java",
+        "${workspaceFolder}/src/main/java/com/fabricaviva/config/*.java",
+        "${workspaceFolder}/src/main/java/com/fabricaviva/costos/*.java",
+        "${workspaceFolder}/src/main/java/com/fabricaviva/equipos/*.java",
+        "${workspaceFolder}/src/main/java/com/fabricaviva/equipos/fanuc/*.java",
+        "${workspaceFolder}/src/main/java/com/fabricaviva/equipos/siemens/*.java",
+        "${workspaceFolder}/src/main/java/com/fabricaviva/integracion/*.java",
+        "${workspaceFolder}/src/main/java/com/fabricaviva/ordenes/*.java",
+        "${workspaceFolder}/src/main/java/com/fabricaviva/produccion/*.java",
+        "${workspaceFolder}/src/main/java/com/fabricaviva/prototipo/*.java",
+        "${workspaceFolder}/src/main/java/com/fabricaviva/reportes/*.java",
+        "${workspaceFolder}/src/main/java/com/fabricaviva/pruebas/*.java"
+      ],
+      "group": {
+        "kind": "build",
+        "isDefault": true
+      },
+      "problemMatcher": "$javac",
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared"
+      }
+    }
+  ]
+}
