@@ -1,0 +1,41 @@
+@startuml proxy_mes
+skinparam classAttributeIconSize 0
+skinparam shadowing false
+
+interface AccesoReportes <<Subject>> {
+  + construirReporte(...) : ReporteOee
+}
+
+class GeneradorReportesReal <<RealSubject>> {
+  - generador : GeneradorReportes
+  + construirReporte(...) : ReporteOee
+}
+
+class ProxyReportesSeguro <<Proxy>> {
+  - real : GeneradorReportesReal
+  - rol : RolUsuario
+  - bitacora : List<String>
+  + construirReporte(...) : ReporteOee
+  + getBitacora() : List<String>
+  + estaInicializado() : boolean
+  - tieneAcceso() : boolean
+}
+
+enum RolUsuario {
+  JEFE_TURNO
+  SUPERVISOR
+  OPERADOR
+  AUDITOR
+}
+
+GeneradorReportesReal  ..|> AccesoReportes
+ProxyReportesSeguro    ..|> AccesoReportes
+ProxyReportesSeguro    --> GeneradorReportesReal : delega (lazy init)
+ProxyReportesSeguro    --> RolUsuario : verifica
+
+note bottom of ProxyReportesSeguro
+  Control de acceso por rol
+  + inicialización perezosa
+  + registro en bitácora
+end note
+@enduml

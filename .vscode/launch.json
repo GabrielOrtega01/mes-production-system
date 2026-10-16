@@ -75,6 +75,22 @@
     },
     {
       "type": "java",
+      "name": "11. Prueba Flyweight",
+      "request": "launch",
+      "mainClass": "com.fabricaviva.pruebas.PruebaFlyweight",
+      "classPaths": ["${workspaceFolder}/target/classes"],
+      "console": "integratedTerminal"
+    },
+    {
+      "type": "java",
+      "name": "12. Prueba Proxy",
+      "request": "launch",
+      "mainClass": "com.fabricaviva.pruebas.PruebaProxy",
+      "classPaths": ["${workspaceFolder}/target/classes"],
+      "console": "integratedTerminal"
+    },
+    {
+      "type": "java",
       "name": "8. JUnit — Composite y Decorator",
       "request": "launch",
       "mainClass": "org.junit.platform.console.ConsoleLauncher",

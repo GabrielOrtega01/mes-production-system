@@ -1,0 +1,53 @@
+@startuml flyweight_mes
+skinparam classAttributeIconSize 0
+skinparam shadowing false
+
+interface TipoMaterialFlyweight <<Flyweight>> {
+  + getCodigo() : String
+  + getNombre() : String
+  + getDensidad() : double
+  + getUnidad() : String
+  + describir() : String
+}
+
+class TipoMaterialCompartido <<ConcreteFlyweight>> {
+  - codigo : String
+  - nombre : String
+  - densidad : double
+  - unidad : String
+  ~TipoMaterialCompartido(...)
+  + describir() : String
+}
+
+class FabricaTipoMaterial <<FlyweightFactory + Singleton>> {
+  - {static} INSTANCIA : FabricaTipoMaterial
+  - pool : Map<String, TipoMaterialCompartido>
+  - FabricaTipoMaterial()
+  + {static} getInstance() : FabricaTipoMaterial
+  + getMaterial(...) : TipoMaterialFlyweight
+  + getTamanioPool() : int
+}
+
+class LoteProduccion <<Client>> {
+  - numeroLote : String
+  - cantidadKg : double
+  - maquinaOrigen : String
+  - tipo : TipoMaterialFlyweight
+  + calcularPeso() : double
+}
+
+TipoMaterialCompartido ..|> TipoMaterialFlyweight
+FabricaTipoMaterial --> "*" TipoMaterialCompartido : pool
+FabricaTipoMaterial ..> TipoMaterialCompartido : <<crea>>
+LoteProduccion --> TipoMaterialFlyweight : usa
+
+note right of TipoMaterialCompartido
+  Estado intrínseco (compartido):
+  codigo, nombre, densidad, unidad
+end note
+
+note right of LoteProduccion
+  Estado extrínseco (por objeto):
+  numeroLote, cantidadKg, maquinaOrigen
+end note
+@enduml
