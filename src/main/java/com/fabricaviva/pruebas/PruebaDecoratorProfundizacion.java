@@ -1,12 +1,12 @@
 package com.fabricaviva.pruebas;
 
-import com.fabricaviva.reporte.DecoradorReporteTurno;
-import com.fabricaviva.reporte.EncabezadoPlanta;
-import com.fabricaviva.reporte.FirmaJefeTurno;
-import com.fabricaviva.reporte.MarcaAguaBorrador;
-import com.fabricaviva.reporte.ReporteBaseTurno;
-import com.fabricaviva.reporte.ReporteTurno;
-import com.fabricaviva.reporte.SeccionObservaciones;
+import com.fabricaviva.reporteturno.DecoradorReporteTurno;
+import com.fabricaviva.reporteturno.EncabezadoPlanta;
+import com.fabricaviva.reporteturno.FirmaJefeTurno;
+import com.fabricaviva.reporteturno.MarcaAguaBorrador;
+import com.fabricaviva.reporteturno.ReporteBaseTurno;
+import com.fabricaviva.reporteturno.ReporteTurno;
+import com.fabricaviva.reporteturno.SeccionObservaciones;
 
 public class PruebaDecoratorProfundizacion {
 

@@ -8,8 +8,9 @@ package com.fabricaviva.config;
  */
 public class ConfiguracionPlanta {
 
-    // (1) Atributo estático privado: guarda la única instancia.
-    private static ConfiguracionPlanta instancia;
+    // (1) Inicialización temprana: la JVM crea la instancia al cargar la clase,
+    //     antes de que cualquier hilo pueda llamar getInstancia(). Thread-safe sin synchronized.
+    private static final ConfiguracionPlanta INSTANCIA = new ConfiguracionPlanta();
 
     private final String nombrePlanta;
     private String turnoActivo;
@@ -25,10 +26,7 @@ public class ConfiguracionPlanta {
 
     // (3) Método estático: único punto de acceso a la instancia.
     public static ConfiguracionPlanta getInstancia() {
-        if (instancia == null) {
-            instancia = new ConfiguracionPlanta();
-        }
-        return instancia;
+        return INSTANCIA;
     }
 
     public String getNombrePlanta() {

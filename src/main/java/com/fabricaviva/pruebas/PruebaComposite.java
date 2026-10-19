@@ -64,7 +64,7 @@ class PruebaComposite {
         assertEquals(2, estacion1.getTotalMaquinas());
     }
 
-    // --- LineaProduccion (composite nivel 2) ---
+    // --- LineaFabricacion (composite nivel 2) ---
 
     @Test
     void lineaSumaCapacidadDeSusEstaciones() {
@@ -112,5 +112,36 @@ class PruebaComposite {
     void quitarMaquinaDeEstacionActualizaCapacidad() {
         estacion1.quitar(fresadora);
         assertEquals(120.0, estacion1.getCapacidadTotal(), 0.001);
+    }
+
+    // Permite ejecutar con: java com.fabricaviva.pruebas.PruebaComposite
+    public static void main(String[] args) {
+        PruebaComposite t = new PruebaComposite();
+        java.util.Map<String, Runnable> pruebas = new java.util.LinkedHashMap<>();
+        pruebas.put("maquinaIndividualReportaCapacidadPropia",        () -> { t.setUp(); t.maquinaIndividualReportaCapacidadPropia(); });
+        pruebas.put("maquinaIndividualReportaUnaMaquina",             () -> { t.setUp(); t.maquinaIndividualReportaUnaMaquina(); });
+        pruebas.put("estacionSumaCapacidadDeSusHijos",                () -> { t.setUp(); t.estacionSumaCapacidadDeSusHijos(); });
+        pruebas.put("estacionCuentaTotalMaquinas",                    () -> { t.setUp(); t.estacionCuentaTotalMaquinas(); });
+        pruebas.put("lineaSumaCapacidadDeSusEstaciones",              () -> { t.setUp(); t.lineaSumaCapacidadDeSusEstaciones(); });
+        pruebas.put("lineaCuentaTotalMaquinasRecursivo",              () -> { t.setUp(); t.lineaCuentaTotalMaquinasRecursivo(); });
+        pruebas.put("plantaSumaCapacidadDeTodaLaJerarquia",           () -> { t.setUp(); t.plantaSumaCapacidadDeTodaLaJerarquia(); });
+        pruebas.put("plantaCuentaTodosLosMaquinasDeLaJerarquia",      () -> { t.setUp(); t.plantaCuentaTodosLosMaquinasDeLaJerarquia(); });
+        pruebas.put("clienteTrataMaquinaYPlantaMedianteMismaInterfaz",() -> { t.setUp(); t.clienteTrataMaquinaYPlantaMedianteMismaInterfaz(); });
+        pruebas.put("agregarMaquinaAEstacionActualizaCapacidadDeLaLinea", () -> { t.setUp(); t.agregarMaquinaAEstacionActualizaCapacidadDeLaLinea(); });
+        pruebas.put("quitarMaquinaDeEstacionActualizaCapacidad",      () -> { t.setUp(); t.quitarMaquinaDeEstacionActualizaCapacidad(); });
+
+        int ok = 0, fallo = 0;
+        System.out.println("== PruebaComposite ==");
+        for (var e : pruebas.entrySet()) {
+            try {
+                e.getValue().run();
+                System.out.println("  PASS " + e.getKey());
+                ok++;
+            } catch (AssertionError | Exception ex) {
+                System.out.println("  FAIL " + e.getKey() + " -> " + ex.getMessage());
+                fallo++;
+            }
+        }
+        System.out.printf("%n%d PASS | %d FAIL%n", ok, fallo);
     }
 }

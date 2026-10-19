@@ -83,4 +83,33 @@ class PruebaDecorator {
         assertTrue(desc.contains("cliente preferente"));
         assertTrue(desc.contains("prioritario"));
     }
+
+    // Permite ejecutar con: java com.fabricaviva.pruebas.PruebaDecorator
+    public static void main(String[] args) {
+        PruebaDecorator t = new PruebaDecorator();
+        java.util.Map<String, Runnable> pruebas = new java.util.LinkedHashMap<>();
+        pruebas.put("costoBaseSinDecoradores",                          () -> { t.setUp(); t.costoBaseSinDecoradores(); });
+        pruebas.put("recargoPrioritarioAumentaCosto25Porciento",        () -> { t.setUp(); t.recargoPrioritarioAumentaCosto25Porciento(); });
+        pruebas.put("cargoHorasExtraAumentaCosto30Porciento",           () -> { t.setUp(); t.cargoHorasExtraAumentaCosto30Porciento(); });
+        pruebas.put("descuentoVolumenReduceCosto15Porciento",           () -> { t.setUp(); t.descuentoVolumenReduceCosto15Porciento(); });
+        pruebas.put("descuentoClientePreferenteReduceCosto10Porciento", () -> { t.setUp(); t.descuentoClientePreferenteReduceCosto10Porciento(); });
+        pruebas.put("dosDecoradoresEncadenados_prioritarioYHorasExtra", () -> { t.setUp(); t.dosDecoradoresEncadenados_prioritarioYHorasExtra(); });
+        pruebas.put("dosDecoradoresEnDistintoOrden_conmutatividad",     () -> { t.setUp(); t.dosDecoradoresEnDistintoOrden_conmutatividad(); });
+        pruebas.put("tresDecoradoresEncadenados",                       () -> { t.setUp(); t.tresDecoradoresEncadenados(); });
+        pruebas.put("describir_acumulaDescripcionDeCadaCapa",           () -> { t.setUp(); t.describir_acumulaDescripcionDeCadaCapa(); });
+
+        int ok = 0, fallo = 0;
+        System.out.println("== PruebaDecorator ==");
+        for (var e : pruebas.entrySet()) {
+            try {
+                e.getValue().run();
+                System.out.println("  PASS " + e.getKey());
+                ok++;
+            } catch (AssertionError | Exception ex) {
+                System.out.println("  FAIL " + e.getKey() + " -> " + ex.getMessage());
+                fallo++;
+            }
+        }
+        System.out.printf("%n%d PASS | %d FAIL%n", ok, fallo);
+    }
 }

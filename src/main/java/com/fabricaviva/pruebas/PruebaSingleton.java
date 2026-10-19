@@ -2,7 +2,7 @@ package com.fabricaviva.pruebas;
 
 import com.fabricaviva.calidad.PuestoInspeccion;
 import com.fabricaviva.config.ConfiguracionPlanta;
-import com.fabricaviva.produccion.LineaProduccion;
+import com.fabricaviva.produccion.ModuloProduccion;
 
 public class PruebaSingleton {
 
@@ -19,7 +19,7 @@ public class PruebaSingleton {
         System.out.println("a == b ? " + (a == b) + " | b == c ? " + (b == c));
 
         System.out.println("\n== Prueba 3: dos modulos comparten la misma configuracion ==");
-        LineaProduccion linea = new LineaProduccion("CNC-01");
+        ModuloProduccion linea = new ModuloProduccion("CNC-01");
         PuestoInspeccion inspeccion = new PuestoInspeccion();
         System.out.println(linea.producirPieza(1));
         System.out.println(inspeccion.evaluar(0.91));
