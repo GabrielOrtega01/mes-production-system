@@ -4,6 +4,6 @@
   "java.configuration.updateBuildConfiguration": "automatic",
   "java.compile.nullAnalysis.mode": "disabled",
   "java.project.referencedLibraries": ["lib/*.jar"],
-  "java.compiler.sourceCompatibility": "24",
-  "java.compiler.targetCompatibility": "24"
+  "java.compiler.sourceCompatibility": "17",
+  "java.compiler.targetCompatibility": "17"
 }

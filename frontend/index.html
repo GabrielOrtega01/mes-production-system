@@ -1,0 +1,1145 @@
+<title>FábricaViva MES</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Exo+2:wght@300;400;500;600;700;800&family=Fira+Code:wght@400;500;700&display=swap" rel="stylesheet">
+
+<style>
+/* ═══════════════════════════════════════════════════════════════
+   DESIGN TOKENS — dark-only, deliberate industrial HUD palette
+   Layout: header / [canvas | inspector] / terminal
+═══════════════════════════════════════════════════════════════ */
+:root {
+  --ink:    #040d1a;
+  --deep:   #080f1e;
+  --surf:   #0c1828;
+  --lift:   #122035;
+  --dim:    #1b2f42;
+
+  --rim:    #00f5ff;    /* electric cyan — primary accent */
+  --fire:   #ff7b00;   /* molten orange — structural */
+  --cast:   #a855f7;   /* neon violet — behavioral */
+  --forge:  #00e87a;   /* electric green — success */
+  --scrap:  #ff2d55;   /* warning red */
+  --amber:  #ffb700;
+
+  --tx0: #dff0ff;
+  --tx1: #7ba3c0;
+  --tx2: #3d617c;
+
+  --f-hud: 'Exo 2', system-ui, sans-serif;
+  --f-mono: 'Fira Code', 'Cascadia Code', monospace;
+
+  color-scheme: dark;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html, body {
+  height: 100%;
+  background: var(--ink);
+  color: var(--tx0);
+  font-family: var(--f-hud);
+  overflow: hidden;
+}
+
+/* ── APP GRID ─────────────────────────────────────────── */
+.app {
+  display: grid;
+  grid-template-rows: 58px 1fr 148px;
+  height: 100%;
+}
+
+/* ── HEADER ───────────────────────────────────────────── */
+.hdr {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 0 20px;
+  background: var(--deep);
+  border-bottom: 1px solid rgba(0,245,255,0.1);
+  position: relative;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+.hdr::after {
+  content: '';
+  position: absolute; bottom: 0; left: 0; right: 0; height: 1px;
+  background: linear-gradient(90deg, transparent 0%, var(--rim) 30%, var(--fire) 60%, var(--cast) 80%, transparent 100%);
+  background-size: 200% 100%;
+  animation: sweep 4s linear infinite;
+}
+@keyframes sweep { from { background-position: 200% 0 } to { background-position: -100% 0 } }
+
+.logo { display: flex; align-items: center; gap: 10px; text-decoration: none; }
+.logo-mark { width: 36px; height: 36px; flex-shrink: 0; }
+.logo-name { font-size: 17px; font-weight: 800; letter-spacing: -0.5px; color: var(--tx0); line-height: 1.1; }
+.logo-name em { color: var(--rim); font-style: normal; }
+.logo-sub  { font-size: 9px; font-family: var(--f-mono); color: var(--tx2); letter-spacing: 2px; text-transform: uppercase; }
+
+.hdiv { width: 1px; height: 26px; background: var(--dim); flex-shrink: 0; }
+
+.turn-chip {
+  padding: 3px 11px; border-radius: 4px;
+  font-size: 10px; font-weight: 700; font-family: var(--f-mono); letter-spacing: 1px;
+  border: 1px solid rgba(0,245,255,0.25);
+  background: rgba(0,245,255,0.06);
+  color: var(--tx1);
+  transition: all .3s;
+}
+.turn-chip.on {
+  background: rgba(0,245,255,0.13); border-color: var(--rim); color: var(--rim);
+  box-shadow: 0 0 14px rgba(0,245,255,0.22);
+}
+
+.hdr-stats { display: flex; gap: 18px; }
+.stat-cell { display: flex; flex-direction: column; gap: 1px; }
+.stat-lbl { font-size: 8px; font-family: var(--f-mono); letter-spacing: 1.5px; text-transform: uppercase; color: var(--tx2); }
+.stat-val { font-size: 15px; font-weight: 700; font-family: var(--f-mono); line-height: 1; font-variant-numeric: tabular-nums; }
+
+.live-pulse {
+  width: 7px; height: 7px; border-radius: 50%;
+  background: var(--forge); box-shadow: 0 0 7px var(--forge);
+  animation: blink 2s ease-in-out infinite; flex-shrink: 0;
+}
+@keyframes blink { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.4;transform:scale(.75)} }
+
+.clock {
+  margin-left: auto; font-family: var(--f-mono); font-size: 14px;
+  font-weight: 500; color: var(--tx0); letter-spacing: 2px; font-variant-numeric: tabular-nums;
+}
+
+/* ── WORKSPACE ────────────────────────────────────────── */
+.workspace {
+  display: grid;
+  grid-template-columns: 1fr 340px;
+  overflow: hidden;
+}
+
+/* ── GRAPH PANEL ──────────────────────────────────────── */
+.graph-wrap { position: relative; overflow: hidden; background: var(--ink); }
+#gc { display: block; width: 100%; height: 100%; cursor: crosshair; }
+.graph-hint {
+  position: absolute; bottom: 11px; left: 16px;
+  font-size: 9px; font-family: var(--f-mono); color: var(--tx2); letter-spacing: .5px; pointer-events: none;
+}
+
+/* ── SIDE PANEL ───────────────────────────────────────── */
+.side {
+  background: var(--deep);
+  border-left: 1px solid rgba(0,245,255,0.09);
+  display: flex; flex-direction: column; overflow: hidden;
+}
+.side-head {
+  padding: 9px 15px 7px; flex-shrink: 0;
+  font-size: 8px; font-family: var(--f-mono); letter-spacing: 2px; text-transform: uppercase; color: var(--tx2);
+  border-bottom: 1px solid var(--dim);
+  display: flex; align-items: center; gap: 7px;
+}
+.side-head::before {
+  content: ''; width: 4px; height: 4px; border-radius: 50%;
+  background: var(--rim); box-shadow: 0 0 5px var(--rim);
+}
+
+/* Inspector */
+.inspector { flex: 1; overflow-y: auto; scrollbar-width: thin; scrollbar-color: var(--dim) transparent; }
+.inspector::-webkit-scrollbar { width: 3px; }
+.inspector::-webkit-scrollbar-thumb { background: var(--dim); }
+
+.insp-empty {
+  padding: 36px 18px; text-align: center; color: var(--tx2);
+  font-size: 11px; line-height: 1.8;
+}
+.insp-b { padding: 13px 14px; }
+
+.p-hero {
+  display: flex; align-items: center; gap: 11px;
+  padding-bottom: 12px; margin-bottom: 12px;
+  border-bottom: 1px solid var(--dim);
+}
+.p-hex { width: 42px; height: 42px; flex-shrink: 0; }
+.p-name { font-size: 16px; font-weight: 700; line-height: 1.2; }
+.p-cat  { font-size: 9px; font-family: var(--f-mono); letter-spacing: 1px; color: var(--tx2); margin-top: 2px; }
+
+.f-label {
+  font-size: 8px; font-family: var(--f-mono); letter-spacing: 1.5px;
+  text-transform: uppercase; color: var(--tx2); margin-bottom: 4px;
+}
+.f-body { font-size: 11px; color: rgba(223,240,255,.85); line-height: 1.65; margin-bottom: 12px; }
+.f-file {
+  font-family: var(--f-mono); font-size: 9px; color: var(--tx2);
+  background: var(--surf); padding: 3px 7px; border-radius: 3px;
+  border: 1px solid var(--dim); display: inline-block;
+  margin-bottom: 12px; word-break: break-all;
+}
+.f-pair { display: flex; gap: 14px; margin-bottom: 12px; }
+.act-num { font-size: 26px; font-weight: 800; font-family: var(--f-mono); line-height: 1; font-variant-numeric: tabular-nums; }
+
+/* Code window */
+.cw { background: #020b16; border: 1px solid var(--dim); border-radius: 6px; overflow: hidden; margin-bottom: 12px; }
+.cw-bar {
+  background: var(--surf); padding: 5px 9px;
+  display: flex; align-items: center; gap: 5px;
+  border-bottom: 1px solid var(--dim);
+}
+.cw-dot { width: 8px; height: 8px; border-radius: 50%; }
+.cw pre {
+  font-family: var(--f-mono); font-size: 9.5px; line-height: 1.75;
+  padding: 9px 11px; overflow-x: auto; color: #c9d1d9;
+  scrollbar-width: thin;
+}
+.cw pre::-webkit-scrollbar { height: 3px; }
+.cw pre::-webkit-scrollbar-thumb { background: var(--dim); }
+
+.ck { color: #79c0ff } .ct { color: #7ee787 } .cs { color: #ffa657 }
+.cc { color: #6a737d } .ca { color: #bc8cff } .cn { color: #f8cc82 }
+
+/* SOLID strip */
+.solid-strip {
+  padding: 7px 9px; border-radius: 4px; border: 1px solid;
+  font-size: 11px; line-height: 1.5; margin-bottom: 12px;
+}
+
+/* ── DECORATOR LAB ────────────────────────────────────── */
+.dec-stack { display: flex; flex-direction: column; gap: 4px; margin-bottom: 8px; }
+.dec-row {
+  display: flex; align-items: center; gap: 7px;
+  padding: 6px 9px; border-radius: 4px;
+  border: 1px solid var(--dim); cursor: pointer;
+  font-size: 10px; transition: all .18s; user-select: none;
+}
+.dec-row:hover { border-color: rgba(255,123,0,.4); background: rgba(255,123,0,.05); }
+.dec-row.on  { border-color: var(--fire); background: rgba(255,123,0,.1); }
+.dec-chk {
+  width: 14px; height: 14px; border-radius: 3px;
+  border: 1.5px solid var(--tx2); flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 8px; font-weight: 700; transition: all .15s;
+}
+.dec-row.on .dec-chk { background: var(--fire); border-color: var(--fire); color: var(--ink); }
+.dec-price {
+  text-align: center; padding: 9px;
+  background: var(--surf); border: 1px solid var(--dim); border-radius: 4px;
+}
+.dec-price-num {
+  font-size: 20px; font-weight: 800; font-family: var(--f-mono);
+  color: var(--fire); font-variant-numeric: tabular-nums;
+}
+.dec-chain { font-size: 8px; color: var(--tx2); font-family: var(--f-mono); margin-top: 3px; }
+
+/* ── PROXY LAB ────────────────────────────────────────── */
+.role-row { display: flex; gap: 4px; margin-bottom: 7px; }
+.role-btn {
+  flex: 1; padding: 5px 3px; border-radius: 4px;
+  border: 1px solid var(--dim); background: transparent;
+  color: var(--tx2); font-family: var(--f-mono); font-size: 9px;
+  letter-spacing: .3px; cursor: pointer; transition: all .18s;
+}
+.role-btn.on { background: rgba(168,85,247,.15); border-color: var(--cast); color: var(--cast); }
+.role-btn:hover:not(.on) { border-color: rgba(168,85,247,.3); color: var(--tx0); }
+.access-box {
+  padding: 9px; border-radius: 4px; text-align: center;
+  font-family: var(--f-mono); font-size: 11px; font-weight: 700;
+  border: 1px solid; letter-spacing: 1px; transition: all .25s;
+}
+.a-ok { background: rgba(0,232,122,.1); border-color: var(--forge); color: var(--forge); }
+.a-no { background: rgba(255,45,85,.1); border-color: var(--scrap); color: var(--scrap); animation: shk .35s; }
+@keyframes shk { 0%,100%{transform:none} 25%{transform:translateX(-3px)} 75%{transform:translateX(3px)} }
+
+/* ── CONTROLS ─────────────────────────────────────────── */
+.ctrl { padding: 10px 13px; border-top: 1px solid var(--dim); display: flex; flex-direction: column; gap: 5px; flex-shrink: 0; }
+.btn {
+  display: flex; align-items: center; justify-content: center; gap: 6px;
+  padding: 8px 13px; border-radius: 5px; border: 1px solid;
+  font-family: var(--f-hud); font-size: 11px; font-weight: 700;
+  cursor: pointer; transition: all .18s; letter-spacing: .2px;
+}
+.btn:disabled { opacity: .32; cursor: not-allowed; }
+.b-cyan  { background: rgba(0,245,255,.08); border-color: rgba(0,245,255,.45); color: var(--rim); }
+.b-orange{ background: rgba(255,123,0,.08); border-color: rgba(255,123,0,.45); color: var(--fire); }
+.b-dim   { background: transparent; border-color: var(--dim); color: var(--tx1); }
+.b-cyan:hover:not(:disabled)  { background: rgba(0,245,255,.16); box-shadow: 0 0 14px rgba(0,245,255,.2); }
+.b-orange:hover:not(:disabled){ background: rgba(255,123,0,.16); box-shadow: 0 0 14px rgba(255,123,0,.2); }
+.b-dim:hover:not(:disabled)   { border-color: rgba(123,163,192,.5); color: var(--tx0); }
+
+/* ── TERMINAL ─────────────────────────────────────────── */
+.term { background: #020b16; border-top: 1px solid rgba(0,245,255,.1); display: flex; flex-direction: column; overflow: hidden; }
+.term-bar {
+  display: flex; align-items: center; gap: 7px; padding: 5px 15px;
+  border-bottom: 1px solid var(--dim); flex-shrink: 0;
+  font-size: 8px; font-family: var(--f-mono); letter-spacing: 1.5px; text-transform: uppercase; color: var(--tx2);
+}
+.term-log { flex: 1; overflow-y: auto; padding: 5px 14px; scrollbar-width: thin; scrollbar-color: var(--dim) transparent; }
+.term-log::-webkit-scrollbar { width: 3px; }
+.term-log::-webkit-scrollbar-thumb { background: var(--dim); }
+
+.tl { display: flex; gap: 7px; padding: 1.5px 0; font-size: 10px; animation: tl-in .2s ease; line-height: 1.55; }
+@keyframes tl-in { from { opacity:0; transform:translateY(3px) } to { opacity:1; transform:none } }
+.tl-t  { color: var(--tx2); flex-shrink: 0; width: 52px; font-family: var(--f-mono); }
+.tl-tag {
+  flex-shrink: 0; width: 96px; padding: 0 4px; border-radius: 2px;
+  font-size: 8px; font-weight: 700; letter-spacing: .5px;
+  font-family: var(--f-mono);
+  display: flex; align-items: center; justify-content: center;
+}
+.tl-m  { color: rgba(223,240,255,.7); min-width: 0; }
+
+.tC   { background: rgba(0,245,255,.1); color: var(--rim); }
+.tS   { background: rgba(255,123,0,.1); color: var(--fire); }
+.tB   { background: rgba(168,85,247,.1); color: var(--cast); }
+.tSYS { background: rgba(61,97,124,.12); color: var(--tx1); }
+.tOK  { background: rgba(0,232,122,.1); color: var(--forge); }
+.tERR { background: rgba(255,45,85,.1); color: var(--scrap); }
+
+/* ── TOASTS ───────────────────────────────────────────── */
+#toasts { position: fixed; top: 68px; right: 14px; display: flex; flex-direction: column; gap: 5px; z-index: 100; pointer-events: none; }
+.toast {
+  background: var(--surf); border: 1px solid; border-radius: 6px;
+  padding: 7px 13px; display: flex; align-items: center; gap: 7px;
+  font-size: 11px; animation: t-in .28s ease; pointer-events: auto;
+}
+@keyframes t-in  { from{opacity:0;transform:translateX(20px)} to{opacity:1;transform:none} }
+@keyframes t-out { to{opacity:0;transform:translateX(20px)} }
+
+/* ── MOBILE ───────────────────────────────────────────── */
+@media (max-width: 700px) {
+  html, body { overflow-y: auto; overflow-x: hidden; height: auto; }
+  .app { grid-template-rows: 52px 300px auto 130px; height: auto; overflow: visible; }
+  .workspace { grid-template-columns: 1fr; }
+  .side { border-left: none; border-top: 1px solid var(--dim); max-height: 600px; }
+  .graph-wrap { height: 300px; }
+  .hdr-stats { display: none; }
+}
+</style>
+
+<!-- ═══════════════════════════════════════════════════════
+     HEADER
+═══════════════════════════════════════════════════════ -->
+<div class="app">
+<header class="hdr">
+  <div class="logo">
+    <svg class="logo-mark" viewBox="0 0 36 36">
+      <polygon points="18,2 33,10.5 33,25.5 18,34 3,25.5 3,10.5" fill="none" stroke="#00f5ff" stroke-width="1.5"/>
+      <rect x="10" y="15" width="16" height="10" rx="1.5" fill="none" stroke="#00f5ff" stroke-width="1.2"/>
+      <line x1="14" y1="15" x2="14" y2="25" stroke="#00f5ff" stroke-width="1" opacity=".4"/>
+      <line x1="18" y1="15" x2="18" y2="25" stroke="#00f5ff" stroke-width="1" opacity=".4"/>
+      <line x1="22" y1="15" x2="22" y2="25" stroke="#00f5ff" stroke-width="1" opacity=".4"/>
+      <rect x="15" y="9"  width="6"  height="5"  rx="1" fill="none" stroke="#ff7b00" stroke-width="1.2"/>
+      <circle cx="18" cy="7" r="2.2" fill="#ff7b00" opacity=".85">
+        <animate attributeName="opacity" values=".4;1;.4" dur="1.4s" repeatCount="indefinite"/>
+      </circle>
+    </svg>
+    <div>
+      <div class="logo-name">Fábrica<em>Viva</em></div>
+      <div class="logo-sub">MES · G9 · UTS S10</div>
+    </div>
+  </div>
+
+  <div class="hdiv"></div>
+  <div class="turn-chip" id="tc">SIN TURNO</div>
+  <div class="hdiv"></div>
+
+  <div class="hdr-stats">
+    <div class="stat-cell">
+      <span class="stat-lbl">OEE</span>
+      <span class="stat-val" style="color:var(--rim)" id="h-oee">—</span>
+    </div>
+    <div class="stat-cell">
+      <span class="stat-lbl">Piezas</span>
+      <span class="stat-val" style="color:var(--forge)" id="h-pzs">0</span>
+    </div>
+    <div class="stat-cell">
+      <span class="stat-lbl">Alertas</span>
+      <span class="stat-val" style="color:var(--fire)" id="h-alt">0</span>
+    </div>
+  </div>
+
+  <div class="live-pulse" style="margin-left:6px"></div>
+  <div class="clock" id="clk">00:00:00</div>
+</header>
+
+<!-- ═══════════════════════════════════════════════════════
+     WORKSPACE
+═══════════════════════════════════════════════════════ -->
+<div class="workspace">
+  <div class="graph-wrap">
+    <canvas id="gc"></canvas>
+    <div class="graph-hint">↖ clic en cualquier nodo para inspeccionar · patrones GoF activos del sistema MES-FábricaViva</div>
+  </div>
+
+  <div class="side">
+    <div class="side-head">Pattern Inspector</div>
+    <div class="inspector" id="insp">
+      <div class="insp-empty">
+        Haz clic sobre un hexágono<br>en el grafo para ver el código,<br>la justificación SOLID<br>y los laboratorios interactivos
+      </div>
+    </div>
+    <div class="ctrl">
+      <button class="btn b-cyan"   id="b-start" onclick="iniciarTurno()">
+        <svg width="11" height="11" viewBox="0 0 11 11"><polygon points="1,1 10,5.5 1,10" fill="currentColor"/></svg>
+        Iniciar Turno
+      </button>
+      <button class="btn b-orange" id="b-ord"   onclick="crearOrden()" disabled>
+        <svg width="11" height="11" viewBox="0 0 11 11"><path d="M5.5 1v9M1 5.5h9" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round"/></svg>
+        Crear Orden
+      </button>
+      <button class="btn b-dim"    id="b-close" onclick="cerrarTurno()" disabled>
+        <svg width="11" height="11" viewBox="0 0 11 11"><rect x="1" y="1" width="9" height="9" rx="1.5" fill="currentColor"/></svg>
+        Cerrar Turno
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════
+     TERMINAL
+═══════════════════════════════════════════════════════ -->
+<div class="term">
+  <div class="term-bar">
+    <div class="live-pulse" style="width:5px;height:5px"></div>
+    PATTERN CONSOLE · LIVE
+  </div>
+  <div class="term-log" id="tlog">
+    <div class="tl">
+      <span class="tl-t">00:00:00</span>
+      <span class="tl-tag tSYS">SYSTEM</span>
+      <span class="tl-m">FábricaViva MES iniciado · 12 patrones GoF activos · clic en <strong>Iniciar Turno</strong> para comenzar la simulación</span>
+    </div>
+  </div>
+</div>
+</div><!-- .app -->
+
+<div id="toasts"></div>
+
+<script>
+'use strict';
+// ══════════════════════════════════════════════════════════════
+// 1. PATTERN DEFINITIONS
+// ══════════════════════════════════════════════════════════════
+const CAT_COL = { C:'#00f5ff', S:'#ff7b00', B:'#a855f7' };
+const CAT_LBL = { C:'Creacional', S:'Estructural', B:'Comportamiento' };
+const SOLID_COL = { SRP:'#00f5ff', OCP:'#ff7b00', LSP:'#a855f7', ISP:'#00e87a', DIP:'#ff2d55' };
+
+const P = [
+  { id:'singleton',       cat:'C', x:.38, y:.42, label:'Singleton',
+    file:'config/ConfiguracionPlanta.java', solid:'SRP',
+    solidDesc:'Una sola fuente de verdad para la configuración de la planta.',
+    desc:'Garantiza una única instancia de ConfiguracionPlanta. Todos los módulos comparten el mismo turno activo y meta OEE, asegurando consistencia global sin estado duplicado.',
+    code:`<span class="ck">public class</span> <span class="ct">ConfiguracionPlanta</span> {
+  <span class="ck">private static final</span> <span class="ct">ConfiguracionPlanta</span>
+    INSTANCIA = <span class="ck">new</span> <span class="ct">ConfiguracionPlanta</span>();
+
+  <span class="ck">private</span> <span class="ct">ConfiguracionPlanta</span>() {}
+
+  <span class="ck">public static</span> <span class="ct">ConfiguracionPlanta</span>
+      getInstancia() {
+    <span class="ck">return</span> INSTANCIA; <span class="cc">// thread-safe</span>
+  }
+}`, count:0 },
+
+  { id:'factory',         cat:'C', x:.20, y:.30, label:'Factory Method',
+    file:'ordenes/FabricaOrden.java', solid:'OCP',
+    solidDesc:'Agregar un nuevo tipo de orden no requiere modificar código existente.',
+    desc:'FabricaOrden define el método crearOrden(). Las subclases FabricaOrdenEstandar y FabricaOrdenUrgente deciden el tipo concreto sin que el cliente lo sepa.',
+    code:`<span class="ck">public abstract class</span> <span class="ct">FabricaOrden</span> {
+  <span class="ck">public</span> <span class="ct">OrdenProduccion</span> crearOrden(
+      <span class="ct">String</span> ref, <span class="ck">int</span> qty) {
+    <span class="ct">OrdenProduccion</span> o = fabricar(ref, qty);
+    o.validar();
+    <span class="ck">return</span> o;
+  }
+  <span class="ck">protected abstract</span> <span class="ct">OrdenProduccion</span>
+      fabricar(<span class="ct">String</span> ref, <span class="ck">int</span> qty);
+}`, count:0 },
+
+  { id:'abstractfactory', cat:'C', x:.10, y:.55, label:'Abstract Factory',
+    file:'equipos/FabricaEquipos.java', solid:'DIP',
+    solidDesc:'El sistema de producción depende de abstracciones, no de equipos concretos.',
+    desc:'Crea familias consistentes: CNC, Robot o Mixto. Cada familia produce Maquina + Sensor compatibles entre sí. El sistema no conoce los tipos concretos.',
+    code:`<span class="ck">public interface</span> <span class="ct">FabricaEquipos</span> {
+  <span class="ct">Maquina</span> crearMaquina();
+  <span class="ct">Sensor</span>  crearSensor();
+}
+<span class="ck">public class</span> <span class="ct">FabricaCNC</span>
+    <span class="ck">implements</span> <span class="ct">FabricaEquipos</span> {
+  <span class="ck">public</span> <span class="ct">Maquina</span> crearMaquina() {
+    <span class="ck">return new</span> <span class="ct">MaquinaCNC</span>();
+  }
+}`, count:0 },
+
+  { id:'builder',         cat:'C', x:.22, y:.70, label:'Builder',
+    file:'reportes/GeneradorReportes.java', solid:'SRP',
+    solidDesc:'La construcción del reporte está separada de su representación.',
+    desc:'GeneradorReportes (Director) construye ReporteOee paso a paso: equipoYTurno → disponibilidad → rendimiento → calidad. Cada Builder concreto produce un tipo distinto.',
+    code:`<span class="ck">public class</span> <span class="ct">GeneradorReportes</span> {
+  <span class="ck">public</span> <span class="ct">ReporteOee</span> generar(
+      <span class="ct">ReporteOeeBuilder</span> b,
+      <span class="ct">MetricasTurno</span> m) {
+    b.reiniciar();
+    b.equipoYTurno(m.getEquipo(), m.getTurno());
+    b.disponibilidad(m.getDisponibilidad());
+    b.rendimiento(m.getRendimiento());
+    b.calidad(m.getCalidad());
+    <span class="ck">return</span> b.obtenerReporte();
+  }
+}`, count:0 },
+
+  { id:'prototype',       cat:'C', x:.09, y:.38, label:'Prototype',
+    file:'ordenes/OrdenProduccion.java', solid:'OCP',
+    solidDesc:'Nuevas variantes de orden sin alterar la lógica de creación.',
+    desc:'OrdenProduccion implementa Cloneable. Al recibir una orden urgente similar a una existente, se clona la plantilla y solo se sobreescriben los campos que difieren.',
+    code:`<span class="ck">public class</span> <span class="ct">OrdenProduccion</span>
+    <span class="ck">implements</span> <span class="ct">Cloneable</span> {
+  <span class="ck">private final</span> <span class="ct">String</span> referencia;
+  <span class="ck">private</span> <span class="ct">Prioridad</span> prioridad;
+
+  <span class="ca">@Override</span>
+  <span class="ck">public</span> <span class="ct">OrdenProduccion</span> clone() {
+    <span class="ck">try</span> {
+      <span class="ck">return</span> (<span class="ct">OrdenProduccion</span>)
+          <span class="ck">super</span>.clone();
+    } <span class="ck">catch</span> (<span class="ct">Exception</span> e) {…}
+  }
+}`, count:0 },
+
+  { id:'composite',       cat:'S', x:.52, y:.22, label:'Composite',
+    file:'produccion/LineaProduccion.java', solid:'LSP',
+    solidDesc:'Un módulo individual y una línea completa son intercambiables por la misma interfaz.',
+    desc:'La planta se modela como árbol: PlantaProduccion → LineaProduccion → ModuloProduccion. Cada nodo implementa ElementoProductivo, haciéndolos intercambiables.',
+    code:`<span class="ck">public class</span> <span class="ct">LineaProduccion</span>
+    <span class="ck">implements</span> <span class="ct">ElementoProductivo</span> {
+  <span class="ck">private</span> <span class="ct">List</span>&lt;<span class="ct">ElementoProductivo</span>&gt;
+      modulos = <span class="ck">new</span> <span class="ct">ArrayList</span>&lt;&gt;();
+
+  <span class="ck">public int</span> getCapacidad() {
+    <span class="ck">return</span> modulos.stream()
+      .mapToInt(<span class="ct">ElementoProductivo</span>
+        ::getCapacidad).sum();
+  }
+}`, count:0 },
+
+  { id:'flyweight',       cat:'S', x:.52, y:.52, label:'Flyweight',
+    file:'inventario/FlyweightPieza.java', solid:'SRP',
+    solidDesc:'Separación entre estado compartido (intrínseco) y estado por instancia (extrínseco).',
+    desc:'Las piezas comparten datos intrínsecos (referencia, material, peso) a través de FlyweightPieza. Solo el número de lote es extrínseco, ahorrando memoria en miles de piezas.',
+    code:`<span class="ck">public class</span> <span class="ct">FlyweightPieza</span> {
+  <span class="cc">// Estado intrínseco — compartido</span>
+  <span class="ck">private final</span> <span class="ct">String</span> referencia;
+  <span class="ck">private final</span> <span class="ct">String</span> material;
+  <span class="ck">private final double</span> pesoKg;
+
+  <span class="ck">public void</span> mostrar(<span class="ck">int</span> lote) {
+    <span class="cc">// lote: estado extrínseco</span>
+    System.out.printf(<span class="cs">"%s [%d]%n"</span>,
+        referencia, lote);
+  }
+}`, count:0 },
+
+  { id:'facade',          cat:'S', x:.50, y:.80, label:'Facade',
+    file:'fachada/ControlTurnoFacade.java', solid:'ISP',
+    solidDesc:'El cliente solo conoce la interfaz mínima necesaria, sin conocer los 6 subsistemas.',
+    desc:'ControlTurnoFacade oculta 6 subsistemas (Singleton, Factory, Composite, Adapter, Bridge, Decorator) detrás de 4 métodos simples. El operador nunca conoce los detalles internos.',
+    code:`<span class="cc">// ANTES: cliente conocía 6 subsistemas</span>
+config.setTurnoActivo(turno);
+modulo.crear(ref, qty);
+planta.getCapacidadTotal();
+erp.cerrarJornada(turno, piezas);
+
+<span class="cc">// CON Facade: 4 operaciones limpias</span>
+facade.iniciarTurno(<span class="cs">"MANANA"</span>);
+facade.crearOrden(<span class="cs">"REF-001"</span>, <span class="cn">200</span>, <span class="ck">false</span>);
+facade.consultarCapacidadTotal();
+facade.cerrarTurno(<span class="cs">"MANANA"</span>, <span class="cn">195</span>);`, count:0 },
+
+  { id:'bridge',          cat:'S', x:.80, y:.26, label:'Bridge',
+    file:'alertas/AlertaProduccion.java', solid:'OCP',
+    solidDesc:'Agregar canal SMS = 1 clase nueva, sin tocar ninguna alerta existente.',
+    desc:'Separa tipo de alerta (Calidad, Mantenimiento, Parada) del canal (Consola, Bitácora). 3 tipos × 2 canales = 5 clases en lugar de 6 subclases. La combinación ocurre en tiempo de ejecución.',
+    code:`<span class="cc">// Sin Bridge: 3×2 = 6 subclases</span>
+<span class="cc">// Con Bridge: composición dinámica</span>
+<span class="ct">CanalAlerta</span> c = <span class="ck">new</span> <span class="ct">ConsolaAlerta</span>();
+<span class="ct">AlertaProduccion</span> a =
+    <span class="ck">new</span> <span class="ct">AlertaCalidad</span>(c, <span class="cs">"MANANA"</span>);
+a.disparar(<span class="cs">"OEE 0.78 — bajo umbral"</span>);
+
+<span class="cc">// Cambiar canal sin tocar AlertaCalidad:</span>
+c = <span class="ck">new</span> <span class="ct">BitacoraAlerta</span>();`, count:0 },
+
+  { id:'decorator',       cat:'S', x:.80, y:.50, label:'Decorator',
+    file:'costos/DecoradorCosto.java', solid:'OCP',
+    solidDesc:'Cada regla de negocio en su clase; composición sin modificar código existente.',
+    desc:'Apila ajustes de precio dinámicamente: CostoBaseOrden → RecargoPrioritario (+25%) → CargoHorasExtra (+30%) → DescuentoVolumen (−15%). Sin explotar subclases.',
+    code:`<span class="ct">CalculoCostoOrden</span> c =
+  <span class="ck">new</span> <span class="ct">CostoBaseOrden</span>(<span class="cs">"OP-001"</span>, <span class="cn">1000.0</span>);
+c = <span class="ck">new</span> <span class="ct">RecargoPrioritario</span>(c); <span class="cc">// +25%</span>
+c = <span class="ck">new</span> <span class="ct">CargoHorasExtra</span>(c);    <span class="cc">// +30%</span>
+c = <span class="ck">new</span> <span class="ct">DescuentoVolumen</span>(c);   <span class="cc">// −15%</span>
+c.calcularCosto();  <span class="cc">// 1 381.25</span>
+c.describir();      <span class="cc">// cadena completa</span>`,
+    count:0, lab:'decorator' },
+
+  { id:'adapter',         cat:'S', x:.75, y:.72, label:'Adapter',
+    file:'integracion/AdaptadorErp.java', solid:'DIP',
+    solidDesc:'Producción depende de una abstracción; no del ERP legado concreto.',
+    desc:'AdaptadorErp implementa RegistroProduccion (protocolo MES) y traduce al protocolo ERP legado internamente. Cambiar de ERP = escribir un nuevo Adapter; producción no cambia.',
+    code:`<span class="ck">public class</span> <span class="ct">AdaptadorErp</span>
+    <span class="ck">implements</span> <span class="ct">RegistroProduccion</span> {
+  <span class="ck">private final</span> <span class="ct">SistemaErpLegado</span> erp;
+
+  <span class="ck">public void</span> registrarCierreTurno(
+      <span class="ct">String</span> t, <span class="ck">int</span> piezas) {
+    erp.cerrarJornada(t, piezas,
+        <span class="cs">"Cierre MES-FabricaViva"</span>);
+  }
+}`, count:0 },
+
+  { id:'proxy',           cat:'B', x:.90, y:.60, label:'Proxy',
+    file:'proxy/ProxyReportesSeguro.java', solid:'SRP',
+    solidDesc:'El control de acceso está separado de la lógica de generación de reportes.',
+    desc:'Verifica el rol antes de construir el reporte. JEFE_TURNO y SUPERVISOR tienen acceso; OPERARIO recibe SecurityException. El objeto real se instancia solo cuando hay autorización.',
+    code:`<span class="ck">public void</span> construirReporte(…) {
+  bitacora.add(<span class="cs">"Intento: "</span> + rol);
+  <span class="ck">if</span> (rol != <span class="ct">RolUsuario</span>.JEFE_TURNO
+      && rol != <span class="ct">RolUsuario</span>.SUPERVISOR) {
+    <span class="ck">throw new</span> <span class="ct">SecurityException</span>(
+        <span class="cs">"ACCESO DENEGADO: "</span> + rol);
+  }
+  <span class="ck">if</span> (real == <span class="ck">null</span>)
+    real = <span class="ck">new</span> <span class="ct">GeneradorReportesReal</span>();
+  real.construirReporte(…);
+}`, count:0, lab:'proxy' }
+];
+
+const EDGES = [
+  ['facade','singleton'],['facade','factory'],['facade','composite'],
+  ['facade','adapter'],['facade','bridge'],['facade','decorator'],
+  ['singleton','factory'],['singleton','flyweight'],['singleton','composite'],
+  ['factory','prototype'],['factory','abstractfactory'],
+  ['builder','facade'],['builder','proxy'],
+  ['decorator','adapter'],['bridge','decorator'],['proxy','decorator'],
+  ['flyweight','composite'],
+];
+
+// ══════════════════════════════════════════════════════════════
+// 2. CANVAS ENGINE
+// ══════════════════════════════════════════════════════════════
+const cv   = document.getElementById('gc');
+const ctx  = cv.getContext('2d');
+let GW = 0, GH = 0, DPR = devicePixelRatio || 1;
+let hovId = null, selId = null;
+const firing = new Set();
+const ptcls = [];
+let ambT = 0;
+
+function resize() {
+  const r = cv.parentElement.getBoundingClientRect();
+  cv.width  = r.width  * DPR;
+  cv.height = r.height * DPR;
+  cv.style.width  = r.width  + 'px';
+  cv.style.height = r.height + 'px';
+  GW = cv.width; GH = cv.height;
+}
+
+function hexPath(x, y, r) {
+  ctx.beginPath();
+  for (let i = 0; i < 6; i++) {
+    const a  = (Math.PI / 3) * i - Math.PI / 6;
+    const px = x + r * Math.cos(a), py = y + r * Math.sin(a);
+    i ? ctx.lineTo(px, py) : ctx.moveTo(px, py);
+  }
+  ctx.closePath();
+}
+
+function spawnP(a, b) {
+  const ax = a.x*GW, ay = a.y*GH, bx = b.x*GW, by = b.y*GH;
+  ptcls.push({
+    fx:ax, fy:ay, tx:bx, ty:by,
+    t:0, sp:.003 + Math.random()*.006,
+    col:CAT_COL[a.cat], r:(1.5 + Math.random()*1.5)*DPR
+  });
+}
+
+function spawnEdge(i) {
+  const [ai,bi] = EDGES[i];
+  const a = P.find(x=>x.id===ai), b = P.find(x=>x.id===bi);
+  if (a&&b) spawnP(a, b);
+}
+
+function drawFrame() {
+  ctx.clearRect(0, 0, GW, GH);
+
+  // Background grid
+  ctx.save();
+  ctx.strokeStyle = 'rgba(0,245,255,0.03)';
+  ctx.lineWidth = 1;
+  const gs = 44 * DPR;
+  for (let x = 0; x < GW; x += gs) { ctx.beginPath(); ctx.moveTo(x,0); ctx.lineTo(x,GH); ctx.stroke(); }
+  for (let y = 0; y < GH; y += gs) { ctx.beginPath(); ctx.moveTo(0,y); ctx.lineTo(GW,y); ctx.stroke(); }
+  ctx.restore();
+
+  // Sector labels
+  ctx.save();
+  ctx.font = `800 ${11*DPR}px 'Exo 2',sans-serif`;
+  ctx.textBaseline = 'top';
+  ctx.fillStyle = 'rgba(0,245,255,0.06)';
+  ctx.fillText('CREACIONALES',    14*DPR, 14*DPR);
+  ctx.fillStyle = 'rgba(255,123,0,0.06)';
+  ctx.fillText('ESTRUCTURALES', (GW*.48), 14*DPR);
+  ctx.fillStyle = 'rgba(168,85,247,0.06)';
+  ctx.textAlign = 'right';
+  ctx.fillText('COMPORTAMIENTO', GW - 14*DPR, 14*DPR);
+  ctx.restore();
+
+  // Edges
+  EDGES.forEach(([ai,bi]) => {
+    const a = P.find(x=>x.id===ai), b = P.find(x=>x.id===bi);
+    if (!a||!b) return;
+    const active = firing.has(ai) || firing.has(bi);
+    ctx.beginPath();
+    ctx.moveTo(a.x*GW, a.y*GH);
+    ctx.lineTo(b.x*GW, b.y*GH);
+    ctx.strokeStyle = active ? CAT_COL[a.cat] : CAT_COL[a.cat]+'2a';
+    ctx.lineWidth   = active ? 1.8*DPR : 0.8*DPR;
+    ctx.stroke();
+  });
+
+  // Particles
+  for (let i = ptcls.length-1; i >= 0; i--) {
+    const p = ptcls[i];
+    p.t += p.sp;
+    if (p.t >= 1) { ptcls.splice(i,1); continue; }
+    const x = p.fx + (p.tx-p.fx)*p.t;
+    const y = p.fy + (p.ty-p.fy)*p.t;
+    const al = p.t < .8 ? 1 : (1-p.t)/.2;
+    ctx.save();
+    ctx.globalAlpha = al * .9;
+    ctx.shadowColor = p.col; ctx.shadowBlur = 8*DPR;
+    ctx.beginPath(); ctx.arc(x, y, p.r, 0, Math.PI*2);
+    ctx.fillStyle = p.col; ctx.fill();
+    ctx.restore();
+  }
+
+  // Ambient spawn
+  ambT += 16;
+  if (ambT > 700) { ambT = 0; spawnEdge(Math.floor(Math.random()*EDGES.length)); }
+
+  // Nodes
+  P.forEach(n => {
+    const x = n.x*GW, y = n.y*GH;
+    const hover = n.id===hovId, sel = n.id===selId, fire = firing.has(n.id);
+    const r = (sel||hover ? 22 : 18) * DPR;
+    const col = CAT_COL[n.cat];
+
+    // Outer glow
+    if (fire || sel) {
+      ctx.save();
+      ctx.globalAlpha = fire ? .55 : .28;
+      ctx.shadowColor = col; ctx.shadowBlur = 28*DPR;
+      hexPath(x, y, r+5*DPR);
+      ctx.fillStyle = col; ctx.fill();
+      ctx.restore();
+    }
+
+    // Fill
+    hexPath(x, y, r);
+    ctx.fillStyle = sel ? col+'1c' : '#0c1828';
+    ctx.fill();
+
+    // Border
+    ctx.save();
+    hexPath(x, y, r);
+    ctx.strokeStyle = (fire||sel) ? col : (hover ? col+'88' : col+'38');
+    ctx.lineWidth   = (sel||fire) ? 2.2*DPR : 1.4*DPR;
+    if (fire||sel) { ctx.shadowColor = col; ctx.shadowBlur = 14*DPR; }
+    ctx.stroke();
+    ctx.restore();
+
+    // Badge
+    if (n.count > 0) {
+      const bx = x + r*.72, by = y - r*.72, br = 7*DPR;
+      ctx.beginPath(); ctx.arc(bx, by, br, 0, Math.PI*2);
+      ctx.fillStyle = col; ctx.fill();
+      ctx.fillStyle = '#040d1a';
+      ctx.font = `700 ${7.5*DPR}px 'Fira Code',monospace`;
+      ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+      ctx.fillText(n.count > 99 ? '99+' : n.count, bx, by);
+    }
+
+    // Label
+    ctx.font = `${sel ? 600 : 400} ${10*DPR}px 'Exo 2',sans-serif`;
+    ctx.textAlign = 'center'; ctx.textBaseline = 'top';
+    ctx.fillStyle = sel ? col : (hover ? '#dff0ff' : '#3d617c');
+    ctx.fillText(n.label, x, y + r + 4*DPR);
+  });
+
+  requestAnimationFrame(drawFrame);
+}
+
+// Hit test
+function hitNode(cx, cy) {
+  for (const n of P) {
+    const nx = n.x*GW, ny = n.y*GH;
+    const dx = cx*DPR-nx, dy = cy*DPR-ny;
+    if (Math.sqrt(dx*dx+dy*dy) < 24*DPR) return n;
+  }
+  return null;
+}
+
+cv.addEventListener('mousemove', e => {
+  const r = cv.getBoundingClientRect();
+  const n = hitNode(e.clientX-r.left, e.clientY-r.top);
+  hovId = n ? n.id : null;
+  cv.style.cursor = n ? 'pointer' : 'crosshair';
+});
+cv.addEventListener('click', e => {
+  const r = cv.getBoundingClientRect();
+  const n = hitNode(e.clientX-r.left, e.clientY-r.top);
+  if (n) { selId = n.id; renderInsp(n.id); }
+});
+cv.addEventListener('touchend', e => {
+  e.preventDefault();
+  const t = e.changedTouches[0];
+  const r = cv.getBoundingClientRect();
+  const n = hitNode(t.clientX-r.left, t.clientY-r.top);
+  if (n) { selId = n.id; renderInsp(n.id); }
+}, {passive:false});
+window.addEventListener('resize', resize);
+
+// ══════════════════════════════════════════════════════════════
+// 3. STATE
+// ══════════════════════════════════════════════════════════════
+const S = {
+  on:false, turn:null, idx:0,
+  orders:0, pzas:0, alts:0, oee:0,
+  dec:{ rec:false, hs:false, dto:false },
+  role:'JEFE_TURNO'
+};
+const TURNS = ['MANANA','TARDE','NOCHE'];
+
+// ── Clock
+function tick() {
+  const n = new Date();
+  document.getElementById('clk').textContent =
+    [n.getHours(),n.getMinutes(),n.getSeconds()]
+      .map(v=>String(v).padStart(2,'0')).join(':');
+}
+setInterval(tick,1000); tick();
+
+// ── Header stats
+function upd() {
+  document.getElementById('h-oee').textContent = S.on ? S.oee.toFixed(1)+'%' : '—';
+  document.getElementById('h-pzs').textContent = S.pzas;
+  document.getElementById('h-alt').textContent = S.alts;
+}
+
+// ══════════════════════════════════════════════════════════════
+// 4. TERMINAL
+// ══════════════════════════════════════════════════════════════
+const TCAT = { C:'tC', S:'tS', B:'tB', SYS:'tSYS', OK:'tOK', ERR:'tERR' };
+
+function tlog(cat, tag, msg) {
+  const el = document.createElement('div');
+  el.className = 'tl';
+  const n = new Date();
+  const t = [n.getHours(),n.getMinutes(),n.getSeconds()].map(v=>String(v).padStart(2,'0')).join(':');
+  el.innerHTML = `<span class="tl-t">${t}</span><span class="tl-tag ${TCAT[cat]||'tSYS'}">${tag}</span><span class="tl-m">${msg}</span>`;
+  const log = document.getElementById('tlog');
+  log.appendChild(el);
+  log.scrollTop = log.scrollHeight;
+  if (log.children.length > 120) log.removeChild(log.firstChild);
+}
+
+// ══════════════════════════════════════════════════════════════
+// 5. FIRE PATTERN
+// ══════════════════════════════════════════════════════════════
+function fire(id) {
+  const n = P.find(x=>x.id===id); if (!n) return;
+  n.count++;
+  firing.add(id);
+  EDGES.forEach(([a,b],i) => { if (a===id||b===id) spawnEdge(i); });
+  setTimeout(()=>firing.delete(id), 900);
+  if (selId===id) { const el = document.getElementById('act-'+id); if (el) el.textContent = n.count; }
+}
+
+// ══════════════════════════════════════════════════════════════
+// 6. INSPECTOR
+// ══════════════════════════════════════════════════════════════
+function renderInsp(id) {
+  const n = P.find(x=>x.id===id); if (!n) return;
+  selId = id;
+  const col = CAT_COL[n.cat];
+  const sc  = SOLID_COL[n.solid] || col;
+  const lab = n.lab === 'decorator' ? decLabHtml() :
+              n.lab === 'proxy'     ? proxyLabHtml() : '';
+  document.getElementById('insp').innerHTML = `
+    <div class="insp-b">
+      <div class="p-hero">
+        <svg class="p-hex" viewBox="0 0 42 42">
+          <polygon points="21,2 37,11 37,31 21,40 5,31 5,11"
+            fill="${col}1a" stroke="${col}" stroke-width="1.6"/>
+          <text x="21" y="25" text-anchor="middle"
+            font-family="'Exo 2',sans-serif" font-size="9" font-weight="800"
+            fill="${col}">${n.solid}</text>
+        </svg>
+        <div>
+          <div class="p-name">${n.label}</div>
+          <div class="p-cat">${CAT_LBL[n.cat]} · <span style="color:${col}">${n.solid}</span></div>
+        </div>
+      </div>
+      <div class="f-label">Descripción</div>
+      <div class="f-body">${n.desc}</div>
+      <div class="f-pair">
+        <div><div class="f-label">Activaciones</div>
+          <div class="act-num" style="color:${col}" id="act-${id}">${n.count}</div></div>
+        <div><div class="f-label">Archivo fuente</div>
+          <div class="f-file">${n.file}</div></div>
+      </div>
+      ${lab}
+      <div class="f-label">Código fuente</div>
+      <div class="cw">
+        <div class="cw-bar">
+          <div class="cw-dot" style="background:#ff5f56"></div>
+          <div class="cw-dot" style="background:#ffbd2e"></div>
+          <div class="cw-dot" style="background:#27c93f"></div>
+          <span style="margin-left:8px;font-size:8px;color:var(--tx2);font-family:var(--f-mono)">${n.file.split('/').pop()}</span>
+        </div>
+        <pre>${n.code}</pre>
+      </div>
+      <div class="f-label">Principio SOLID</div>
+      <div class="solid-strip" style="border-color:${sc}44;background:${sc}0d;color:${sc}">
+        <strong>${n.solid}</strong> — ${n.solidDesc}
+      </div>
+    </div>`;
+}
+
+// Decorator Lab
+function calcCost() {
+  let c=1000;
+  if(S.dec.rec) c*=1.25;
+  if(S.dec.hs)  c*=1.30;
+  if(S.dec.dto) c*=.85;
+  return c;
+}
+function chain() {
+  const r=['Base(1000)'];
+  if(S.dec.rec) r.push('Recargo(+25%)');
+  if(S.dec.hs)  r.push('HorasExtra(+30%)');
+  if(S.dec.dto) r.push('Descuento(−15%)');
+  return r.join(' → ');
+}
+function decLabHtml() {
+  function row(k, name, mod) {
+    const on = S.dec[k];
+    return `<div class="dec-row${on?' on':''}" id="dr-${k}" onclick="togDec('${k}')">
+      <div class="dec-chk">${on?'✓':''}</div>
+      <span>${name}</span>
+      <span style="margin-left:auto;font-family:var(--f-mono);font-size:9px;color:${on?'var(--fire)':'var(--tx2)'}">${mod}</span>
+    </div>`;
+  }
+  return `<div class="f-label">Laboratorio Decorator</div>
+    <div class="dec-stack">
+      ${row('rec','RecargoPrioritario','+25%')}
+      ${row('hs','CargoHorasExtra','+30%')}
+      ${row('dto','DescuentoVolumen','−15%')}
+    </div>
+    <div class="dec-price" id="dp">
+      <div style="font-size:8px;color:var(--tx2);font-family:var(--f-mono);margin-bottom:3px">COSTO CALCULADO</div>
+      <div class="dec-price-num">$ ${calcCost().toFixed(2)}</div>
+      <div class="dec-chain">${chain()}</div>
+    </div>`;
+}
+function togDec(k) {
+  S.dec[k] = !S.dec[k];
+  fire('decorator');
+  tlog('S','DECORATOR',`${chain()} → <strong>$ ${calcCost().toFixed(2)}</strong>`);
+  renderInsp('decorator');
+}
+
+// Proxy Lab
+function proxyLabHtml() {
+  const ok = ['JEFE_TURNO','SUPERVISOR'].includes(S.role);
+  return `<div class="f-label">Control de Acceso · Proxy</div>
+    <div class="role-row">
+      ${['JEFE_TURNO','SUPERVISOR','OPERARIO'].map(r=>
+        `<button class="role-btn${S.role===r?' on':''}" onclick="setRole('${r}')">${r}</button>`).join('')}
+    </div>
+    <div class="access-box ${ok?'a-ok':'a-no'}" id="ab">
+      ${ok ? '✓ ACCESO CONCEDIDO' : '✗ ACCESO DENEGADO'}
+    </div>`;
+}
+function setRole(r) {
+  S.role = r;
+  fire('proxy');
+  const ok = ['JEFE_TURNO','SUPERVISOR'].includes(r);
+  tlog(ok?'B':'ERR','PROXY', ok ? `${r} → ACCESO CONCEDIDO` : `${r} → SecurityException("ACCESO DENEGADO")`);
+  renderInsp('proxy');
+}
+
+// ══════════════════════════════════════════════════════════════
+// 7. TOAST
+// ══════════════════════════════════════════════════════════════
+function toast(icon, msg, bc) {
+  const tc = document.getElementById('toasts');
+  const el = document.createElement('div');
+  el.className = 'toast'; el.style.borderColor = bc;
+  el.innerHTML = `<span style="font-size:15px">${icon}</span><span style="font-size:11px;color:var(--tx0)">${msg}</span>`;
+  tc.appendChild(el);
+  setTimeout(() => { el.style.animation='t-out .28s ease forwards'; setTimeout(()=>el.remove(),300); }, 3500);
+}
+
+// ══════════════════════════════════════════════════════════════
+// 8. TURN ACTIONS
+// ══════════════════════════════════════════════════════════════
+const ms = n => new Promise(r => setTimeout(r, n));
+
+async function iniciarTurno() {
+  if (S.on) return;
+  S.on=true; S.turn=TURNS[S.idx%3]; S.idx++;
+  S.orders=0; S.pzas=0; S.alts=0;
+  document.getElementById('b-start').disabled=true;
+  document.getElementById('b-ord').disabled=false;
+  document.getElementById('b-close').disabled=false;
+  const chip=document.getElementById('tc');
+  chip.textContent=`TURNO: ${S.turn}`; chip.classList.add('on');
+
+  tlog('SYS','SYSTEM',`Iniciando turno <strong>${S.turn}</strong> — activando subsistemas…`);
+  await ms(220);
+
+  fire('singleton');
+  tlog('C','SINGLETON',`getInstancia() → ConfiguracionPlanta (turno=${S.turn})`);
+  await ms(260);
+
+  fire('factory');
+  tlog('C','FACTORY-METHOD',`FabricaOrdenEstandar lista para turno <strong>${S.turn}</strong>`);
+  await ms(220);
+
+  fire('abstractfactory');
+  tlog('C','ABSTRACT-FACTORY','FabricaCNC → MaquinaCNC + SensorPresion creados');
+  await ms(200);
+
+  fire('composite');
+  const cap = 240 + Math.floor(Math.random()*80);
+  tlog('S','COMPOSITE',`PlantaProduccion.getCapacidad() → <strong>${cap}</strong> piezas/h (3 líneas × N módulos)`);
+  await ms(200);
+
+  fire('adapter');
+  tlog('S','ADAPTER','AdaptadorErp.iniciarJornada() → protocolo ERP legado notificado');
+  await ms(200);
+
+  fire('bridge'); S.alts++;
+  tlog('S','BRIDGE',`AlertaMantenimiento → ConsolaAlerta: "Verificación preventiva — ${S.turn}"`);
+  await ms(200);
+
+  fire('facade');
+  tlog('OK','SUCCESS',`ControlTurnoFacade.iniciarTurno("${S.turn}") completado ✓ — 6 subsistemas activos`);
+
+  upd();
+  toast('🏭',`Turno ${S.turn} iniciado`,'#00f5ff');
+  startOee();
+  selId='facade'; renderInsp('facade');
+}
+
+async function crearOrden() {
+  if (!S.on) return;
+  S.orders++;
+  const ref=`REF-${String(S.orders).padStart(3,'0')}`;
+  const qty=50+Math.floor(Math.random()*200);
+  const urg=Math.random()>.65;
+  const tipo=urg?'URGENTE':'ESTANDAR';
+
+  fire('factory');
+  tlog('C','FACTORY-METHOD',`crearOrden("${ref}", ${qty}) → Orden${tipo}`);
+  await ms(210);
+
+  fire('prototype');
+  tlog('C','PROTOTYPE',`${ref}.clone() → plantilla reutilizada, prioridad actualizada`);
+  await ms(180);
+
+  if (urg) {
+    fire('decorator');
+    tlog('S','DECORATOR',`CostoBase → RecargoPrioritario → <strong>$ ${(1000*1.25).toFixed(2)}</strong>`);
+    await ms(160);
+  }
+
+  fire('builder');
+  tlog('C','BUILDER',`GeneradorReportes.generar() → ReporteOee [${ref}] construido paso a paso`);
+  await ms(180);
+
+  fire('flyweight');
+  tlog('S','FLYWEIGHT',`FlyweightFactory: cache hit (${3+Math.floor(Math.random()*10)} refs activas en memoria)`);
+
+  S.pzas += Math.floor(qty*(0.88+Math.random()*.1));
+  upd();
+  toast(urg?'⚡':'📦',`${ref} — ${tipo}`,urg?'#ff7b00':'#00e87a');
+  renderInsp(selId);
+}
+
+async function cerrarTurno() {
+  if (!S.on) return;
+  S.on=false;
+  clearInterval(window._oeeTmr);
+  document.getElementById('b-start').disabled=false;
+  document.getElementById('b-ord').disabled=true;
+  document.getElementById('b-close').disabled=true;
+  const chip=document.getElementById('tc');
+  chip.textContent='SIN TURNO'; chip.classList.remove('on');
+
+  tlog('SYS','SYSTEM',`Cerrando turno <strong>${S.turn}</strong>…`);
+  await ms(220);
+
+  fire('builder');
+  tlog('C','BUILDER',`ReporteDetalladoBuilder → ReporteOee final (${S.turn}) construido`);
+  await ms(210);
+
+  fire('proxy');
+  tlog('B','PROXY','ProxyReportesSeguro → JEFE_TURNO: ACCESO CONCEDIDO — reporte entregado');
+  await ms(210);
+
+  fire('adapter');
+  tlog('S','ADAPTER',`AdaptadorErp.registrarCierreTurno("${S.turn}", ${S.pzas}) → ERP actualizado`);
+  await ms(200);
+
+  fire('bridge'); S.alts++;
+  tlog('S','BRIDGE',`AlertaParada → BitacoraAlerta: "Turno ${S.turn} cerrado — ${S.pzas} piezas"`);
+  await ms(200);
+
+  fire('facade');
+  tlog('OK','SUCCESS',`ControlTurnoFacade.cerrarTurno() ✓ · <strong>${S.pzas} piezas</strong> registradas en ERP`);
+
+  S.oee=0; upd();
+  toast('✅',`Turno ${S.turn} cerrado · ${S.pzas} piezas`,'#00e87a');
+  S.turn=null;
+}
+
+// ══════════════════════════════════════════════════════════════
+// 9. OEE SIMULATION
+// ══════════════════════════════════════════════════════════════
+function startOee() {
+  let t=0;
+  clearInterval(window._oeeTmr);
+  window._oeeTmr = setInterval(()=>{
+    if (!S.on) return; t++;
+    S.oee = 75 + Math.sin(t*.28)*8 + Math.random()*3;
+    upd();
+    if (Math.random()<.07) {
+      fire('bridge'); S.alts++;
+      const tp=['AlertaCalidad','AlertaMantenimiento'][Math.floor(Math.random()*2)];
+      tlog('S','BRIDGE',`${tp} → ConsolaAlerta (OEE=${S.oee.toFixed(1)}%)`);
+      upd();
+    }
+    if (Math.random()<.05) { fire('flyweight'); tlog('S','FLYWEIGHT',`Cache: ${4+Math.floor(Math.random()*12)} FlyweightPieza activas`); }
+    if (Math.random()<.04) { fire('singleton'); tlog('C','SINGLETON','getInstancia() → lectura OEE target (módulo de monitoreo)'); }
+  }, 2700);
+}
+
+// ══════════════════════════════════════════════════════════════
+// 10. BOOT
+// ══════════════════════════════════════════════════════════════
+resize();
+requestAnimationFrame(drawFrame);
+
+// Warm-up: spawn a few ambient particles
+setTimeout(()=>{ for(let i=0;i<6;i++) spawnEdge(Math.floor(Math.random()*EDGES.length)); }, 500);
+
+tlog('SYS','SYSTEM',`Canvas ${Math.round(GW/DPR)}×${Math.round(GH/DPR)}px · DPR=${DPR} · 12 patrones GoF activos`);
+tlog('SYS','SYSTEM','Presiona <strong>Iniciar Turno</strong> para comenzar la simulación del sistema MES');
+</script>
