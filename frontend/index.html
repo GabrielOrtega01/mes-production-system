@@ -22,9 +22,9 @@
   --scrap:  #ff2d55;   /* warning red */
   --amber:  #ffb700;
 
-  --tx0: #dff0ff;
-  --tx1: #7ba3c0;
-  --tx2: #3d617c;
+  --tx0: #e8f4ff;
+  --tx1: #8db8d8;
+  --tx2: #5a8aaa;
 
   --f-hud: 'Exo 2', system-ui, sans-serif;
   --f-mono: 'Fira Code', 'Cascadia Code', monospace;
@@ -120,7 +120,7 @@ html, body {
 #gc { display: block; width: 100%; height: 100%; cursor: crosshair; }
 .graph-hint {
   position: absolute; bottom: 11px; left: 16px;
-  font-size: 9px; font-family: var(--f-mono); color: var(--tx2); letter-spacing: .5px; pointer-events: none;
+  font-size: 9px; font-family: var(--f-mono); color: var(--tx1); letter-spacing: .5px; pointer-events: none;
 }
 
 /* ── SIDE PANEL ───────────────────────────────────────── */
@@ -767,7 +767,7 @@ function drawFrame() {
     // Label
     ctx.font = `${sel ? 600 : 400} ${10*DPR}px 'Exo 2',sans-serif`;
     ctx.textAlign = 'center'; ctx.textBaseline = 'top';
-    ctx.fillStyle = sel ? col : (hover ? '#dff0ff' : '#3d617c');
+    ctx.fillStyle = sel ? col : (hover ? '#e8f4ff' : '#6699bb');
     ctx.fillText(n.label, x, y + r + 4*DPR);
   });
 
