@@ -9,22 +9,23 @@
    Layout: header / [canvas | inspector] / terminal
 ═══════════════════════════════════════════════════════════════ */
 :root {
-  --ink:    #040d1a;
-  --deep:   #080f1e;
-  --surf:   #0c1828;
-  --lift:   #122035;
-  --dim:    #1b2f42;
+  --ink:    #010a18;
+  --deep:   #030d1f;
+  --surf:   #071525;
+  --lift:   #0d1e32;
+  --dim:    #163049;
 
-  --rim:    #00f5ff;    /* electric cyan — primary accent */
-  --fire:   #ff7b00;   /* molten orange — structural */
-  --cast:   #a855f7;   /* neon violet — behavioral */
-  --forge:  #00e87a;   /* electric green — success */
-  --scrap:  #ff2d55;   /* warning red */
-  --amber:  #ffb700;
+  --rim:    #00ffff;    /* pure cyan */
+  --fire:   #ff6a00;   /* vivid orange */
+  --cast:   #d926f0;   /* hot magenta-violet */
+  --forge:  #00ff88;   /* neon green */
+  --scrap:  #ff003c;   /* vivid red */
+  --amber:  #ffd000;   /* gold */
+  --rose:   #ff2d78;   /* hot pink */
 
-  --tx0: #e8f4ff;
-  --tx1: #8db8d8;
-  --tx2: #5a8aaa;
+  --tx0: #f0f8ff;
+  --tx1: #b0d8f8;
+  --tx2: #6aaac8;
 
   --f-hud: 'Exo 2', system-ui, sans-serif;
   --f-mono: 'Fira Code', 'Cascadia Code', monospace;
@@ -55,18 +56,20 @@ html, body {
   align-items: center;
   gap: 14px;
   padding: 0 20px;
-  background: var(--deep);
-  border-bottom: 1px solid rgba(0,245,255,0.1);
+  background: linear-gradient(90deg, #010e22 0%, #030d1f 50%, #070818 100%);
+  border-bottom: 1px solid rgba(0,255,255,0.18);
+  box-shadow: 0 0 32px rgba(0,255,255,0.07);
   position: relative;
   overflow: hidden;
   flex-shrink: 0;
 }
 .hdr::after {
   content: '';
-  position: absolute; bottom: 0; left: 0; right: 0; height: 1px;
-  background: linear-gradient(90deg, transparent 0%, var(--rim) 30%, var(--fire) 60%, var(--cast) 80%, transparent 100%);
+  position: absolute; bottom: 0; left: 0; right: 0; height: 2px;
+  background: linear-gradient(90deg, transparent 0%, var(--rim) 20%, var(--forge) 40%, var(--fire) 60%, var(--cast) 80%, transparent 100%);
   background-size: 200% 100%;
-  animation: sweep 4s linear infinite;
+  animation: sweep 3s linear infinite;
+  filter: blur(0.5px);
 }
 @keyframes sweep { from { background-position: 200% 0 } to { background-position: -100% 0 } }
 
@@ -94,7 +97,7 @@ html, body {
 .hdr-stats { display: flex; gap: 18px; }
 .stat-cell { display: flex; flex-direction: column; gap: 1px; }
 .stat-lbl { font-size: 8px; font-family: var(--f-mono); letter-spacing: 1.5px; text-transform: uppercase; color: var(--tx2); }
-.stat-val { font-size: 15px; font-weight: 700; font-family: var(--f-mono); line-height: 1; font-variant-numeric: tabular-nums; }
+.stat-val { font-size: 15px; font-weight: 800; font-family: var(--f-mono); line-height: 1; font-variant-numeric: tabular-nums; text-shadow: 0 0 12px currentColor; }
 
 .live-pulse {
   width: 7px; height: 7px; border-radius: 50%;
@@ -125,8 +128,9 @@ html, body {
 
 /* ── SIDE PANEL ───────────────────────────────────────── */
 .side {
-  background: var(--deep);
-  border-left: 1px solid rgba(0,245,255,0.09);
+  background: linear-gradient(180deg, #030d1f 0%, #010a18 100%);
+  border-left: 1px solid rgba(0,255,255,0.15);
+  box-shadow: -4px 0 24px rgba(0,255,255,0.04);
   display: flex; flex-direction: column; overflow: hidden;
 }
 .side-head {
@@ -254,15 +258,15 @@ html, body {
   cursor: pointer; transition: all .18s; letter-spacing: .2px;
 }
 .btn:disabled { opacity: .32; cursor: not-allowed; }
-.b-cyan  { background: rgba(0,245,255,.08); border-color: rgba(0,245,255,.45); color: var(--rim); }
-.b-orange{ background: rgba(255,123,0,.08); border-color: rgba(255,123,0,.45); color: var(--fire); }
-.b-dim   { background: transparent; border-color: var(--dim); color: var(--tx1); }
-.b-cyan:hover:not(:disabled)  { background: rgba(0,245,255,.16); box-shadow: 0 0 14px rgba(0,245,255,.2); }
-.b-orange:hover:not(:disabled){ background: rgba(255,123,0,.16); box-shadow: 0 0 14px rgba(255,123,0,.2); }
-.b-dim:hover:not(:disabled)   { border-color: rgba(123,163,192,.5); color: var(--tx0); }
+.b-cyan  { background: rgba(0,255,255,.10); border-color: rgba(0,255,255,.6); color: var(--rim); text-shadow: 0 0 10px var(--rim); }
+.b-orange{ background: rgba(255,106,0,.10); border-color: rgba(255,106,0,.6); color: var(--fire); text-shadow: 0 0 10px var(--fire); }
+.b-dim   { background: rgba(255,255,255,.03); border-color: rgba(176,216,248,.2); color: var(--tx1); }
+.b-cyan:hover:not(:disabled)  { background: rgba(0,255,255,.2); box-shadow: 0 0 20px rgba(0,255,255,.35), inset 0 0 12px rgba(0,255,255,.08); }
+.b-orange:hover:not(:disabled){ background: rgba(255,106,0,.2); box-shadow: 0 0 20px rgba(255,106,0,.35), inset 0 0 12px rgba(255,106,0,.08); }
+.b-dim:hover:not(:disabled)   { border-color: rgba(176,216,248,.5); color: var(--tx0); background: rgba(255,255,255,.05); }
 
 /* ── TERMINAL ─────────────────────────────────────────── */
-.term { background: #020b16; border-top: 1px solid rgba(0,245,255,.1); display: flex; flex-direction: column; overflow: hidden; }
+.term { background: #010810; border-top: 1px solid rgba(0,255,255,.15); box-shadow: 0 -4px 20px rgba(0,0,0,.5); display: flex; flex-direction: column; overflow: hidden; }
 .term-bar {
   display: flex; align-items: center; gap: 7px; padding: 5px 15px;
   border-bottom: 1px solid var(--dim); flex-shrink: 0;
@@ -283,12 +287,12 @@ html, body {
 }
 .tl-m  { color: rgba(223,240,255,.7); min-width: 0; }
 
-.tC   { background: rgba(0,245,255,.1); color: var(--rim); }
-.tS   { background: rgba(255,123,0,.1); color: var(--fire); }
-.tB   { background: rgba(168,85,247,.1); color: var(--cast); }
-.tSYS { background: rgba(61,97,124,.12); color: var(--tx1); }
-.tOK  { background: rgba(0,232,122,.1); color: var(--forge); }
-.tERR { background: rgba(255,45,85,.1); color: var(--scrap); }
+.tC   { background: rgba(0,255,255,.14); color: var(--rim);   border: 1px solid rgba(0,255,255,.3); }
+.tS   { background: rgba(255,106,0,.14); color: var(--fire);  border: 1px solid rgba(255,106,0,.3); }
+.tB   { background: rgba(217,38,240,.14);color: var(--cast);  border: 1px solid rgba(217,38,240,.3); }
+.tSYS { background: rgba(100,160,200,.1); color: var(--tx1);  border: 1px solid rgba(100,160,200,.2); }
+.tOK  { background: rgba(0,255,136,.14); color: var(--forge); border: 1px solid rgba(0,255,136,.3); }
+.tERR { background: rgba(255,0,60,.14);  color: var(--scrap); border: 1px solid rgba(255,0,60,.3); }
 
 /* ── TOASTS ───────────────────────────────────────────── */
 #toasts { position: fixed; top: 68px; right: 14px; display: flex; flex-direction: column; gap: 5px; z-index: 100; pointer-events: none; }
@@ -478,7 +482,7 @@ html, body {
 // ══════════════════════════════════════════════════════════════
 // 1. PATTERN DEFINITIONS
 // ══════════════════════════════════════════════════════════════
-const CAT_COL = { C:'#00f5ff', S:'#ff7b00', B:'#a855f7' };
+const CAT_COL = { C:'#00ffff', S:'#ff6a00', B:'#d926f0' };
 const CAT_LBL = { C:'Creacional', S:'Estructural', B:'Comportamiento' };
 const SOLID_COL = { SRP:'#00f5ff', OCP:'#ff7b00', LSP:'#a855f7', ISP:'#00e87a', DIP:'#ff2d55' };
 
@@ -717,7 +721,7 @@ function spawnP(a, b) {
   ptcls.push({
     fx:ax, fy:ay, tx:bx, ty:by,
     t:0, sp:.003 + Math.random()*.006,
-    col:CAT_COL[a.cat], r:(1.5 + Math.random()*1.5)*DPR
+    col:CAT_COL[a.cat], r:(2 + Math.random()*2)*DPR
   });
 }
 
@@ -732,7 +736,7 @@ function drawFrame() {
 
   // Background grid
   ctx.save();
-  ctx.strokeStyle = 'rgba(0,245,255,0.03)';
+  ctx.strokeStyle = 'rgba(0,220,255,0.055)';
   ctx.lineWidth = 1;
   const gs = 44 * DPR;
   for (let x = 0; x < GW; x += gs) { ctx.beginPath(); ctx.moveTo(x,0); ctx.lineTo(x,GH); ctx.stroke(); }
@@ -757,12 +761,15 @@ function drawFrame() {
     const a = P.find(x=>x.id===ai), b = P.find(x=>x.id===bi);
     if (!a||!b) return;
     const active = firing.has(ai) || firing.has(bi);
+    ctx.save();
     ctx.beginPath();
     ctx.moveTo(a.x*GW, a.y*GH);
     ctx.lineTo(b.x*GW, b.y*GH);
-    ctx.strokeStyle = active ? CAT_COL[a.cat] : CAT_COL[a.cat]+'2a';
-    ctx.lineWidth   = active ? 1.8*DPR : 0.8*DPR;
+    if (active) { ctx.shadowColor = CAT_COL[a.cat]; ctx.shadowBlur = 8*DPR; }
+    ctx.strokeStyle = active ? CAT_COL[a.cat] : CAT_COL[a.cat]+'44';
+    ctx.lineWidth   = active ? 2*DPR : 1*DPR;
     ctx.stroke();
+    ctx.restore();
   });
 
   // Particles
@@ -793,26 +800,30 @@ function drawFrame() {
     const col = CAT_COL[n.cat];
 
     // Outer glow
-    if (fire || sel) {
-      ctx.save();
-      ctx.globalAlpha = fire ? .55 : .28;
-      ctx.shadowColor = col; ctx.shadowBlur = 28*DPR;
-      hexPath(x, y, r+5*DPR);
-      ctx.fillStyle = col; ctx.fill();
-      ctx.restore();
-    }
+    ctx.save();
+    ctx.globalAlpha = fire ? .65 : sel ? .35 : hover ? .15 : .06;
+    ctx.shadowColor = col; ctx.shadowBlur = fire ? 36*DPR : 22*DPR;
+    hexPath(x, y, r + (fire ? 7 : sel ? 5 : 3)*DPR);
+    ctx.fillStyle = col; ctx.fill();
+    ctx.restore();
 
     // Fill
     hexPath(x, y, r);
-    ctx.fillStyle = sel ? col+'1c' : '#0c1828';
+    const grad = ctx.createRadialGradient(x, y-r*.3, 0, x, y, r*1.2);
+    if (sel || fire) {
+      grad.addColorStop(0, col+'22'); grad.addColorStop(1, col+'08');
+    } else {
+      grad.addColorStop(0, '#0d1e33'); grad.addColorStop(1, '#060f1c');
+    }
+    ctx.fillStyle = grad;
     ctx.fill();
 
     // Border
     ctx.save();
     hexPath(x, y, r);
-    ctx.strokeStyle = (fire||sel) ? col : (hover ? col+'88' : col+'38');
-    ctx.lineWidth   = (sel||fire) ? 2.2*DPR : 1.4*DPR;
-    if (fire||sel) { ctx.shadowColor = col; ctx.shadowBlur = 14*DPR; }
+    ctx.strokeStyle = (fire||sel) ? col : (hover ? col+'cc' : col+'55');
+    ctx.lineWidth   = (sel||fire) ? 2.4*DPR : hover ? 1.8*DPR : 1.4*DPR;
+    if (fire||sel||hover) { ctx.shadowColor = col; ctx.shadowBlur = (fire ? 18 : 10)*DPR; }
     ctx.stroke();
     ctx.restore();
 
@@ -828,10 +839,12 @@ function drawFrame() {
     }
 
     // Label
-    ctx.font = `${sel ? 600 : 400} ${10*DPR}px 'Exo 2',sans-serif`;
+    ctx.font = `${(sel||hover) ? 700 : 500} ${10*DPR}px 'Exo 2',sans-serif`;
     ctx.textAlign = 'center'; ctx.textBaseline = 'top';
-    ctx.fillStyle = sel ? col : (hover ? '#e8f4ff' : '#6699bb');
+    if (sel || fire) { ctx.shadowColor = col; ctx.shadowBlur = 8*DPR; }
+    ctx.fillStyle = sel ? col : (hover ? '#f0f8ff' : col + 'aa');
     ctx.fillText(n.label, x, y + r + 4*DPR);
+    ctx.shadowBlur = 0;
   });
 
   requestAnimationFrame(drawFrame);
