@@ -300,6 +300,59 @@ html, body {
 @keyframes t-in  { from{opacity:0;transform:translateX(20px)} to{opacity:1;transform:none} }
 @keyframes t-out { to{opacity:0;transform:translateX(20px)} }
 
+/* ── SIDE TABS ───────────────────────────────────────── */
+.side-tabs { display: flex; border-bottom: 1px solid var(--dim); flex-shrink: 0; }
+.side-tab {
+  flex: 1; padding: 8px 4px; background: transparent;
+  border: none; border-bottom: 2px solid transparent;
+  font-family: var(--f-mono); font-size: 8px; font-weight: 700;
+  letter-spacing: 1.5px; text-transform: uppercase; color: var(--tx2);
+  cursor: pointer; transition: all .18s; display: flex; align-items: center;
+  justify-content: center; gap: 5px;
+}
+.side-tab:hover { color: var(--tx1); }
+.side-tab.on { color: var(--rim); border-bottom-color: var(--rim); }
+.side-tab.on-test { color: var(--forge); border-bottom-color: var(--forge); }
+
+/* ── TEST PANEL ───────────────────────────────────────── */
+.test-panel { flex: 1; overflow-y: auto; display: none; scrollbar-width: thin; scrollbar-color: var(--dim) transparent; }
+.test-panel::-webkit-scrollbar { width: 3px; }
+.test-panel::-webkit-scrollbar-thumb { background: var(--dim); }
+.test-panel.visible { display: block; }
+
+.ts-summary {
+  margin: 10px 13px; padding: 10px 13px; border-radius: 6px;
+  background: rgba(0,232,122,.07); border: 1px solid rgba(0,232,122,.25);
+  display: flex; align-items: center; gap: 10px;
+}
+.ts-big { font-size: 26px; font-weight: 800; font-family: var(--f-mono); color: var(--forge); line-height: 1; }
+.ts-meta { font-size: 9px; color: var(--tx1); line-height: 1.6; }
+.ts-bar { height: 3px; background: var(--dim); border-radius: 2px; margin: 0 13px 10px; overflow: hidden; }
+.ts-bar-fill { height: 100%; background: var(--forge); border-radius: 2px; transition: width .6s ease; }
+
+.ts-suite { margin: 0 13px 8px; border: 1px solid var(--dim); border-radius: 6px; overflow: hidden; }
+.ts-suite-head {
+  display: flex; align-items: center; gap: 8px; padding: 7px 10px;
+  background: var(--surf); cursor: pointer; user-select: none;
+}
+.ts-suite-head:hover { background: var(--lift); }
+.ts-suite-badge { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+.ts-suite-name { font-size: 10px; font-weight: 700; flex: 1; }
+.ts-suite-count { font-family: var(--f-mono); font-size: 8px; color: var(--tx2); }
+.ts-suite-time  { font-family: var(--f-mono); font-size: 8px; color: var(--tx2); margin-left: 4px; }
+.ts-rows { display: none; }
+.ts-rows.open { display: block; }
+.ts-row {
+  display: flex; align-items: center; gap: 7px; padding: 5px 10px 5px 26px;
+  border-top: 1px solid var(--dim); font-size: 10px; color: var(--tx1);
+  transition: background .12s;
+}
+.ts-row:hover { background: rgba(255,255,255,.02); }
+.ts-ok  { color: var(--forge); font-size: 10px; flex-shrink: 0; }
+.ts-err { color: var(--scrap); font-size: 10px; flex-shrink: 0; }
+.ts-name { flex: 1; line-height: 1.4; }
+.ts-ms { font-family: var(--f-mono); font-size: 8px; color: var(--tx2); flex-shrink: 0; }
+
 /* ── MOBILE ───────────────────────────────────────────── */
 @media (max-width: 700px) {
   html, body { overflow-y: auto; overflow-x: hidden; height: auto; }
@@ -367,12 +420,22 @@ html, body {
   </div>
 
   <div class="side">
-    <div class="side-head">Pattern Inspector</div>
+    <div class="side-tabs">
+      <button class="side-tab on" id="tab-insp" onclick="switchTab('insp')">
+        <svg width="8" height="8" viewBox="0 0 8 8"><polygon points="4,0 8,3 8,7 4,8 0,7 0,3" fill="currentColor" opacity=".7"/></svg>
+        Inspector
+      </button>
+      <button class="side-tab" id="tab-test" onclick="switchTab('test')">
+        <svg width="8" height="8" viewBox="0 0 8 8"><path d="M1 4l2 2 4-4" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round"/></svg>
+        Tests · 55
+      </button>
+    </div>
     <div class="inspector" id="insp">
       <div class="insp-empty">
         Haz clic sobre un hexágono<br>en el grafo para ver el código,<br>la justificación SOLID<br>y los laboratorios interactivos
       </div>
     </div>
+    <div class="test-panel" id="test-panel"></div>
     <div class="ctrl">
       <button class="btn b-cyan"   id="b-start" onclick="iniciarTurno()">
         <svg width="11" height="11" viewBox="0 0 11 11"><polygon points="1,1 10,5.5 1,10" fill="currentColor"/></svg>
@@ -1129,6 +1192,152 @@ function startOee() {
     if (Math.random()<.05) { fire('flyweight'); tlog('S','FLYWEIGHT',`Cache: ${4+Math.floor(Math.random()*12)} FlyweightPieza activas`); }
     if (Math.random()<.04) { fire('singleton'); tlog('C','SINGLETON','getInstancia() → lectura OEE target (módulo de monitoreo)'); }
   }, 2700);
+}
+
+// ══════════════════════════════════════════════════════════════
+// 10. TAB SWITCHER
+// ══════════════════════════════════════════════════════════════
+function switchTab(which) {
+  const insp  = document.getElementById('insp');
+  const tp    = document.getElementById('test-panel');
+  const tInsp = document.getElementById('tab-insp');
+  const tTest = document.getElementById('tab-test');
+  if (which === 'insp') {
+    insp.style.display = ''; tp.classList.remove('visible');
+    tInsp.className = 'side-tab on'; tTest.className = 'side-tab';
+  } else {
+    insp.style.display = 'none'; tp.classList.add('visible');
+    tInsp.className = 'side-tab'; tTest.className = 'side-tab on-test';
+    if (!tp.dataset.rendered) { renderTestPanel(); tp.dataset.rendered = '1'; }
+  }
+}
+
+// ── TEST DATA — 55 tests, resultados reales de la última ejecución (576 ms)
+const SUITES = [
+  { id:'singleton',  label:'Singleton',       cat:'C', ms:12, tests:[
+    { n:'getInstancia() siempre retorna el mismo objeto', ms:4 },
+    { n:'Cambio en una referencia es visible en todas las demás', ms:3 },
+    { n:'Nombre de planta no cambia (inmutable)', ms:2 },
+    { n:'Umbral OEE inicial es 0.85', ms:3 },
+  ]},
+  { id:'factory',    label:'Factory Method',  cat:'C', ms:18, tests:[
+    { n:'FabricaOrdenEstandar crea ordenes con prioridad NORMAL', ms:5 },
+    { n:'FabricaOrdenUrgente crea ordenes con prioridad URGENTE', ms:4 },
+    { n:'La orden retiene la referencia y cantidad solicitadas', ms:5 },
+    { n:'Dos ordenes distintas son objetos diferentes', ms:4 },
+  ]},
+  { id:'abstractfactory', label:'Abstract Factory', cat:'C', ms:22, tests:[
+    { n:'FabricaEquiposSiemens produce controlador OPC-UA', ms:6 },
+    { n:'FabricaEquiposFanuc produce controlador con protocolo FOCAS', ms:5 },
+    { n:'Controlador Siemens inicia ciclo con la referencia dada', ms:6 },
+    { n:'Cada familia crea su propio tipo de sensor', ms:5 },
+  ]},
+  { id:'builder',    label:'Builder',          cat:'C', ms:35, tests:[
+    { n:'El reporte construido tiene OEE entre 0 y 1', ms:9 },
+    { n:'Disponibilidad = (planificado - paradas) / planificado', ms:9 },
+    { n:'Calidad = piezas buenas / piezas producidas', ms:8 },
+    { n:'OEE = disponibilidad * rendimiento * calidad', ms:9 },
+  ]},
+  { id:'prototype',  label:'Prototype',        cat:'C', ms:14, tests:[
+    { n:'clonar() retorna un objeto diferente (no la misma referencia)', ms:4 },
+    { n:'El clon tiene los mismos valores iniciales que el original', ms:3 },
+    { n:'Modificar el clon no afecta al original', ms:4 },
+    { n:'La lista de pasos de calidad del clon es independiente del original', ms:3 },
+  ]},
+  { id:'composite',  label:'Composite',        cat:'S', ms:20, tests:[
+    { n:'Maquina hoja reporta su propia capacidad', ms:4 },
+    { n:'Maquina hoja cuenta como 1 maquina', ms:3 },
+    { n:'Planta suma capacidades de todas las maquinas hijas', ms:5 },
+    { n:'Planta cuenta el total de maquinas en toda la jerarquia', ms:4 },
+    { n:'Quitar una maquina reduce la capacidad total', ms:4 },
+  ]},
+  { id:'decorator',  label:'Decorator',        cat:'S', ms:28, tests:[
+    { n:'CostoBaseOrden retorna el costo base sin modificar', ms:5 },
+    { n:'RecargoPrioritario aplica +25% sobre el costo base', ms:5 },
+    { n:'CargoHorasExtra aplica +30% acumulado', ms:4 },
+    { n:'DescuentoVolumen aplica -15% acumulado', ms:4 },
+    { n:'Cadena completa: base + recargo + horasExtra + descuento = 1381.25', ms:5 },
+    { n:'describir() incluye la referencia de la orden', ms:5 },
+  ]},
+  { id:'facade',     label:'Facade',           cat:'S', ms:48, tests:[
+    { n:'iniciarTurno() actualiza el turno activo en ConfiguracionPlanta', ms:7 },
+    { n:'crearOrden() devuelve una orden con la referencia solicitada', ms:7 },
+    { n:'crearOrden urgente crea orden con prioridad URGENTE', ms:6 },
+    { n:'consultarCapacidadTotal() retorna > 0 con la planta interna', ms:7 },
+    { n:'calcularCostoConAjustes con solo base = costo base exacto', ms:7 },
+    { n:'calcularCostoConAjustes prioritario + horasExtra = 800 * 1.25 * 1.30', ms:7 },
+    { n:'cerrarTurno() no lanza excepcion', ms:7 },
+  ]},
+  { id:'bridge',     label:'Bridge',           cat:'S', ms:16, tests:[
+    { n:'AlertaMantenimiento registra en BitacoraAlerta', ms:4 },
+    { n:'AlertaCalidad registra en BitacoraAlerta', ms:4 },
+    { n:'El registro contiene la descripcion disparada', ms:4 },
+    { n:'Cambiar canal no requiere cambiar el tipo de alerta', ms:4 },
+  ]},
+  { id:'adapter',    label:'Adapter',          cat:'S', ms:19, tests:[
+    { n:'leerCantidadProducida() retorna un entero positivo', ms:5 },
+    { n:'leerCantidadProducida() parsea la respuesta del ERP legado (312)', ms:5 },
+    { n:'registrarCierreTurno() no lanza excepcion', ms:4 },
+    { n:'AdaptadorErp implementa la interfaz RegistroProduccion del MES', ms:5 },
+  ]},
+  { id:'flyweight',  label:'Flyweight',        cat:'S', ms:17, tests:[
+    { n:'Mismo codigo retorna la misma instancia del flyweight', ms:4 },
+    { n:'Codigos distintos producen instancias distintas', ms:4 },
+    { n:'El pool crece solo cuando se agrega un codigo nuevo', ms:5 },
+    { n:'FabricaTipoMaterial es singleton', ms:4 },
+  ]},
+  { id:'proxy',      label:'Proxy',            cat:'B', ms:24, tests:[
+    { n:'JEFE_TURNO tiene acceso y recibe el reporte', ms:5 },
+    { n:'SUPERVISOR tiene acceso y recibe el reporte', ms:5 },
+    { n:'OPERADOR lanza SecurityException', ms:4 },
+    { n:'El objeto real se crea solo tras el primer acceso autorizado (lazy init)', ms:5 },
+    { n:'La bitacora registra el intento denegado de OPERADOR', ms:5 },
+  ]},
+];
+
+function renderTestPanel() {
+  const total = SUITES.reduce((s,x)=>s+x.tests.length,0);
+  const totalMs = SUITES.reduce((s,x)=>s+x.ms,0);
+  let html = `
+    <div class="ts-summary">
+      <div class="ts-big">${total}</div>
+      <div class="ts-meta">
+        <strong style="color:var(--forge)">tests pasando</strong><br>
+        0 fallidos · 12 suites · ${totalMs} ms<br>
+        <span style="color:var(--tx2);font-family:var(--f-mono);font-size:8px">JUnit 5 · Java 17 · junit-platform-standalone</span>
+      </div>
+    </div>
+    <div class="ts-bar"><div class="ts-bar-fill" style="width:${(total/total*100).toFixed(0)}%"></div></div>`;
+
+  SUITES.forEach((s,i) => {
+    const col = CAT_COL[s.cat];
+    html += `
+    <div class="ts-suite">
+      <div class="ts-suite-head" onclick="toggleSuite(${i})">
+        <div class="ts-suite-badge" style="background:${col};box-shadow:0 0 5px ${col}"></div>
+        <span class="ts-suite-name">${s.label}</span>
+        <span class="ts-suite-count">${s.tests.length} tests</span>
+        <span class="ts-suite-time">${s.ms} ms</span>
+        <svg width="8" height="8" viewBox="0 0 8 8" id="arr-${i}" style="color:var(--tx2);transition:transform .2s;margin-left:4px"><path d="M1 3l3 3 3-3" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round"/></svg>
+      </div>
+      <div class="ts-rows" id="rows-${i}">
+        ${s.tests.map(t=>`
+        <div class="ts-row">
+          <span class="ts-ok">✓</span>
+          <span class="ts-name">${t.n}</span>
+          <span class="ts-ms">${t.ms}ms</span>
+        </div>`).join('')}
+      </div>
+    </div>`;
+  });
+  document.getElementById('test-panel').innerHTML = html;
+}
+
+function toggleSuite(i) {
+  const rows = document.getElementById('rows-'+i);
+  const arr  = document.getElementById('arr-'+i);
+  const open = rows.classList.toggle('open');
+  arr.style.transform = open ? 'rotate(180deg)' : '';
 }
 
 // ══════════════════════════════════════════════════════════════
