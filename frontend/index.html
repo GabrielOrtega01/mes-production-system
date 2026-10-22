@@ -498,7 +498,7 @@ const CAT_LBL = { C:'Creacional', S:'Estructural', B:'Comportamiento' };
 const SOLID_COL = { SRP:'#00f5ff', OCP:'#ff7b00', LSP:'#a855f7', ISP:'#00e87a', DIP:'#ff2d55' };
 
 const P = [
-  { id:'singleton',       cat:'C', x:.38, y:.42, label:'Singleton',
+  { id:'singleton',       cat:'C', x:.35, y:.46, label:'Singleton',
     file:'config/ConfiguracionPlanta.java', solid:'SRP',
     solidDesc:'Una sola fuente de verdad para la configuración de la planta.',
     desc:'Garantiza una única instancia de ConfiguracionPlanta. Todos los módulos comparten el mismo turno activo y meta OEE, asegurando consistencia global sin estado duplicado.',
@@ -514,7 +514,7 @@ const P = [
   }
 }`, count:0 },
 
-  { id:'factory',         cat:'C', x:.20, y:.30, label:'Factory Method',
+  { id:'factory',         cat:'C', x:.20, y:.26, label:'Factory Method',
     file:'ordenes/FabricaOrden.java', solid:'OCP',
     solidDesc:'Agregar un nuevo tipo de orden no requiere modificar código existente.',
     desc:'FabricaOrden define el método crearOrden(). Las subclases FabricaOrdenEstandar y FabricaOrdenUrgente deciden el tipo concreto sin que el cliente lo sepa.',
@@ -529,7 +529,7 @@ const P = [
       fabricar(<span class="ct">String</span> ref, <span class="ck">int</span> qty);
 }`, count:0 },
 
-  { id:'abstractfactory', cat:'C', x:.10, y:.55, label:'Abstract Factory',
+  { id:'abstractfactory', cat:'C', x:.10, y:.62, label:'Abstract Factory',
     file:'equipos/FabricaEquipos.java', solid:'DIP',
     solidDesc:'El sistema de producción depende de abstracciones, no de equipos concretos.',
     desc:'Crea familias consistentes: CNC, Robot o Mixto. Cada familia produce Maquina + Sensor compatibles entre sí. El sistema no conoce los tipos concretos.',
@@ -544,7 +544,7 @@ const P = [
   }
 }`, count:0 },
 
-  { id:'builder',         cat:'C', x:.22, y:.70, label:'Builder',
+  { id:'builder',         cat:'C', x:.22, y:.84, label:'Builder',
     file:'reportes/GeneradorReportes.java', solid:'SRP',
     solidDesc:'La construcción del reporte está separada de su representación.',
     desc:'GeneradorReportes (Director) construye ReporteOee paso a paso: equipoYTurno → disponibilidad → rendimiento → calidad. Cada Builder concreto produce un tipo distinto.',
@@ -561,7 +561,7 @@ const P = [
   }
 }`, count:0 },
 
-  { id:'prototype',       cat:'C', x:.09, y:.38, label:'Prototype',
+  { id:'prototype',       cat:'C', x:.09, y:.14, label:'Prototype',
     file:'ordenes/OrdenProduccion.java', solid:'OCP',
     solidDesc:'Nuevas variantes de orden sin alterar la lógica de creación.',
     desc:'OrdenProduccion implementa Cloneable. Al recibir una orden urgente similar a una existente, se clona la plantilla y solo se sobreescriben los campos que difieren.',
@@ -579,7 +579,7 @@ const P = [
   }
 }`, count:0 },
 
-  { id:'composite',       cat:'S', x:.52, y:.22, label:'Composite',
+  { id:'composite',       cat:'S', x:.52, y:.14, label:'Composite',
     file:'produccion/LineaProduccion.java', solid:'LSP',
     solidDesc:'Un módulo individual y una línea completa son intercambiables por la misma interfaz.',
     desc:'La planta se modela como árbol: PlantaProduccion → LineaProduccion → ModuloProduccion. Cada nodo implementa ElementoProductivo, haciéndolos intercambiables.',
@@ -612,7 +612,7 @@ const P = [
   }
 }`, count:0 },
 
-  { id:'facade',          cat:'S', x:.50, y:.80, label:'Facade',
+  { id:'facade',          cat:'S', x:.50, y:.84, label:'Facade',
     file:'fachada/ControlTurnoFacade.java', solid:'ISP',
     solidDesc:'El cliente solo conoce la interfaz mínima necesaria, sin conocer los 6 subsistemas.',
     desc:'ControlTurnoFacade oculta 6 subsistemas (Singleton, Factory, Composite, Adapter, Bridge, Decorator) detrás de 4 métodos simples. El operador nunca conoce los detalles internos.',
@@ -628,7 +628,7 @@ facade.crearOrden(<span class="cs">"REF-001"</span>, <span class="cn">200</span>
 facade.consultarCapacidadTotal();
 facade.cerrarTurno(<span class="cs">"MANANA"</span>, <span class="cn">195</span>);`, count:0 },
 
-  { id:'bridge',          cat:'S', x:.80, y:.26, label:'Bridge',
+  { id:'bridge',          cat:'S', x:.78, y:.28, label:'Bridge',
     file:'alertas/AlertaProduccion.java', solid:'OCP',
     solidDesc:'Agregar canal SMS = 1 clase nueva, sin tocar ninguna alerta existente.',
     desc:'Separa tipo de alerta (Calidad, Mantenimiento, Parada) del canal (Consola, Bitácora). 3 tipos × 2 canales = 5 clases en lugar de 6 subclases. La combinación ocurre en tiempo de ejecución.',
@@ -642,7 +642,7 @@ a.disparar(<span class="cs">"OEE 0.78 — bajo umbral"</span>);
 <span class="cc">// Cambiar canal sin tocar AlertaCalidad:</span>
 c = <span class="ck">new</span> <span class="ct">BitacoraAlerta</span>();`, count:0 },
 
-  { id:'decorator',       cat:'S', x:.80, y:.50, label:'Decorator',
+  { id:'decorator',       cat:'S', x:.78, y:.54, label:'Decorator',
     file:'costos/DecoradorCosto.java', solid:'OCP',
     solidDesc:'Cada regla de negocio en su clase; composición sin modificar código existente.',
     desc:'Apila ajustes de precio dinámicamente: CostoBaseOrden → RecargoPrioritario (+25%) → CargoHorasExtra (+30%) → DescuentoVolumen (−15%). Sin explotar subclases.',
@@ -655,7 +655,7 @@ c.calcularCosto();  <span class="cc">// 1 381.25</span>
 c.describir();      <span class="cc">// cadena completa</span>`,
     count:0, lab:'decorator' },
 
-  { id:'adapter',         cat:'S', x:.75, y:.72, label:'Adapter',
+  { id:'adapter',         cat:'S', x:.68, y:.74, label:'Adapter',
     file:'integracion/AdaptadorErp.java', solid:'DIP',
     solidDesc:'Producción depende de una abstracción; no del ERP legado concreto.',
     desc:'AdaptadorErp implementa RegistroProduccion (protocolo MES) y traduce al protocolo ERP legado internamente. Cambiar de ERP = escribir un nuevo Adapter; producción no cambia.',
@@ -670,7 +670,7 @@ c.describir();      <span class="cc">// cadena completa</span>`,
   }
 }`, count:0 },
 
-  { id:'proxy',           cat:'B', x:.90, y:.60, label:'Proxy',
+  { id:'proxy',           cat:'B', x:.91, y:.46, label:'Proxy',
     file:'proxy/ProxyReportesSeguro.java', solid:'SRP',
     solidDesc:'El control de acceso está separado de la lógica de generación de reportes.',
     desc:'Verifica el rol antes de construir el reporte. JEFE_TURNO y SUPERVISOR tienen acceso; OPERARIO recibe SecurityException. El objeto real se instancia solo cuando hay autorización.',
@@ -754,17 +754,30 @@ function drawFrame() {
   for (let y = 0; y < GH; y += gs) { ctx.beginPath(); ctx.moveTo(0,y); ctx.lineTo(GW,y); ctx.stroke(); }
   ctx.restore();
 
+  // Category zone background tints
+  ctx.save();
+  const z1 = ctx.createLinearGradient(0,0,GW*.42,0);
+  z1.addColorStop(0,'rgba(0,255,255,0.07)'); z1.addColorStop(1,'rgba(0,255,255,0)');
+  ctx.fillStyle = z1; ctx.fillRect(0,0,GW,GH);
+  const z2 = ctx.createLinearGradient(GW*.32,0,GW*.78,0);
+  z2.addColorStop(0,'rgba(255,106,0,0)'); z2.addColorStop(.5,'rgba(255,106,0,0.06)'); z2.addColorStop(1,'rgba(255,106,0,0)');
+  ctx.fillStyle = z2; ctx.fillRect(0,0,GW,GH);
+  const z3 = ctx.createLinearGradient(GW*.75,0,GW,0);
+  z3.addColorStop(0,'rgba(217,38,240,0)'); z3.addColorStop(1,'rgba(217,38,240,0.08)');
+  ctx.fillStyle = z3; ctx.fillRect(0,0,GW,GH);
+  ctx.restore();
+
   // Sector labels
   ctx.save();
-  ctx.font = `800 ${11*DPR}px 'Exo 2',sans-serif`;
+  ctx.font = `800 ${13*DPR}px 'Exo 2',sans-serif`;
   ctx.textBaseline = 'top';
-  ctx.fillStyle = 'rgba(0,245,255,0.06)';
-  ctx.fillText('CREACIONALES',    14*DPR, 14*DPR);
-  ctx.fillStyle = 'rgba(255,123,0,0.06)';
-  ctx.fillText('ESTRUCTURALES', (GW*.48), 14*DPR);
-  ctx.fillStyle = 'rgba(168,85,247,0.06)';
+  ctx.fillStyle = 'rgba(0,245,255,0.22)';
+  ctx.fillText('CREACIONALES',    16*DPR, 16*DPR);
+  ctx.fillStyle = 'rgba(255,123,0,0.22)';
+  ctx.fillText('ESTRUCTURALES', (GW*.46), 16*DPR);
+  ctx.fillStyle = 'rgba(217,38,240,0.22)';
   ctx.textAlign = 'right';
-  ctx.fillText('COMPORTAMIENTO', GW - 14*DPR, 14*DPR);
+  ctx.fillText('COMPORTAMIENTO', GW - 16*DPR, 16*DPR);
   ctx.restore();
 
   // Edges
@@ -776,9 +789,9 @@ function drawFrame() {
     ctx.beginPath();
     ctx.moveTo(a.x*GW, a.y*GH);
     ctx.lineTo(b.x*GW, b.y*GH);
-    if (active) { ctx.shadowColor = CAT_COL[a.cat]; ctx.shadowBlur = 8*DPR; }
-    ctx.strokeStyle = active ? CAT_COL[a.cat] : CAT_COL[a.cat]+'44';
-    ctx.lineWidth   = active ? 2*DPR : 1*DPR;
+    if (active) { ctx.shadowColor = CAT_COL[a.cat]; ctx.shadowBlur = 12*DPR; }
+    ctx.strokeStyle = active ? CAT_COL[a.cat] : CAT_COL[a.cat]+'66';
+    ctx.lineWidth   = active ? 2.5*DPR : 1.5*DPR;
     ctx.stroke();
     ctx.restore();
   });
@@ -807,24 +820,26 @@ function drawFrame() {
   P.forEach(n => {
     const x = n.x*GW, y = n.y*GH;
     const hover = n.id===hovId, sel = n.id===selId, fire = firing.has(n.id);
-    const r = (sel||hover ? 22 : 18) * DPR;
+    const r = (sel||hover ? 38 : 30) * DPR;
     const col = CAT_COL[n.cat];
 
     // Outer glow
     ctx.save();
-    ctx.globalAlpha = fire ? .65 : sel ? .35 : hover ? .15 : .06;
-    ctx.shadowColor = col; ctx.shadowBlur = fire ? 36*DPR : 22*DPR;
-    hexPath(x, y, r + (fire ? 7 : sel ? 5 : 3)*DPR);
+    ctx.globalAlpha = fire ? .80 : sel ? .50 : hover ? .25 : .10;
+    ctx.shadowColor = col; ctx.shadowBlur = fire ? 48*DPR : 28*DPR;
+    hexPath(x, y, r + (fire ? 12 : sel ? 8 : 5)*DPR);
     ctx.fillStyle = col; ctx.fill();
     ctx.restore();
 
-    // Fill
+    // Fill — category-colored gradient (much more visible)
     hexPath(x, y, r);
     const grad = ctx.createRadialGradient(x, y-r*.3, 0, x, y, r*1.2);
     if (sel || fire) {
-      grad.addColorStop(0, col+'22'); grad.addColorStop(1, col+'08');
+      grad.addColorStop(0, col+'55'); grad.addColorStop(1, col+'22');
+    } else if (hover) {
+      grad.addColorStop(0, col+'33'); grad.addColorStop(1, col+'12');
     } else {
-      grad.addColorStop(0, '#0d1e33'); grad.addColorStop(1, '#060f1c');
+      grad.addColorStop(0, col+'28'); grad.addColorStop(1, col+'0a');
     }
     ctx.fillStyle = grad;
     ctx.fill();
@@ -832,29 +847,29 @@ function drawFrame() {
     // Border
     ctx.save();
     hexPath(x, y, r);
-    ctx.strokeStyle = (fire||sel) ? col : (hover ? col+'cc' : col+'55');
-    ctx.lineWidth   = (sel||fire) ? 2.4*DPR : hover ? 1.8*DPR : 1.4*DPR;
-    if (fire||sel||hover) { ctx.shadowColor = col; ctx.shadowBlur = (fire ? 18 : 10)*DPR; }
+    ctx.strokeStyle = (fire||sel) ? col : (hover ? col+'ee' : col+'88');
+    ctx.lineWidth   = (sel||fire) ? 3*DPR : hover ? 2.4*DPR : 1.8*DPR;
+    if (fire||sel||hover) { ctx.shadowColor = col; ctx.shadowBlur = (fire ? 24 : 14)*DPR; }
     ctx.stroke();
     ctx.restore();
 
     // Badge
     if (n.count > 0) {
-      const bx = x + r*.72, by = y - r*.72, br = 7*DPR;
+      const bx = x + r*.72, by = y - r*.72, br = 9*DPR;
       ctx.beginPath(); ctx.arc(bx, by, br, 0, Math.PI*2);
       ctx.fillStyle = col; ctx.fill();
       ctx.fillStyle = '#040d1a';
-      ctx.font = `700 ${7.5*DPR}px 'Fira Code',monospace`;
+      ctx.font = `700 ${9*DPR}px 'Fira Code',monospace`;
       ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
       ctx.fillText(n.count > 99 ? '99+' : n.count, bx, by);
     }
 
     // Label
-    ctx.font = `${(sel||hover) ? 700 : 500} ${10*DPR}px 'Exo 2',sans-serif`;
+    ctx.font = `${(sel||hover) ? 800 : 600} ${13*DPR}px 'Exo 2',sans-serif`;
     ctx.textAlign = 'center'; ctx.textBaseline = 'top';
-    if (sel || fire) { ctx.shadowColor = col; ctx.shadowBlur = 8*DPR; }
-    ctx.fillStyle = sel ? col : (hover ? '#f0f8ff' : col + 'aa');
-    ctx.fillText(n.label, x, y + r + 4*DPR);
+    if (sel || fire) { ctx.shadowColor = col; ctx.shadowBlur = 12*DPR; }
+    ctx.fillStyle = sel ? col : (hover ? '#f0f8ff' : col + 'cc');
+    ctx.fillText(n.label, x, y + r + 5*DPR);
     ctx.shadowBlur = 0;
   });
 
@@ -866,7 +881,7 @@ function hitNode(cx, cy) {
   for (const n of P) {
     const nx = n.x*GW, ny = n.y*GH;
     const dx = cx*DPR-nx, dy = cy*DPR-ny;
-    if (Math.sqrt(dx*dx+dy*dy) < 24*DPR) return n;
+    if (Math.sqrt(dx*dx+dy*dy) < 34*DPR) return n;
   }
   return null;
 }
