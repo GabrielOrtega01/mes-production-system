@@ -1,75 +1,135 @@
-# FábricaViva — Sistema de Control de Producción (MES)
+# FábricaViva — Sistema de Ejecución de Manufactura (MES)
 
-**Asignatura:** Patrones de Software
-**Programa:** Ingeniería de Sistemas — Unidades Tecnológicas de Santander (UTS)
-**Docente:** Eliecer Montero Ojeda
+**Asignatura:** Patrones de Software  
+**Programa:** Ingeniería de Sistemas · Décimo semestre  
+**Universidad:** Universidad Tecnológica de Santander (UTS)  
+**Docente:** Eliecer Montero Ojeda  
 
 **Integrantes:**
 - Gabriel Augusto Ortega Martínez
 - Jhonathan David Rojas Molina
 
+**Demo en vivo:** https://gabrielortega01.github.io/mes-production-system/  
 **Video (patrón Singleton):** https://www.youtube.com/watch?v=ALtJFTv_e2M
 
 ---
 
 ## El proyecto
 
-Buscamos desarrollar un sistema que permita controlar y analizar el proceso de producción desde el software, organizando la información y facilitando la toma de decisiones. El sistema está escrito en **Java** y se trabaja en Visual Studio Code.
+FábricaViva es un sistema de control y análisis de producción que aplica los **12 patrones de diseño GoF** en un contexto industrial realista. El sistema gestiona órdenes de producción, equipos, costos, reportes OEE y alertas de la planta.
 
-Módulos:
-- Planificación y programación de producción
-- Control de calidad y trazabilidad
-- Integración con máquinas CNC y robots
-- Análisis de OEE (Eficiencia General de los Equipos)
+Está escrito en **Java puro** (sin Maven) y cuenta con un **frontend HUD interactivo** publicado en GitHub Pages, más una **suite de 55 tests JUnit 5**.
 
-## Patrones creacionales implementados
+---
 
-| Patrón | Situación de la planta que resuelve | Clase principal | Prueba |
-|---|---|---|---|
-| Singleton | Un único turno activo y una única meta de OEE compartidos por todos los módulos | `config/ConfiguracionPlanta` | `PruebaSingleton` |
-| Factory Method | Pedidos normales y urgentes que se preparan de forma distinta | `ordenes/FabricaOrden` | `PruebaFactoryMethod` |
-| Builder | El mismo cálculo de OEE entregado resumido o detallado | `reportes/GeneradorReportes` | `PruebaBuilder` |
-| Abstract Factory | Equipos de marcas distintas que no se pueden mezclar | `equipos/FabricaEquipos` | `PruebaAbstractFactory` |
-| Prototype | Fichas técnicas de piezas frecuentes usadas como plantilla | `prototipo/EspecificacionPieza` | `PruebaPrototype` |
+## Patrones GoF implementados (12)
 
-## Estructura
+### Creacionales (5)
+
+| Patrón | Solución en la planta | Clase principal |
+|---|---|---|
+| Singleton | Un único turno activo y meta OEE compartidos por todos los módulos | `config/ConfiguracionPlanta` |
+| Factory Method | Órdenes normales y urgentes construidas de forma distinta | `ordenes/FabricaOrden` |
+| Abstract Factory | Familias de equipos Siemens/Fanuc incompatibles entre sí | `equipos/FabricaEquipos` |
+| Builder | El mismo OEE entregado como reporte resumido o detallado | `reportes/GeneradorReportes` |
+| Prototype | Fichas técnicas de piezas usadas como plantilla clonable | `ordenes/EspecificacionPieza` |
+
+### Estructurales (6)
+
+| Patrón | Solución en la planta | Clase principal |
+|---|---|---|
+| Composite | Árbol de planta → línea → máquina con capacidad agregada | `produccion/LineaProduccion` |
+| Decorator | Ajustes de costo apilables: prioritario, horas extra, descuento | `costos/DecoradorCosto` |
+| Facade | 4 métodos simples que ocultan 6 subsistemas al operador | `fachada/ControlTurnoFacade` |
+| Adapter | Integración con ERP legado que entrega texto plano | `integracion/AdaptadorErp` |
+| Bridge | Tipos de alerta desacoplados del canal de notificación | `alertas/AlertaProduccion` |
+| Flyweight | Estado intrínseco de piezas compartido en memoria | `inventario/FlyweightPieza` |
+
+### De comportamiento (1)
+
+| Patrón | Solución en la planta | Clase principal |
+|---|---|---|
+| Proxy | Control de acceso por rol antes de generar reportes OEE | `proxy/ProxyReportesSeguro` |
+
+---
+
+## Frontend HUD
+
+Interfaz industrial interactiva publicada en GitHub Pages:
+
+- Grafo hexagonal de los 12 patrones GoF con conexiones animadas
+- Inspector por patrón: descripción, código fuente, principio SOLID y laboratorio interactivo
+- Panel de 55 tests JUnit 5 con resultados y tiempos
+- Simulación de turno de producción con métricas OEE en tiempo real
+
+---
+
+## Tests
+
+Suite JUnit 5 con **55 tests** para los 12 patrones (JDK 17, sin Maven):
+
+```powershell
+# Ejecutar todos los tests
+.\test.ps1
+
+# Ejecutar un suite específico
+.\test.ps1 -filtro SingletonTest
+```
+
+Tiempo de ejecución: ~576ms · Resultado: 55/55 PASSED ✓
+
+---
+
+## Estructura del proyecto
 
 ```
-src/main/java/com/fabricaviva/
-├── config/        Singleton: ConfiguracionPlanta
-├── produccion/    LineaProduccion (cliente del Singleton)
-├── calidad/       PuestoInspeccion (cliente del Singleton)
-├── ordenes/       Factory Method: FabricaOrden, FabricaOrdenEstandar, FabricaOrdenUrgente, ModuloOrdenes
-├── reportes/      Builder: ReporteOeeBuilder, constructores concretos, GeneradorReportes
-├── equipos/       Abstract Factory: FabricaEquipos, productos y familias siemens/ y fanuc/
-├── prototipo/     Prototype: Prototipo, EspecificacionPieza, CatalogoEspecificaciones
-└── Prueba*.java   Una prueba ejecutable por patrón
-docs/uml/          Diagramas de clases en PlantUML (01 a 05)
+src/
+├── main/java/com/fabricaviva/
+│   ├── config/        Singleton
+│   ├── ordenes/       Factory Method, Prototype
+│   ├── equipos/       Abstract Factory (siemens/, fanuc/)
+│   ├── reportes/      Builder
+│   ├── produccion/    Composite
+│   ├── costos/        Decorator
+│   ├── fachada/       Facade
+│   ├── integracion/   Adapter
+│   ├── alertas/       Bridge
+│   ├── inventario/    Flyweight
+│   └── proxy/         Proxy
+└── test/java/com/fabricaviva/
+    └── *Test.java     55 tests JUnit 5
+
+frontend/
+└── index.html         HUD interactivo (GitHub Pages)
+
+lib/
+└── junit-platform-console-standalone-1.10.3.jar
+
+docs/uml/              Diagramas PlantUML (01–12)
 ```
 
 ## Cómo ejecutar
 
-**Visual Studio Code** (con *Extension Pack for Java*): abrir la carpeta del proyecto, ir a *Run and Debug* (`Ctrl+Shift+D`) y elegir la prueba del patrón. No necesita Maven.
-
-**Por consola**, desde la raíz del proyecto:
+**Compilar y correr (consola):**
 
 ```bash
 javac -encoding UTF-8 -d target/classes $(find src/main/java -name "*.java")
-```
-
-```bash
 java -cp target/classes com.fabricaviva.PruebaSingleton
 ```
 
-Cambiando la última palabra por `PruebaFactoryMethod`, `PruebaBuilder`, `PruebaAbstractFactory` o `PruebaPrototype` se ejecuta cada patrón.
+**Tests:**
 
-## Diagramas
+```powershell
+.\test.ps1
+```
 
-Los archivos `.puml` de `docs/uml/` se pueden pegar directamente en [PlantText](https://www.planttext.com/) para visualizarlos.
+**Frontend:** abrir https://gabrielortega01.github.io/mes-production-system/
+
+---
 
 ## Referencias
 
 - Gamma, E., Helm, R., Johnson, R., & Vlissides, J. (2003). *Patrones de diseño: Elementos de software orientado a objetos reutilizable*. Pearson Educación.
-- Medina Veloz, G., Luna Rosas, F. J., Muñoz Arteaga, J., & Martínez Romo, J. C. (2008). Integrando mediante patrones de software una estrategia fuzzy-logic, en un servicio de balanceo dinámico de carga bajo CORBA. *Conciencia Tecnológica*, (35), 12-20.
+- Medina Veloz, G., Luna Rosas, F. J., Muñoz Arteaga, J., & Martínez Romo, J. C. (2008). Integrando mediante patrones de software una estrategia fuzzy-logic, en un servicio de balanceo dinámico de carga bajo CORBA. *Conciencia Tecnológica*, (35), 12–20.
 - MESA International. (1997). *MES explained: A high level vision* (White Paper N.º 6). Manufacturing Execution Systems Association.
 - Nakajima, S. (1988). *Introduction to TPM: Total productive maintenance*. Productivity Press.

@@ -275,7 +275,7 @@ body {
 .b-dim:hover:not(:disabled)   { border-color: rgba(176,216,248,.5); color: var(--tx0); background: rgba(255,255,255,.05); }
 
 /* ── TERMINAL ─────────────────────────────────────────── */
-.term { background: #010810; border-top: 1px solid rgba(0,255,255,.15); box-shadow: 0 -4px 20px rgba(0,0,0,.5); display: flex; flex-direction: column; overflow: hidden; }
+.term { background: #010810; border-top: 1px solid rgba(0,255,255,.15); box-shadow: 0 -4px 20px rgba(0,0,0,.5); display: flex; flex-direction: column; overflow: hidden; padding-bottom: 26px; }
 .term-bar {
   display: flex; align-items: center; gap: 7px; padding: 5px 15px;
   border-bottom: 1px solid var(--dim); flex-shrink: 0;
@@ -398,7 +398,7 @@ body {
     </svg>
     <div>
       <div class="logo-name">Fábrica<em>Viva</em></div>
-      <div class="logo-sub">MES · G9 · UTS S10</div>
+      <div class="logo-sub">MES · Patrones de Software · UTS S10</div>
     </div>
   </div>
 
@@ -485,6 +485,22 @@ body {
   </div>
 </div>
 </div><!-- .app -->
+
+<!-- ── ATTRIBUTION FOOTER ─────────────────────────── -->
+<div id="attr-footer" style="
+  position:fixed; bottom:0; left:0; right:0;
+  background:linear-gradient(90deg,rgba(1,10,24,.92) 0%,rgba(3,13,31,.97) 100%);
+  border-top:1px solid rgba(0,255,255,0.12);
+  padding:5px 20px;
+  display:flex; align-items:center; justify-content:space-between;
+  font-family:'Fira Code','Cascadia Code',monospace; font-size:9px;
+  color:rgba(176,216,248,0.6); letter-spacing:.5px;
+  z-index:50; pointer-events:none;
+">
+  <span style="color:rgba(0,255,255,0.5)">&#9632; Universidad Tecnológica de Santander &nbsp;·&nbsp; Patrones de Software &nbsp;·&nbsp; Ing. de Sistemas S10</span>
+  <span style="color:rgba(255,106,0,0.6)">Gabriel A. Ortega Martínez &nbsp;&amp;&nbsp; Jhonathan D. Rojas Molina</span>
+  <span style="color:rgba(217,38,240,0.5)">Docente: Eliecer Montero Ojeda</span>
+</div>
 
 <div id="toasts"></div>
 
