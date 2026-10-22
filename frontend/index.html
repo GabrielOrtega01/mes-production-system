@@ -1,5 +1,9 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>FábricaViva MES</title>
-<meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Exo+2:wght@300;400;500;600;700;800&family=Fira+Code:wght@400;500;700&display=swap" rel="stylesheet">
 
@@ -35,8 +39,13 @@
 
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-html, body {
+html {
   height: 100%;
+  overflow: hidden;
+}
+body {
+  height: 100%;
+  margin: 0;
   background: var(--ink);
   color: var(--tx0);
   font-family: var(--f-hud);
@@ -367,6 +376,8 @@ html, body {
   .hdr-stats { display: none; }
 }
 </style>
+</head>
+<body>
 
 <!-- ═══════════════════════════════════════════════════════
      HEADER
@@ -1365,3 +1376,5 @@ setTimeout(()=>{ for(let i=0;i<6;i++) spawnEdge(Math.floor(Math.random()*EDGES.l
 tlog('SYS','SYSTEM',`Canvas ${Math.round(GW/DPR)}×${Math.round(GH/DPR)}px · DPR=${DPR} · 12 patrones GoF activos`);
 tlog('SYS','SYSTEM','Presiona <strong>Iniciar Turno</strong> para comenzar la simulación del sistema MES');
 </script>
+</body>
+</html>
