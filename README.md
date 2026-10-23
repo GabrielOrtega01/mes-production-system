@@ -32,7 +32,7 @@ Está escrito en **Java puro** (sin Maven) y cuenta con un **frontend HUD intera
 | Factory Method | Órdenes normales y urgentes construidas de forma distinta | `ordenes/FabricaOrden` |
 | Abstract Factory | Familias de equipos Siemens/Fanuc incompatibles entre sí | `equipos/FabricaEquipos` |
 | Builder | El mismo OEE entregado como reporte resumido o detallado | `reportes/GeneradorReportes` |
-| Prototype | Fichas técnicas de piezas usadas como plantilla clonable | `ordenes/EspecificacionPieza` |
+| Prototype | Fichas técnicas de piezas usadas como plantilla clonable | `prototipo/EspecificacionPieza` |
 
 ### Estructurales (6)
 
@@ -43,7 +43,7 @@ Está escrito en **Java puro** (sin Maven) y cuenta con un **frontend HUD intera
 | Facade | 4 métodos simples que ocultan 6 subsistemas al operador | `fachada/ControlTurnoFacade` |
 | Adapter | Integración con ERP legado que entrega texto plano | `integracion/AdaptadorErp` |
 | Bridge | Tipos de alerta desacoplados del canal de notificación | `alertas/AlertaProduccion` |
-| Flyweight | Estado intrínseco de piezas compartido en memoria | `inventario/FlyweightPieza` |
+| Flyweight | Estado intrínseco de piezas compartido en memoria | `materiales/FabricaTipoMaterial` |
 
 ### De comportamiento (1)
 
@@ -86,15 +86,17 @@ Tiempo de ejecución: ~576ms · Resultado: 55/55 PASSED ✓
 src/
 ├── main/java/com/fabricaviva/
 │   ├── config/        Singleton
-│   ├── ordenes/       Factory Method, Prototype
+│   ├── ordenes/       Factory Method
+│   ├── prototipo/     Prototype
 │   ├── equipos/       Abstract Factory (siemens/, fanuc/)
 │   ├── reportes/      Builder
 │   ├── produccion/    Composite
 │   ├── costos/        Decorator
+│   ├── reporteturno/  Decorator (profundización)
 │   ├── fachada/       Facade
 │   ├── integracion/   Adapter
 │   ├── alertas/       Bridge
-│   ├── inventario/    Flyweight
+│   ├── materiales/    Flyweight
 │   └── proxy/         Proxy
 └── test/java/com/fabricaviva/
     └── *Test.java     55 tests JUnit 5
