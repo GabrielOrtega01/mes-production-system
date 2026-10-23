@@ -76,7 +76,7 @@ Suite JUnit 5 con **55 tests** para los 12 patrones (JDK 17, sin Maven):
 .\test.ps1 -filtro SingletonTest
 ```
 
-Tiempo de ejecución: ~576ms · Resultado: 55/55 PASSED ✓
+Tiempo de ejecución: ~970ms · Resultado: 55/55 PASSED ✓
 
 ---
 
@@ -112,11 +112,11 @@ docs/uml/              Diagramas PlantUML (01–12)
 
 ## Cómo ejecutar
 
-**Compilar y correr (consola):**
+**Compilar y correr (Windows PowerShell):**
 
-```bash
-javac -encoding UTF-8 -d target/classes $(find src/main/java -name "*.java")
-java -cp target/classes com.fabricaviva.PruebaSingleton
+```powershell
+.\compile.ps1
+java -cp target/classes com.fabricaviva.pruebas.PruebaSingleton
 ```
 
 **Tests:**

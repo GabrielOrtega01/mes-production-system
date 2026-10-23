@@ -578,20 +578,23 @@ const P = [
 }`, count:0 },
 
   { id:'prototype',       cat:'C', x:.09, y:.14, label:'Prototype',
-    file:'ordenes/OrdenProduccion.java', solid:'OCP',
-    solidDesc:'Nuevas variantes de orden sin alterar la lógica de creación.',
-    desc:'OrdenProduccion implementa Cloneable. Al recibir una orden urgente similar a una existente, se clona la plantilla y solo se sobreescriben los campos que difieren.',
-    code:`<span class="ck">public class</span> <span class="ct">OrdenProduccion</span>
-    <span class="ck">implements</span> <span class="ct">Cloneable</span> {
-  <span class="ck">private final</span> <span class="ct">String</span> referencia;
-  <span class="ck">private</span> <span class="ct">Prioridad</span> prioridad;
-
+    file:'prototipo/EspecificacionPieza.java', solid:'OCP',
+    solidDesc:'Nuevas variantes de ficha técnica sin alterar la lógica de creación.',
+    desc:'EspecificacionPieza implementa Prototipo&lt;EspecificacionPieza&gt;. Clonar una ficha existente y ajustar solo la tolerancia es más seguro que construir desde cero, copiando todos los pasos de control de calidad.',
+    code:`<span class="ck">public interface</span> <span class="ct">Prototipo</span>&lt;<span class="ct">T</span>&gt; {
+  <span class="ct">T</span> clonar();
+}
+<span class="ck">public class</span> <span class="ct">EspecificacionPieza</span>
+    <span class="ck">implements</span> <span class="ct">Prototipo</span>&lt;<span class="ct">EspecificacionPieza</span>&gt; {
+  <span class="ck">private</span> <span class="ct">EspecificacionPieza</span>(<span class="ct">EspecificacionPieza</span> o) {
+    <span class="ck">this</span>.codigo    = o.codigo;
+    <span class="ck">this</span>.material  = o.material;
+    <span class="ck">this</span>.tolerancia = o.tolerancia;
+    <span class="ck">this</span>.pasos = <span class="ck">new</span> <span class="ct">ArrayList</span>&lt;&gt;(o.pasos);
+  }
   <span class="ca">@Override</span>
-  <span class="ck">public</span> <span class="ct">OrdenProduccion</span> clone() {
-    <span class="ck">try</span> {
-      <span class="ck">return</span> (<span class="ct">OrdenProduccion</span>)
-          <span class="ck">super</span>.clone();
-    } <span class="ck">catch</span> (<span class="ct">Exception</span> e) {…}
+  <span class="ck">public</span> <span class="ct">EspecificacionPieza</span> clonar() {
+    <span class="ck">return new</span> <span class="ct">EspecificacionPieza</span>(<span class="ck">this</span>);
   }
 }`, count:0 },
 
@@ -612,19 +615,24 @@ const P = [
 }`, count:0 },
 
   { id:'flyweight',       cat:'S', x:.52, y:.52, label:'Flyweight',
-    file:'inventario/FlyweightPieza.java', solid:'SRP',
-    solidDesc:'Separación entre estado compartido (intrínseco) y estado por instancia (extrínseco).',
-    desc:'Las piezas comparten datos intrínsecos (referencia, material, peso) a través de FlyweightPieza. Solo el número de lote es extrínseco, ahorrando memoria en miles de piezas.',
-    code:`<span class="ck">public class</span> <span class="ct">FlyweightPieza</span> {
-  <span class="cc">// Estado intrínseco — compartido</span>
-  <span class="ck">private final</span> <span class="ct">String</span> referencia;
-  <span class="ck">private final</span> <span class="ct">String</span> material;
-  <span class="ck">private final double</span> pesoKg;
+    file:'materiales/TipoMaterialFlyweight.java', solid:'SRP',
+    solidDesc:'Separación entre estado compartido (intrínseco) y estado por lote (extrínseco).',
+    desc:'TipoMaterialCompartido almacena codigo, nombre, densidad y unidad — estado intrínseco inmutable compartido por todos los lotes. FabricaTipoMaterial gestiona el pool: la misma instancia sirve a miles de LoteProduccion.',
+    code:`<span class="ck">public interface</span> <span class="ct">TipoMaterialFlyweight</span> {
+  <span class="ct">String</span> getCodigo();
+  <span class="ct">String</span> getNombre();
+  <span class="ck">double</span> getDensidad(); <span class="cc">// g/cm³</span>
+  <span class="ct">String</span> describir();
+}
+<span class="cc">// FlyweightFactory + Singleton</span>
+<span class="ck">public class</span> <span class="ct">FabricaTipoMaterial</span> {
+  <span class="ck">private final</span> <span class="ct">Map</span>&lt;<span class="ct">String</span>,<span class="ct">TipoMaterialCompartido</span>&gt;
+      pool = <span class="ck">new</span> <span class="ct">HashMap</span>&lt;&gt;();
 
-  <span class="ck">public void</span> mostrar(<span class="ck">int</span> lote) {
-    <span class="cc">// lote: estado extrínseco</span>
-    System.out.printf(<span class="cs">"%s [%d]%n"</span>,
-        referencia, lote);
+  <span class="ck">public</span> <span class="ct">TipoMaterialFlyweight</span> getMaterial(
+      <span class="ct">String</span> cod, <span class="ct">String</span> nom, <span class="ck">double</span> dens, <span class="ct">String</span> u) {
+    <span class="ck">return</span> pool.computeIfAbsent(cod,
+        k -&gt; <span class="ck">new</span> <span class="ct">TipoMaterialCompartido</span>(k,nom,dens,u));
   }
 }`, count:0 },
 
