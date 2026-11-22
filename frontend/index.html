@@ -480,7 +480,7 @@ body {
     <div class="tl">
       <span class="tl-t">00:00:00</span>
       <span class="tl-tag tSYS">SYSTEM</span>
-      <span class="tl-m">FábricaViva MES iniciado · 12 patrones GoF activos · clic en <strong>Iniciar Turno</strong> para comenzar la simulación</span>
+      <span class="tl-m">FábricaViva MES iniciado · 24 patrones GoF activos · clic en <strong>Iniciar Turno</strong> para comenzar la simulación</span>
     </div>
   </div>
 </div>
@@ -694,7 +694,7 @@ c.describir();      <span class="cc">// cadena completa</span>`,
   }
 }`, count:0 },
 
-  { id:'proxy',           cat:'B', x:.91, y:.46, label:'Proxy',
+  { id:'proxy',           cat:'S', x:.91, y:.46, label:'Proxy',
     file:'proxy/ProxyReportesSeguro.java', solid:'SRP',
     solidDesc:'El control de acceso está separado de la lógica de generación de reportes.',
     desc:'Verifica el rol antes de construir el reporte. JEFE_TURNO y SUPERVISOR tienen acceso; OPERARIO recibe SecurityException. El objeto real se instancia solo cuando hay autorización.',
@@ -708,7 +708,178 @@ c.describir();      <span class="cc">// cadena completa</span>`,
   <span class="ck">if</span> (real == <span class="ck">null</span>)
     real = <span class="ck">new</span> <span class="ct">GeneradorReportesReal</span>();
   real.construirReporte(…);
-}`, count:0, lab:'proxy' }
+}`, count:0, lab:'proxy' },
+
+  // ── PATRONES DE COMPORTAMIENTO ────────────────────────────────
+  { id:'observador', cat:'B', x:.80, y:.05, label:'Observer',
+    file:'observador/SensorMaquina.java', solid:'OCP',
+    solidDesc:'Agregar un nuevo panel de supervisión no requiere modificar SensorMaquina.',
+    desc:'SensorMaquina notifica a todos sus ObservadorMaquina registrados cuando el OEE cae o hay una parada. PanelSupervisor y BitacoraEventos reaccionan de forma independiente.',
+    code:`<span class="ck">public interface</span> <span class="ct">ObservadorMaquina</span> {
+  <span class="ck">void</span> actualizar(<span class="ct">String</span> id,
+      <span class="ct">String</span> evento, <span class="ck">double</span> oee);
+}
+<span class="ck">public class</span> <span class="ct">SensorMaquina</span> {
+  <span class="ck">private</span> <span class="ct">List</span>&lt;<span class="ct">ObservadorMaquina</span>&gt; obs;
+  <span class="ck">public void</span> reportarOee(<span class="ck">double</span> v) {
+    obs.forEach(o -&gt; o.actualizar(id, <span class="cs">"OEE"</span>, v));
+  }
+}`, count:0 },
+
+  { id:'estrategia', cat:'B', x:.80, y:.28, label:'Strategy',
+    file:'estrategia/PlanificadorOrdenes.java', solid:'OCP',
+    solidDesc:'Agregar un criterio de ordenamiento nuevo = 1 clase nueva, nada más.',
+    desc:'PlanificadorOrdenes delega el ordenamiento a EstrategiaOrdenamiento. En tiempo de ejecución puede cambiar entre FIFO, PorPrioridad o PorVolumen sin detener la planta.',
+    code:`<span class="ck">public class</span> <span class="ct">PlanificadorOrdenes</span> {
+  <span class="ck">private</span> <span class="ct">EstrategiaOrdenamiento</span> e;
+  <span class="ck">public void</span> setEstrategia(
+      <span class="ct">EstrategiaOrdenamiento</span> nuevo) {
+    <span class="ck">this</span>.e = nuevo;
+  }
+  <span class="ck">public</span> <span class="ct">List</span>&lt;<span class="ct">OrdenProduccion</span>&gt;
+      planificar(<span class="ct">List</span>&lt;<span class="ct">OrdenProduccion</span>&gt; l) {
+    <span class="ck">return</span> e.ordenar(l);
+  }
+}`, count:0 },
+
+  { id:'memento', cat:'B', x:.80, y:.52, label:'Memento',
+    file:'memento/ConfiguracionTurno.java', solid:'SRP',
+    solidDesc:'La lógica de undo está separada de ConfiguracionTurno.',
+    desc:'ConfiguracionTurno (Originator) crea InstantaneTurno (Memento) que encapsula su estado. HistorialTurnos (Caretaker) apila snapshots; deshacer restaura la última configuración guardada.',
+    code:`<span class="ck">public class</span> <span class="ct">ConfiguracionTurno</span> {
+  <span class="ck">public</span> <span class="ct">InstantaneTurno</span> guardar() {
+    <span class="ck">return new</span> <span class="ct">InstantaneTurno</span>(
+        turno, metaOee, capacidad);
+  }
+  <span class="ck">public void</span> restaurar(
+      <span class="ct">InstantaneTurno</span> snap) {
+    <span class="ck">this</span>.turno    = snap.getTurno();
+    <span class="ck">this</span>.metaOee  = snap.getMetaOee();
+  }
+}`, count:0 },
+
+  { id:'visitante', cat:'B', x:.80, y:.76, label:'Visitor',
+    file:'visitante/VisitanteProduccion.java', solid:'OCP',
+    solidDesc:'Agregar un nuevo cálculo (p.ej. VisitanteEnergia) no toca las clases de elemento.',
+    desc:'VisitanteOee y VisitanteCostos recorren la estructura MaquinaElement/LineaElement sin modificarla. Cada elemento llama visitante.visitarMaquina(this), delegando la operación al visitante.',
+    code:`<span class="ck">public interface</span> <span class="ct">VisitanteProduccion</span> {
+  <span class="ck">void</span> visitarMaquina(<span class="ct">MaquinaElement</span> m);
+  <span class="ck">void</span> visitarLinea(<span class="ct">LineaElement</span> l);
+}
+<span class="ck">public class</span> <span class="ct">MaquinaElement</span> {
+  <span class="ck">public void</span> aceptar(
+      <span class="ct">VisitanteProduccion</span> v) {
+    v.visitarMaquina(<span class="ck">this</span>);
+  }
+}`, count:0 },
+
+  { id:'comando', cat:'B', x:.87, y:.14, label:'Command',
+    file:'comando/GestorComandos.java', solid:'SRP',
+    solidDesc:'La lógica de undo/redo vive en GestorComandos, no en los comandos concretos.',
+    desc:'ComandoIniciarOrden y ComandoCerrarTurno encapsulan operaciones de la línea. GestorComandos mantiene un historial; cada deshacer revierte la última acción ejecutada.',
+    code:`<span class="ck">public interface</span> <span class="ct">ComandoProduccion</span> {
+  <span class="ck">void</span> ejecutar();
+  <span class="ck">void</span> deshacer();
+}
+<span class="ck">public class</span> <span class="ct">GestorComandos</span> {
+  <span class="ck">private</span> <span class="ct">Deque</span>&lt;<span class="ct">ComandoProduccion</span>&gt; pila;
+  <span class="ck">public void</span> ejecutar(<span class="ct">ComandoProduccion</span> c) {
+    c.ejecutar(); pila.push(c);
+  }
+  <span class="ck">public void</span> deshacer() {
+    pila.pop().deshacer();
+  }
+}`, count:0 },
+
+  { id:'iterador', cat:'B', x:.87, y:.38, label:'Iterator',
+    file:'iterador/ColeccionLotes.java', solid:'ISP',
+    solidDesc:'El cliente solo depende de Iterable; no conoce la estructura interna de la colección.',
+    desc:'ColeccionLotes expone dos iteradores: FIFO (orden natural) y PorPrioridad (ALTA primero). El cliente itera con for-each sin conocer cómo están almacenados los lotes.',
+    code:`<span class="ck">public class</span> <span class="ct">ColeccionLotes</span>
+    <span class="ck">implements</span> <span class="ct">Iterable</span>&lt;<span class="ct">LoteProduccion</span>&gt; {
+
+  <span class="ca">@Override</span>
+  <span class="ck">public</span> <span class="ct">Iterator</span>&lt;<span class="ct">LoteProduccion</span>&gt;
+      iterator() {
+    <span class="ck">return</span> lotes.iterator();
+  }
+  <span class="ck">public</span> <span class="ct">Iterator</span>&lt;<span class="ct">LoteProduccion</span>&gt;
+      iteratorPorPrioridad() { <span class="cc">/* sort */</span> }
+}`, count:0 },
+
+  { id:'cadena', cat:'B', x:.87, y:.63, label:'Chain of Responsibility',
+    file:'cadena/GestorOrdenes.java', solid:'OCP',
+    solidDesc:'Agregar una nueva validación = una nueva clase; la cadena no cambia.',
+    desc:'ValidadorStock → ValidadorCapacidad → ValidadorPrioridad forman la cadena. Cada eslabón aprueba o rechaza la orden; si la aprueba, la pasa al siguiente. GestorOrdenes construye la cadena.',
+    code:`<span class="ck">public abstract class</span> <span class="ct">ValidadorBase</span> {
+  <span class="ck">private</span> <span class="ct">ValidadorOrden</span> siguiente;
+  <span class="ck">protected</span> <span class="ct">ResultadoOrden</span>
+      pasarAlSiguiente(<span class="ct">OrdenProduccion</span> o) {
+    <span class="ck">return</span> siguiente != <span class="ck">null</span>
+        ? siguiente.validar(o)
+        : <span class="ct">ResultadoOrden</span>.ok();
+  }
+}`, count:0 },
+
+  { id:'interprete', cat:'B', x:.87, y:.87, label:'Interpreter',
+    file:'interprete/ExpresionAlerta.java', solid:'OCP',
+    solidDesc:'Nuevas reglas de alerta se expresan combinando expresiones existentes.',
+    desc:'El motor de alertas usa un árbol de ExpresionAlerta. ExpresionOEE y ExpresionTemperatura son terminales; ExpresionAnd y ExpresionOr combinan subexpresiones. ContextoAlerta provee los valores del sensor.',
+    code:`<span class="ck">public interface</span> <span class="ct">ExpresionAlerta</span> {
+  <span class="ck">boolean</span> interpretar(<span class="ct">ContextoAlerta</span> ctx);
+}
+<span class="cc">// Componer reglas en tiempo de ejecucion:</span>
+<span class="ct">ExpresionAlerta</span> regla = <span class="ck">new</span> <span class="ct">ExpresionAnd</span>(
+  <span class="ck">new</span> <span class="ct">ExpresionOEE</span>(<span class="cn">0.75</span>),
+  <span class="ck">new</span> <span class="ct">ExpresionTemperatura</span>(<span class="cn">85.0</span>)
+);
+<span class="ck">boolean</span> alerta = regla.interpretar(ctx);`, count:0 },
+
+  { id:'estado', cat:'B', x:.94, y:.20, label:'State',
+    file:'estado/ContextoMaquina.java', solid:'SRP',
+    solidDesc:'Cada estado define su propio comportamiento; ContextoMaquina no tiene if/switch.',
+    desc:'ContextoMaquina delega iniciar/pausar/reportarFalla al estado actual. Las transiciones Idle→Produciendo→Falla→Idle se definen dentro de cada clase Estado, sin condicionales en el contexto.',
+    code:`<span class="ck">public class</span> <span class="ct">ContextoMaquina</span> {
+  <span class="ck">private</span> <span class="ct">EstadoMaquina</span> estado;
+  <span class="ck">public void</span> iniciar() {
+    estado.iniciar(<span class="ck">this</span>);  <span class="cc">// delega</span>
+  }
+  <span class="ck">public void</span> setEstado(
+      <span class="ct">EstadoMaquina</span> s) {
+    <span class="ck">this</span>.estado = s;
+  }
+}`, count:0 },
+
+  { id:'template', cat:'B', x:.94, y:.50, label:'Template Method',
+    file:'inspeccion/InspeccionCalidad.java', solid:'LSP',
+    solidDesc:'InspeccionVisual e InspeccionDimensional son intercambiables en cualquier punto de inspección.',
+    desc:'InspeccionCalidad define el algoritmo fijo: prepararInstrumentos → contarDefectos → evaluarResultado → registrarResultado. Las subclases InspeccionVisual e InspeccionDimensional solo sobreescriben los pasos variables.',
+    code:`<span class="ck">public abstract class</span> <span class="ct">InspeccionCalidad</span> {
+  <span class="ck">public final</span> <span class="ct">ResultadoInspeccion</span>
+      inspeccionarLote(<span class="ct">String</span> id, <span class="ck">int</span> n) {
+    prepararInstrumentos();
+    <span class="ck">int</span> def = contarDefectos(n);
+    <span class="ck">boolean</span> ok = evaluarResultado(def,n);
+    registrarResultado(id,def,ok);
+    <span class="ck">return new</span> <span class="ct">ResultadoInspeccion</span>(…);
+  }
+  <span class="ck">protected abstract int</span> contarDefectos(<span class="ck">int</span> n);
+}`, count:0 },
+
+  { id:'mediador', cat:'B', x:.94, y:.80, label:'Mediator',
+    file:'mediador/CentralMes.java', solid:'DIP',
+    solidDesc:'Los módulos dependen de CentralMes, nunca entre sí directamente.',
+    desc:'ModuloCalidad y ModuloMantenimiento no se conocen; solo conocen a CentralMes. Cuando un sensor reporta FALLA, la central enruta el mensaje a todos los módulos registrados excepto el emisor.',
+    code:`<span class="ck">public class</span> <span class="ct">CentralMes</span> {
+  <span class="ck">public void</span> enviar(
+      <span class="ct">String</span> origen, <span class="ct">String</span> msg) {
+    modulos.stream()
+      .filter(m -&gt; !m.getNombre()
+                    .equals(origen))
+      .forEach(m -&gt;
+        m.recibirMensaje(origen, msg));
+  }
+}`, count:0 }
 ];
 
 const EDGES = [
@@ -719,6 +890,14 @@ const EDGES = [
   ['builder','facade'],['builder','proxy'],
   ['decorator','adapter'],['bridge','decorator'],['proxy','decorator'],
   ['flyweight','composite'],
+  // Comportamiento
+  ['observador','estado'],['observador','mediador'],
+  ['comando','estado'],['estrategia','factory'],
+  ['cadena','comando'],['template','visitante'],
+  ['iterador','cadena'],['memento','comando'],
+  ['interprete','estrategia'],['visitante','composite'],
+  ['cadena','proxy'],['estado','template'],
+  ['iterador','composite'],
 ];
 
 // ══════════════════════════════════════════════════════════════
@@ -1412,7 +1591,7 @@ requestAnimationFrame(drawFrame);
 // Warm-up: spawn a few ambient particles
 setTimeout(()=>{ for(let i=0;i<6;i++) spawnEdge(Math.floor(Math.random()*EDGES.length)); }, 500);
 
-tlog('SYS','SYSTEM',`Canvas ${Math.round(GW/DPR)}×${Math.round(GH/DPR)}px · DPR=${DPR} · 12 patrones GoF activos`);
+tlog('SYS','SYSTEM',`Canvas ${Math.round(GW/DPR)}×${Math.round(GH/DPR)}px · DPR=${DPR} · ${P.length} patrones GoF activos`);
 tlog('SYS','SYSTEM','Presiona <strong>Iniciar Turno</strong> para comenzar la simulación del sistema MES');
 </script>
 </body>

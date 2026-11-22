@@ -22,6 +22,18 @@ $PATRONES = @{
     "bridge"            = "com.fabricaviva.pruebas.PruebaBridge"
     "flyweight"         = "com.fabricaviva.pruebas.PruebaFlyweight"
     "proxy"             = "com.fabricaviva.pruebas.PruebaProxy"
+    # Patrones de comportamiento
+    "observador"        = "com.fabricaviva.pruebas.PruebaObservador"
+    "comando"           = "com.fabricaviva.pruebas.PruebaComando"
+    "estrategia"        = "com.fabricaviva.pruebas.PruebaEstrategia"
+    "estado"            = "com.fabricaviva.pruebas.PruebaEstado"
+    "template"          = "com.fabricaviva.pruebas.PruebaTemplateMethod"
+    "iterador"          = "com.fabricaviva.pruebas.PruebaIterador"
+    "mediador"          = "com.fabricaviva.pruebas.PruebaMediador"
+    "memento"           = "com.fabricaviva.pruebas.PruebaMemento"
+    "cadena"            = "com.fabricaviva.pruebas.PruebaCadena"
+    "visitante"         = "com.fabricaviva.pruebas.PruebaVisitante"
+    "interprete"        = "com.fabricaviva.pruebas.PruebaInterprete"
 }
 
 if ($patron -eq "list") {

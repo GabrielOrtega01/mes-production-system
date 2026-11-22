@@ -1,0 +1,941 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FábricaViva MES — Patrones de Comportamiento</title>
+  <style>
+    :root {
+      --bg: #0f1117;
+      --bg2: #1a1d2e;
+      --bg3: #252840;
+      --border: #2e3155;
+      --accent: #6c8ef5;
+      --accent2: #a78bfa;
+      --green: #4ade80;
+      --yellow: #fbbf24;
+      --red: #f87171;
+      --cyan: #67e8f9;
+      --text: #e2e8f0;
+      --muted: #94a3b8;
+      --card-bg: #1e2235;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+    }
+
+    /* ─── NAV ─── */
+    nav {
+      position: sticky; top: 0; z-index: 100;
+      background: rgba(15,17,23,0.92);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+      padding: 0 24px;
+      display: flex; align-items: center; justify-content: space-between;
+      height: 56px;
+    }
+    .nav-brand { font-weight: 700; font-size: 1.1rem; color: var(--accent); }
+    .nav-links { display: flex; gap: 6px; }
+    .nav-links a {
+      padding: 5px 12px; border-radius: 6px; text-decoration: none;
+      color: var(--muted); font-size: 0.85rem;
+      transition: all .2s;
+    }
+    .nav-links a:hover, .nav-links a.active {
+      background: var(--bg3); color: var(--text);
+    }
+
+    /* ─── HERO ─── */
+    .hero {
+      background: linear-gradient(135deg, #0d1226 0%, #1a1340 50%, #0d1226 100%);
+      padding: 80px 24px 60px;
+      text-align: center;
+      border-bottom: 1px solid var(--border);
+      position: relative; overflow: hidden;
+    }
+    .hero::before {
+      content: '';
+      position: absolute; inset: 0;
+      background: radial-gradient(ellipse at 50% 0%, rgba(108,142,245,.15) 0%, transparent 60%);
+    }
+    .hero-badge {
+      display: inline-block;
+      padding: 4px 14px; border-radius: 20px;
+      border: 1px solid var(--accent); color: var(--accent);
+      font-size: 0.75rem; font-weight: 600; letter-spacing: .05em;
+      text-transform: uppercase; margin-bottom: 20px;
+    }
+    .hero h1 {
+      font-size: clamp(2rem, 5vw, 3.2rem);
+      font-weight: 800; line-height: 1.1;
+      background: linear-gradient(135deg, #fff 30%, var(--accent2));
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      margin-bottom: 16px;
+    }
+    .hero p {
+      color: var(--muted); font-size: 1.1rem; max-width: 600px; margin: 0 auto 32px;
+    }
+    .hero-stats {
+      display: flex; gap: 32px; justify-content: center; flex-wrap: wrap;
+    }
+    .hero-stat { text-align: center; }
+    .hero-stat .num { font-size: 2rem; font-weight: 800; color: var(--accent); }
+    .hero-stat .label { font-size: 0.8rem; color: var(--muted); }
+
+    /* ─── SECTION ─── */
+    .section { padding: 64px 24px; max-width: 1100px; margin: 0 auto; }
+    .section-title {
+      font-size: 1.6rem; font-weight: 700; margin-bottom: 8px;
+    }
+    .section-sub { color: var(--muted); margin-bottom: 40px; font-size: 0.95rem; }
+    .divider { border: none; border-top: 1px solid var(--border); margin: 48px 0; }
+
+    /* ─── OBJECTIVES ─── */
+    .objectives-grid {
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 20px;
+    }
+    .obj-card {
+      background: var(--card-bg); border: 1px solid var(--border);
+      border-radius: 14px; padding: 24px;
+      transition: border-color .25s, transform .2s;
+    }
+    .obj-card:hover { border-color: var(--accent); transform: translateY(-2px); }
+    .obj-num {
+      font-size: 0.75rem; font-weight: 700; color: var(--accent);
+      letter-spacing: .08em; text-transform: uppercase; margin-bottom: 10px;
+    }
+    .obj-title { font-size: 1rem; font-weight: 600; margin-bottom: 10px; }
+    .obj-text { font-size: 0.88rem; color: var(--muted); line-height: 1.6; }
+
+    /* ─── PATTERN GRID ─── */
+    .patterns-grid {
+      display: grid; grid-template-columns: repeat(auto-fill, minmax(310px, 1fr)); gap: 20px;
+    }
+    .pat-card {
+      background: var(--card-bg); border: 1px solid var(--border);
+      border-radius: 14px; overflow: hidden;
+      transition: border-color .25s, box-shadow .25s;
+      cursor: pointer;
+    }
+    .pat-card:hover {
+      border-color: var(--accent2);
+      box-shadow: 0 8px 32px rgba(108,142,245,.12);
+    }
+    .pat-card.expanded .pat-body { display: block; }
+    .pat-header {
+      padding: 20px 22px;
+      display: flex; align-items: flex-start; gap: 14px;
+    }
+    .pat-icon {
+      width: 40px; height: 40px; border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.3rem; flex-shrink: 0;
+    }
+    .pat-info { flex: 1; }
+    .pat-num { font-size: 0.7rem; color: var(--muted); font-weight: 600; letter-spacing: .08em; }
+    .pat-name { font-size: 1.05rem; font-weight: 700; margin: 2px 0; }
+    .pat-es { font-size: 0.8rem; color: var(--accent); }
+    .pat-tags { display: flex; gap: 6px; flex-wrap: wrap; padding: 0 22px 14px; }
+    .tag {
+      padding: 2px 10px; border-radius: 20px; font-size: 0.72rem; font-weight: 600;
+    }
+    .tag-oe1 { background: rgba(74,222,128,.12); color: var(--green); border: 1px solid rgba(74,222,128,.2); }
+    .tag-oe2 { background: rgba(251,191,36,.12); color: var(--yellow); border: 1px solid rgba(251,191,36,.2); }
+    .tag-oe3 { background: rgba(167,139,250,.12); color: var(--accent2); border: 1px solid rgba(167,139,250,.2); }
+    .pat-desc { font-size: 0.84rem; color: var(--muted); padding: 0 22px 14px; line-height: 1.6; }
+    .pat-body { display: none; border-top: 1px solid var(--border); }
+    .pat-body-inner { padding: 20px 22px; }
+    .code-block {
+      background: #0d1117; border: 1px solid var(--border);
+      border-radius: 8px; padding: 16px; margin-top: 12px;
+      font-family: 'Cascadia Code', 'Consolas', monospace;
+      font-size: 0.78rem; line-height: 1.65;
+      overflow-x: auto; white-space: pre;
+    }
+    .code-comment { color: #6e7681; }
+    .code-keyword { color: #ff7b72; }
+    .code-class   { color: #79c0ff; }
+    .code-method  { color: #d2a8ff; }
+    .code-string  { color: #a5d6ff; }
+    .code-output  { color: var(--green); }
+    .expand-toggle {
+      display: flex; align-items: center; gap: 6px;
+      padding: 10px 22px 14px;
+      color: var(--accent); font-size: 0.82rem; font-weight: 600;
+    }
+    .expand-arrow { transition: transform .2s; }
+    .pat-card.expanded .expand-arrow { transform: rotate(180deg); }
+
+    /* ─── OBJECTIVES MAPPING ─── */
+    .mapping-table {
+      width: 100%; border-collapse: collapse; font-size: 0.85rem;
+    }
+    .mapping-table th {
+      background: var(--bg3); padding: 12px 16px; text-align: left;
+      font-weight: 600; color: var(--muted); font-size: 0.78rem;
+      text-transform: uppercase; letter-spacing: .05em;
+      border-bottom: 1px solid var(--border);
+    }
+    .mapping-table td { padding: 12px 16px; border-bottom: 1px solid var(--border); }
+    .mapping-table tr:last-child td { border-bottom: none; }
+    .mapping-table tr:hover td { background: rgba(255,255,255,.02); }
+    .dot {
+      width: 20px; height: 20px; border-radius: 50%; display: inline-block;
+      text-align: center; line-height: 20px; font-size: 0.72rem; font-weight: 700;
+    }
+    .dot-oe1 { background: rgba(74,222,128,.2); color: var(--green); border: 1px solid var(--green); }
+    .dot-oe2 { background: rgba(251,191,36,.2); color: var(--yellow); border: 1px solid var(--yellow); }
+    .dot-oe3 { background: rgba(167,139,250,.2); color: var(--accent2); border: 1px solid var(--accent2); }
+
+    /* ─── TESTS ─── */
+    .tests-summary {
+      background: var(--card-bg); border: 1px solid var(--green);
+      border-radius: 14px; padding: 28px; display: flex;
+      align-items: center; gap: 32px; flex-wrap: wrap;
+      margin-bottom: 32px;
+    }
+    .tests-num { font-size: 3rem; font-weight: 800; color: var(--green); line-height: 1; }
+    .tests-label { font-size: 1rem; font-weight: 600; }
+    .tests-sub { font-size: 0.84rem; color: var(--muted); margin-top: 4px; }
+    .test-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 10px; }
+    .test-item {
+      background: var(--bg3); border-radius: 8px; padding: 12px 14px;
+      display: flex; align-items: center; gap: 10px; font-size: 0.82rem;
+    }
+    .test-icon { color: var(--green); font-size: 1rem; flex-shrink: 0; }
+    .test-name { color: var(--text); flex: 1; }
+    .test-count {
+      background: rgba(74,222,128,.15); color: var(--green);
+      border-radius: 20px; padding: 2px 10px; font-size: 0.72rem; font-weight: 700;
+    }
+
+    /* ─── FOOTER ─── */
+    footer {
+      border-top: 1px solid var(--border);
+      padding: 32px 24px; text-align: center;
+      color: var(--muted); font-size: 0.85rem;
+    }
+
+    @media (max-width: 600px) {
+      .hero { padding: 48px 16px 40px; }
+      .hero-stats { gap: 20px; }
+      .section { padding: 40px 16px; }
+      nav { padding: 0 16px; }
+      .nav-links { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-brand">FábricaViva MES</div>
+  <div class="nav-links">
+    <a href="#objetivos" class="active">Objetivos</a>
+    <a href="#patrones">Patrones</a>
+    <a href="#mapeo">Mapeo</a>
+    <a href="#tests">Tests</a>
+  </div>
+</nav>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-badge">Tercer Corte · Patrones de Comportamiento GoF</div>
+  <h1>FábricaViva<br>Production MES</h1>
+  <p>Sistema de control de producción manufacturera implementado con 11 patrones de comportamiento GoF</p>
+  <div class="hero-stats">
+    <div class="hero-stat"><div class="num">11</div><div class="label">Patrones GoF</div></div>
+    <div class="hero-stat"><div class="num">112</div><div class="label">Tests JUnit 5</div></div>
+    <div class="hero-stat"><div class="num">3</div><div class="label">Objetivos</div></div>
+    <div class="hero-stat"><div class="num">100%</div><div class="label">Tests pasando</div></div>
+  </div>
+</div>
+
+<!-- OBJECTIVES -->
+<div class="section" id="objetivos">
+  <div class="section-title">Objetivos del Proyecto</div>
+  <div class="section-sub">Problema central que los patrones de comportamiento resuelven</div>
+  <div class="objectives-grid">
+
+    <div class="obj-card" style="border-top: 3px solid var(--accent);">
+      <div class="obj-num">Objetivo General</div>
+      <div class="obj-title">Sistema de Control de Producción</div>
+      <div class="obj-text">Desarrollar un sistema MES que permita mejorar el seguimiento de actividades en una planta manufacturera, facilitando el control de órdenes de producción, la trazabilidad de productos y el análisis de la información generada.</div>
+    </div>
+
+    <div class="obj-card" style="border-top: 3px solid var(--green);">
+      <div class="obj-num">OE1 · Seguimiento</div>
+      <div class="obj-title">Órdenes y Trazabilidad</div>
+      <div class="obj-text">Facilitar el seguimiento de las órdenes de producción y los productos fabricados, conociendo el estado y avance de los procesos y manteniendo un registro de información por producto.</div>
+    </div>
+
+    <div class="obj-card" style="border-top: 3px solid var(--yellow);">
+      <div class="obj-num">OE2 · Control</div>
+      <div class="obj-title">Información de Producción</div>
+      <div class="obj-text">Mejorar el control de la información generada durante la producción: funcionamiento de equipos, tiempos de producción y control de calidad.</div>
+    </div>
+
+    <div class="obj-card" style="border-top: 3px solid var(--accent2);">
+      <div class="obj-num">OE3 · Decisiones</div>
+      <div class="obj-title">Apoyo a Decisiones</div>
+      <div class="obj-text">Proporcionar información organizada para la toma de decisiones, identificando dificultades en el proceso productivo y analizando el desempeño general.</div>
+    </div>
+
+  </div>
+</div>
+
+<hr class="divider" style="max-width:1100px;margin:0 auto;">
+
+<!-- PATTERNS -->
+<div class="section" id="patrones">
+  <div class="section-title">Patrones de Comportamiento</div>
+  <div class="section-sub">Haz clic en cada patrón para ver su implementación en FábricaViva</div>
+  <div class="patterns-grid">
+
+    <!-- OBSERVER -->
+    <div class="pat-card" onclick="toggle(this)">
+      <div class="pat-header">
+        <div class="pat-icon" style="background:rgba(74,222,128,.12);">👁️</div>
+        <div class="pat-info">
+          <div class="pat-num">S14 · Comportamiento</div>
+          <div class="pat-name">Observer</div>
+          <div class="pat-es">Observador · Publicación/Suscripción</div>
+        </div>
+      </div>
+      <div class="pat-tags">
+        <span class="tag tag-oe1">OE1</span>
+        <span class="tag tag-oe2">OE2</span>
+      </div>
+      <div class="pat-desc">SensorMaquina notifica a PanelSupervisor y BitacoraEventos cuando el OEE cambia o hay una parada no planificada. Ningún módulo conoce directamente a los otros.</div>
+      <div class="expand-toggle">Ver implementación <span class="expand-arrow">▼</span></div>
+      <div class="pat-body">
+        <div class="pat-body-inner">
+          <div style="font-size:.82rem; color:var(--muted); margin-bottom:8px;">Clases principales:</div>
+          <div class="code-block"><span class="code-comment">// Subject</span>
+<span class="code-keyword">public class</span> <span class="code-class">SensorMaquina</span> {
+  <span class="code-keyword">private</span> List&lt;<span class="code-class">ObservadorMaquina</span>&gt; observadores = <span class="code-keyword">new</span> ArrayList<>();
+
+  <span class="code-keyword">public void</span> <span class="code-method">reportarOee</span>(<span class="code-keyword">double</span> oee) {
+    <span class="code-keyword">if</span> (oee != oeeActual) {
+      oeeActual = oee;
+      <span class="code-method">notificar</span>(<span class="code-string">"OEE_ACTUALIZADO"</span>);
+    }
+  }
+}
+
+<span class="code-comment">// Observer</span>
+<span class="code-keyword">public class</span> <span class="code-class">PanelSupervisor</span> <span class="code-keyword">implements</span> <span class="code-class">ObservadorMaquina</span> {
+  <span class="code-keyword">public void</span> <span class="code-method">actualizar</span>(String id, String evento, <span class="code-keyword">double</span> oee) {
+    <span class="code-comment">// Registra alerta si OEE &lt; umbral</span>
+  }
+}</div>
+          <div style="font-size:.8rem; color:var(--green); margin-top:12px;">
+            → Resuelve OE1: seguimiento en tiempo real del estado de máquinas<br>
+            → Resuelve OE2: monitoreo automático de equipos con notificaciones
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- COMMAND -->
+    <div class="pat-card" onclick="toggle(this)">
+      <div class="pat-header">
+        <div class="pat-icon" style="background:rgba(103,232,249,.12);">⚡</div>
+        <div class="pat-info">
+          <div class="pat-num">S12 · Comportamiento</div>
+          <div class="pat-name">Command</div>
+          <div class="pat-es">Comando · Encapsulación de acciones</div>
+        </div>
+      </div>
+      <div class="pat-tags">
+        <span class="tag tag-oe1">OE1</span>
+        <span class="tag tag-oe2">OE2</span>
+      </div>
+      <div class="pat-desc">GestorComandos ejecuta operaciones sobre la línea de producción (iniciar, cerrar turno) y mantiene historial para deshacer/rehacer.</div>
+      <div class="expand-toggle">Ver implementación <span class="expand-arrow">▼</span></div>
+      <div class="pat-body">
+        <div class="pat-body-inner">
+          <div class="code-block"><span class="code-comment">// Invoker</span>
+<span class="code-keyword">public class</span> <span class="code-class">GestorComandos</span> {
+  <span class="code-keyword">private</span> Deque&lt;<span class="code-class">ComandoProduccion</span>&gt; historial;
+
+  <span class="code-keyword">public void</span> <span class="code-method">ejecutar</span>(<span class="code-class">ComandoProduccion</span> cmd) {
+    cmd.<span class="code-method">ejecutar</span>();
+    historial.<span class="code-method">push</span>(cmd);
+  }
+
+  <span class="code-keyword">public void</span> <span class="code-method">deshacer</span>() {
+    historial.<span class="code-method">pop</span>().<span class="code-method">deshacer</span>();
+  }
+}
+
+<span class="code-comment">// Command concreto</span>
+<span class="code-keyword">public class</span> <span class="code-class">ComandoIniciarOrden</span> <span class="code-keyword">implements</span> <span class="code-class">ComandoProduccion</span> {
+  <span class="code-keyword">public void</span> <span class="code-method">ejecutar</span>() { linea.<span class="code-method">iniciar</span>(ref, cantidad); }
+  <span class="code-keyword">public void</span> <span class="code-method">deshacer</span>() { linea.<span class="code-method">pausar</span>(ref); }
+}</div>
+          <div style="font-size:.8rem; color:var(--green); margin-top:12px;">
+            → Resuelve OE1: registro auditable de cada operación sobre la orden<br>
+            → Resuelve OE2: control de tiempos de turno con capacidad de deshacer
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- STATE -->
+    <div class="pat-card" onclick="toggle(this)">
+      <div class="pat-header">
+        <div class="pat-icon" style="background:rgba(251,191,36,.12);">🔄</div>
+        <div class="pat-info">
+          <div class="pat-num">S14 · Comportamiento</div>
+          <div class="pat-name">State</div>
+          <div class="pat-es">Estado · Máquina de estados</div>
+        </div>
+      </div>
+      <div class="pat-tags">
+        <span class="tag tag-oe1">OE1</span>
+        <span class="tag tag-oe2">OE2</span>
+      </div>
+      <div class="pat-desc">ContextoMaquina delega su comportamiento al estado actual: IDLE → PRODUCIENDO → FALLA → IDLE. Las transiciones son automáticas y el contexto no sabe qué hace cada estado.</div>
+      <div class="expand-toggle">Ver implementación <span class="expand-arrow">▼</span></div>
+      <div class="pat-body">
+        <div class="pat-body-inner">
+          <div class="code-block"><span class="code-comment">// Context</span>
+<span class="code-keyword">public class</span> <span class="code-class">ContextoMaquina</span> {
+  <span class="code-keyword">private</span> <span class="code-class">EstadoMaquina</span> estado = <span class="code-keyword">new</span> <span class="code-class">EstadoIdle</span>();
+
+  <span class="code-keyword">public void</span> <span class="code-method">iniciar</span>() { estado.<span class="code-method">iniciar</span>(<span class="code-keyword">this</span>); }
+  <span class="code-keyword">public void</span> <span class="code-method">reportarFalla</span>(String causa) { estado.<span class="code-method">reportarFalla</span>(<span class="code-keyword">this</span>, causa); }
+}
+
+<span class="code-comment">// Estados: IDLE → PRODUCIENDO → FALLA → IDLE</span>
+<span class="code-comment">// Ciclo de vida de la maquina de manufactura</span></div>
+          <div style="font-size:.8rem; color:var(--green); margin-top:12px;">
+            → Resuelve OE1: ciclo de vida explícito de máquinas y órdenes<br>
+            → Resuelve OE2: control de estado del equipo (paros, fallas, operación)
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- CHAIN OF RESPONSIBILITY -->
+    <div class="pat-card" onclick="toggle(this)">
+      <div class="pat-header">
+        <div class="pat-icon" style="background:rgba(248,113,113,.12);">🔗</div>
+        <div class="pat-info">
+          <div class="pat-num">S12 · Comportamiento</div>
+          <div class="pat-name">Chain of Responsibility</div>
+          <div class="pat-es">Cadena de Responsabilidad</div>
+        </div>
+      </div>
+      <div class="pat-tags">
+        <span class="tag tag-oe1">OE1</span>
+        <span class="tag tag-oe2">OE2</span>
+      </div>
+      <div class="pat-desc">GestorOrdenes encadena ValidadorStock → ValidadorCapacidad → ValidadorPrioridad. Cada validador decide rechazar o pasar al siguiente, sin acoplamiento entre ellos.</div>
+      <div class="expand-toggle">Ver implementación <span class="expand-arrow">▼</span></div>
+      <div class="pat-body">
+        <div class="pat-body-inner">
+          <div class="code-block"><span class="code-comment">// Handler interface</span>
+<span class="code-keyword">public interface</span> <span class="code-class">ValidadorOrden</span> {
+  <span class="code-keyword">void</span> <span class="code-method">setSiguiente</span>(<span class="code-class">ValidadorOrden</span> sig);
+  <span class="code-class">ResultadoOrden</span> <span class="code-method">validar</span>(<span class="code-class">OrdenProduccion</span> orden);
+}
+
+<span class="code-comment">// Cadena construida en GestorOrdenes:</span>
+<span class="code-comment">// Stock → Capacidad → Prioridad</span>
+<span class="code-class">ResultadoOrden</span> r = gestor.<span class="code-method">validar</span>(orden);
+<span class="code-comment">// Si stock &lt; cantidad → RECHAZADA (ValidadorStock)</span>
+<span class="code-comment">// Si cap &lt; cantidad  → RECHAZADA (ValidadorCapacidad)</span>
+<span class="code-comment">// Si saturado+NORMAL → RECHAZADA (ValidadorPrioridad)</span>
+<span class="code-comment">// En cualquier otro caso → APROBADA ✓</span></div>
+          <div style="font-size:.8rem; color:var(--green); margin-top:12px;">
+            → Resuelve OE1: validación automática antes de crear la orden<br>
+            → Resuelve OE2: control de calidad encadenado y extensible
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- STRATEGY -->
+    <div class="pat-card" onclick="toggle(this)">
+      <div class="pat-header">
+        <div class="pat-icon" style="background:rgba(167,139,250,.12);">🎯</div>
+        <div class="pat-info">
+          <div class="pat-num">S15 · Comportamiento</div>
+          <div class="pat-name">Strategy</div>
+          <div class="pat-es">Estrategia · Algoritmo intercambiable</div>
+        </div>
+      </div>
+      <div class="pat-tags">
+        <span class="tag tag-oe1">OE1</span>
+        <span class="tag tag-oe3">OE3</span>
+      </div>
+      <div class="pat-desc">PlanificadorOrdenes permite cambiar el algoritmo de planificación en tiempo de ejecución: FIFO, Prioridad o Volumen, sin modificar el contexto.</div>
+      <div class="expand-toggle">Ver implementación <span class="expand-arrow">▼</span></div>
+      <div class="pat-body">
+        <div class="pat-body-inner">
+          <div class="code-block"><span class="code-class">PlanificadorOrdenes</span> planificador =
+    <span class="code-keyword">new</span> <span class="code-class">PlanificadorOrdenes</span>(<span class="code-keyword">new</span> <span class="code-class">EstrategiaFIFO</span>());
+
+<span class="code-comment">// En hora punta: cambiar a prioridad sin parar el sistema</span>
+planificador.<span class="code-method">setEstrategia</span>(<span class="code-keyword">new</span> <span class="code-class">EstrategiaPrioridad</span>());
+
+List&lt;<span class="code-class">OrdenProduccion</span>&gt; resultado =
+    planificador.<span class="code-method">planificar</span>(ordenesPendientes);
+<span class="code-comment">// → Órdenes ALTA primero, luego NORMAL</span></div>
+          <div style="font-size:.8rem; color:var(--green); margin-top:12px;">
+            → Resuelve OE1: planificación adaptable de órdenes de producción<br>
+            → Resuelve OE3: análisis de rendimiento según estrategia seleccionada
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TEMPLATE METHOD -->
+    <div class="pat-card" onclick="toggle(this)">
+      <div class="pat-header">
+        <div class="pat-icon" style="background:rgba(103,232,249,.12);">📋</div>
+        <div class="pat-info">
+          <div class="pat-num">S15 · Comportamiento</div>
+          <div class="pat-name">Template Method</div>
+          <div class="pat-es">Método Plantilla · Algoritmo fijo</div>
+        </div>
+      </div>
+      <div class="pat-tags">
+        <span class="tag tag-oe2">OE2</span>
+      </div>
+      <div class="pat-desc">InspeccionCalidad define el esqueleto fijo de inspección (preparar → contar → evaluar → registrar). InspeccionDimensional e InspeccionVisual implementan los pasos específicos.</div>
+      <div class="expand-toggle">Ver implementación <span class="expand-arrow">▼</span></div>
+      <div class="pat-body">
+        <div class="pat-body-inner">
+          <div class="code-block"><span class="code-comment">// Template Method — esqueleto invariable</span>
+<span class="code-keyword">public final</span> <span class="code-class">ResultadoInspeccion</span> <span class="code-method">inspeccionarLote</span>(
+        String loteId, <span class="code-keyword">int</span> muestras) {
+  <span class="code-method">prepararInstrumentos</span>();        <span class="code-comment">// abstract</span>
+  <span class="code-keyword">int</span> defectos = <span class="code-method">contarDefectos</span>(muestras); <span class="code-comment">// abstract</span>
+  <span class="code-keyword">boolean</span> ok = <span class="code-method">evaluarResultado</span>(defectos, muestras); <span class="code-comment">// hook</span>
+  <span class="code-method">registrarResultado</span>(loteId, defectos, ok);
+  <span class="code-keyword">return new</span> <span class="code-class">ResultadoInspeccion</span>(loteId, <span class="code-method">tipo</span>(), defectos, ok);
+}
+
+<span class="code-comment">// InspeccionDimensional: criterio &lt; 3%</span>
+<span class="code-comment">// InspeccionVisual:      criterio &lt; 5% (hook por defecto)</span></div>
+          <div style="font-size:.8rem; color:var(--green); margin-top:12px;">
+            → Resuelve OE2: protocolo estandarizado de control de calidad
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ITERATOR -->
+    <div class="pat-card" onclick="toggle(this)">
+      <div class="pat-header">
+        <div class="pat-icon" style="background:rgba(74,222,128,.12);">🔁</div>
+        <div class="pat-info">
+          <div class="pat-num">S13 · Comportamiento</div>
+          <div class="pat-name">Iterator</div>
+          <div class="pat-es">Iterador · Recorrido sin exponer estructura</div>
+        </div>
+      </div>
+      <div class="pat-tags">
+        <span class="tag tag-oe1">OE1</span>
+        <span class="tag tag-oe3">OE3</span>
+      </div>
+      <div class="pat-desc">ColeccionLotes expone dos iteradores: FIFO (orden de llegada) y por prioridad (1=alta, 3=baja). Los clientes no conocen la estructura interna de la colección.</div>
+      <div class="expand-toggle">Ver implementación <span class="expand-arrow">▼</span></div>
+      <div class="pat-body">
+        <div class="pat-body-inner">
+          <div class="code-block"><span class="code-class">ColeccionLotes</span> col = <span class="code-keyword">new</span> <span class="code-class">ColeccionLotes</span>();
+col.<span class="code-method">agregar</span>(<span class="code-keyword">new</span> <span class="code-class">LoteProduccion</span>(<span class="code-string">"L001"</span>, <span class="code-string">"PIEZA-X"</span>, 100, 2));
+col.<span class="code-method">agregar</span>(<span class="code-keyword">new</span> <span class="code-class">LoteProduccion</span>(<span class="code-string">"L002"</span>, <span class="code-string">"PIEZA-Y"</span>, 50, 1));
+
+<span class="code-comment">// FIFO: L001, L002</span>
+<span class="code-keyword">for</span> (<span class="code-class">LoteProduccion</span> l : col) { ... }
+
+<span class="code-comment">// Por prioridad: L002 (P1), L001 (P2)</span>
+Iterator&lt;<span class="code-class">LoteProduccion</span>&gt; it = col.<span class="code-method">iteratorPorPrioridad</span>();</div>
+          <div style="font-size:.8rem; color:var(--green); margin-top:12px;">
+            → Resuelve OE1: recorrido sistemático de órdenes sin exponer internos<br>
+            → Resuelve OE3: generación de reportes ordenados por criterio
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- MEDIATOR -->
+    <div class="pat-card" onclick="toggle(this)">
+      <div class="pat-header">
+        <div class="pat-icon" style="background:rgba(251,191,36,.12);">🌐</div>
+        <div class="pat-info">
+          <div class="pat-num">S13 · Comportamiento</div>
+          <div class="pat-name">Mediator</div>
+          <div class="pat-es">Mediador · Hub centralizado</div>
+        </div>
+      </div>
+      <div class="pat-tags">
+        <span class="tag tag-oe2">OE2</span>
+        <span class="tag tag-oe3">OE3</span>
+      </div>
+      <div class="pat-desc">CentralMes actúa como hub: ModuloCalidad y ModuloMantenimiento nunca se llaman directamente. Toda comunicación pasa por la central, simplificando el acoplamiento.</div>
+      <div class="expand-toggle">Ver implementación <span class="expand-arrow">▼</span></div>
+      <div class="pat-body">
+        <div class="pat-body-inner">
+          <div class="code-block"><span class="code-class">CentralMes</span> central = <span class="code-keyword">new</span> <span class="code-class">CentralMes</span>();
+<span class="code-class">ModuloCalidad</span>       cal   = <span class="code-keyword">new</span> <span class="code-class">ModuloCalidad</span>(central);
+<span class="code-class">ModuloMantenimiento</span> manto = <span class="code-keyword">new</span> <span class="code-class">ModuloMantenimiento</span>(central);
+
+<span class="code-comment">// Falla en CNC-03 → central lo enruta a Calidad y Mantenimiento</span>
+central.<span class="code-method">enviar</span>(<span class="code-string">"PRODUCCION"</span>, <span class="code-string">"FALLA CNC-03"</span>);
+
+<span class="code-output">// [MANTENIMIENTO] ← PRODUCCION: FALLA CNC-03</span>
+<span class="code-output">// [CALIDAD] ← PRODUCCION: FALLA CNC-03</span>
+<span class="code-output">// [CENTRAL] MANTENIMIENTO → "Tecnico asignado"</span></div>
+          <div style="font-size:.8rem; color:var(--green); margin-top:12px;">
+            → Resuelve OE2: comunicación centralizada entre módulos de producción<br>
+            → Resuelve OE3: información consolidada de todos los módulos
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- MEMENTO -->
+    <div class="pat-card" onclick="toggle(this)">
+      <div class="pat-header">
+        <div class="pat-icon" style="background:rgba(167,139,250,.12);">💾</div>
+        <div class="pat-info">
+          <div class="pat-num">S13 · Comportamiento</div>
+          <div class="pat-name">Memento</div>
+          <div class="pat-es">Memento · Deshacer / Restaurar</div>
+        </div>
+      </div>
+      <div class="pat-tags">
+        <span class="tag tag-oe2">OE2</span>
+        <span class="tag tag-oe3">OE3</span>
+      </div>
+      <div class="pat-desc">HistorialTurnos guarda instantáneas de ConfiguracionTurno sin conocer su contenido. Permite revertir cambios de configuración (meta OEE, turno, capacidad).</div>
+      <div class="expand-toggle">Ver implementación <span class="expand-arrow">▼</span></div>
+      <div class="pat-body">
+        <div class="pat-body-inner">
+          <div class="code-block"><span class="code-class">ConfiguracionTurno</span> cfg =
+    <span class="code-keyword">new</span> <span class="code-class">ConfiguracionTurno</span>(<span class="code-string">"MANANA"</span>, 0.85, 200);
+<span class="code-class">HistorialTurnos</span> hist = <span class="code-keyword">new</span> <span class="code-class">HistorialTurnos</span>();
+
+hist.<span class="code-method">guardar</span>(cfg);             <span class="code-comment">// checkpoint</span>
+cfg.<span class="code-method">setMetaOee</span>(0.70);           <span class="code-comment">// cambio experimental</span>
+cfg.<span class="code-method">setCapacidadMaxima</span>(150);
+
+hist.<span class="code-method">deshacer</span>(cfg);             <span class="code-comment">// revertir</span>
+<span class="code-comment">// cfg.getMetaOee() == 0.85 ✓</span>
+<span class="code-comment">// cfg.getCapacidadMaxima() == 200 ✓</span></div>
+          <div style="font-size:.8rem; color:var(--green); margin-top:12px;">
+            → Resuelve OE2: configuración de turno con rollback seguro<br>
+            → Resuelve OE3: auditoría de cambios de configuración
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- VISITOR -->
+    <div class="pat-card" onclick="toggle(this)">
+      <div class="pat-header">
+        <div class="pat-icon" style="background:rgba(103,232,249,.12);">🔍</div>
+        <div class="pat-info">
+          <div class="pat-num">S14 · Comportamiento</div>
+          <div class="pat-name">Visitor</div>
+          <div class="pat-es">Visitante · Operaciones sin modificar clases</div>
+        </div>
+      </div>
+      <div class="pat-tags">
+        <span class="tag tag-oe2">OE2</span>
+        <span class="tag tag-oe3">OE3</span>
+      </div>
+      <div class="pat-desc">VisitanteOee y VisitanteCostos recorren la estructura MaquinaElement / LineaElement sin modificar ninguna de esas clases. Nuevos informes = nuevos Visitors.</div>
+      <div class="expand-toggle">Ver implementación <span class="expand-arrow">▼</span></div>
+      <div class="pat-body">
+        <div class="pat-body-inner">
+          <div class="code-block"><span class="code-class">LineaElement</span> linea = <span class="code-keyword">new</span> <span class="code-class">LineaElement</span>(<span class="code-string">"LINEA-1"</span>);
+linea.<span class="code-method">agregar</span>(<span class="code-keyword">new</span> <span class="code-class">MaquinaElement</span>(<span class="code-string">"CNC-01"</span>, 0.90, 150.0));
+linea.<span class="code-method">agregar</span>(<span class="code-keyword">new</span> <span class="code-class">MaquinaElement</span>(<span class="code-string">"CNC-02"</span>, 0.70, 200.0));
+
+<span class="code-class">VisitanteOee</span> oee = <span class="code-keyword">new</span> <span class="code-class">VisitanteOee</span>();
+linea.<span class="code-method">aceptar</span>(oee);
+<span class="code-comment">// oee.getOeePromedio() == 0.80 ✓</span>
+
+<span class="code-class">VisitanteCostos</span> costos = <span class="code-keyword">new</span> <span class="code-class">VisitanteCostos</span>();
+linea.<span class="code-method">aceptar</span>(costos);
+<span class="code-comment">// costos.getCostoTotal() == 350.0 $/h ✓</span></div>
+          <div style="font-size:.8rem; color:var(--green); margin-top:12px;">
+            → Resuelve OE2: análisis de OEE y costos sin tocar el modelo<br>
+            → Resuelve OE3: generación de reportes extensibles y desacoplados
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- INTERPRETER (bonus) -->
+    <div class="pat-card" onclick="toggle(this)">
+      <div class="pat-header">
+        <div class="pat-icon" style="background:rgba(74,222,128,.12);">🧠</div>
+        <div class="pat-info">
+          <div class="pat-num">Bonus · Comportamiento</div>
+          <div class="pat-name">Interpreter</div>
+          <div class="pat-es">Intérprete · Reglas de negocio evaluables</div>
+        </div>
+      </div>
+      <div class="pat-tags">
+        <span class="tag tag-oe2">OE2</span>
+        <span class="tag tag-oe3">OE3</span>
+      </div>
+      <div class="pat-desc">ExpresionAnd / ExpresionOr componen reglas de alerta: "OEE &lt; 75% AND temperatura &gt; 80°C → alerta". Las reglas son configurables sin recompilar.</div>
+      <div class="expand-toggle">Ver implementación <span class="expand-arrow">▼</span></div>
+      <div class="pat-body">
+        <div class="pat-body-inner">
+          <div class="code-block"><span class="code-class">ContextoAlerta</span> ctx = <span class="code-keyword">new</span> <span class="code-class">ContextoAlerta</span>();
+ctx.<span class="code-method">set</span>(<span class="code-string">"OEE"</span>, 0.65);
+ctx.<span class="code-method">set</span>(<span class="code-string">"Temperatura"</span>, 85.0);
+
+<span class="code-class">ExpresionAlerta</span> regla = <span class="code-keyword">new</span> <span class="code-class">ExpresionAnd</span>(
+    <span class="code-keyword">new</span> <span class="code-class">ExpresionOEE</span>(0.75),          <span class="code-comment">// OEE &lt; 75%?</span>
+    <span class="code-keyword">new</span> <span class="code-class">ExpresionTemperatura</span>(80.0)   <span class="code-comment">// Temp &gt; 80°C?</span>
+);
+<span class="code-comment">// regla.interpretar(ctx) == true → emitir alerta ✓</span></div>
+          <div style="font-size:.8rem; color:var(--green); margin-top:12px;">
+            → Resuelve OE2: reglas de alerta configurables para equipos<br>
+            → Resuelve OE3: análisis automático con lógica de negocio compuesta
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<hr class="divider" style="max-width:1100px;margin:0 auto;">
+
+<!-- OBJECTIVES MAPPING -->
+<div class="section" id="mapeo">
+  <div class="section-title">Mapeo Patrones → Objetivos</div>
+  <div class="section-sub">¿Cómo cada patrón le da solución a los objetivos del proyecto?</div>
+
+  <div style="overflow-x:auto;">
+  <table class="mapping-table">
+    <thead>
+      <tr>
+        <th>Patrón</th>
+        <th>Clase principal</th>
+        <th style="text-align:center;"><span class="dot dot-oe1" title="OE1">1</span></th>
+        <th style="text-align:center;"><span class="dot dot-oe2" title="OE2">2</span></th>
+        <th style="text-align:center;"><span class="dot dot-oe3" title="OE3">3</span></th>
+        <th>Contribución concreta</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>Observer</strong></td>
+        <td><code>SensorMaquina</code></td>
+        <td style="text-align:center;"><span class="dot dot-oe1">✓</span></td>
+        <td style="text-align:center;"><span class="dot dot-oe2">✓</span></td>
+        <td></td>
+        <td>Notifica cambios de OEE y paradas en tiempo real</td>
+      </tr>
+      <tr>
+        <td><strong>Command</strong></td>
+        <td><code>GestorComandos</code></td>
+        <td style="text-align:center;"><span class="dot dot-oe1">✓</span></td>
+        <td style="text-align:center;"><span class="dot dot-oe2">✓</span></td>
+        <td></td>
+        <td>Registra operaciones de órdenes con capacidad de deshacer</td>
+      </tr>
+      <tr>
+        <td><strong>State</strong></td>
+        <td><code>ContextoMaquina</code></td>
+        <td style="text-align:center;"><span class="dot dot-oe1">✓</span></td>
+        <td style="text-align:center;"><span class="dot dot-oe2">✓</span></td>
+        <td></td>
+        <td>Modela el ciclo de vida IDLE→PRODUCIENDO→FALLA de equipos</td>
+      </tr>
+      <tr>
+        <td><strong>Chain of Resp.</strong></td>
+        <td><code>GestorOrdenes</code></td>
+        <td style="text-align:center;"><span class="dot dot-oe1">✓</span></td>
+        <td style="text-align:center;"><span class="dot dot-oe2">✓</span></td>
+        <td></td>
+        <td>Valida stock, capacidad y prioridad antes de aceptar una orden</td>
+      </tr>
+      <tr>
+        <td><strong>Strategy</strong></td>
+        <td><code>PlanificadorOrdenes</code></td>
+        <td style="text-align:center;"><span class="dot dot-oe1">✓</span></td>
+        <td></td>
+        <td style="text-align:center;"><span class="dot dot-oe3">✓</span></td>
+        <td>Permite cambiar el algoritmo de planificación (FIFO/Prioridad) en caliente</td>
+      </tr>
+      <tr>
+        <td><strong>Template Method</strong></td>
+        <td><code>InspeccionCalidad</code></td>
+        <td></td>
+        <td style="text-align:center;"><span class="dot dot-oe2">✓</span></td>
+        <td></td>
+        <td>Define protocolo fijo de inspección, subclases adaptan los pasos</td>
+      </tr>
+      <tr>
+        <td><strong>Iterator</strong></td>
+        <td><code>ColeccionLotes</code></td>
+        <td style="text-align:center;"><span class="dot dot-oe1">✓</span></td>
+        <td></td>
+        <td style="text-align:center;"><span class="dot dot-oe3">✓</span></td>
+        <td>Recorre colecciones de lotes sin exponer su estructura interna</td>
+      </tr>
+      <tr>
+        <td><strong>Mediator</strong></td>
+        <td><code>CentralMes</code></td>
+        <td></td>
+        <td style="text-align:center;"><span class="dot dot-oe2">✓</span></td>
+        <td style="text-align:center;"><span class="dot dot-oe3">✓</span></td>
+        <td>Coordina Calidad y Mantenimiento sin acoplamiento directo</td>
+      </tr>
+      <tr>
+        <td><strong>Memento</strong></td>
+        <td><code>HistorialTurnos</code></td>
+        <td></td>
+        <td style="text-align:center;"><span class="dot dot-oe2">✓</span></td>
+        <td style="text-align:center;"><span class="dot dot-oe3">✓</span></td>
+        <td>Guarda/restaura configuración del turno para auditoría</td>
+      </tr>
+      <tr>
+        <td><strong>Visitor</strong></td>
+        <td><code>VisitanteOee</code></td>
+        <td></td>
+        <td style="text-align:center;"><span class="dot dot-oe2">✓</span></td>
+        <td style="text-align:center;"><span class="dot dot-oe3">✓</span></td>
+        <td>Calcula OEE y costos sin modificar MaquinaElement/LineaElement</td>
+      </tr>
+      <tr>
+        <td><strong>Interpreter</strong></td>
+        <td><code>ExpresionAlerta</code></td>
+        <td></td>
+        <td style="text-align:center;"><span class="dot dot-oe2">✓</span></td>
+        <td style="text-align:center;"><span class="dot dot-oe3">✓</span></td>
+        <td>Evalúa reglas de alerta compuestas (OEE AND temperatura)</td>
+      </tr>
+    </tbody>
+  </table>
+  </div>
+
+  <div style="margin-top:16px; font-size:.82rem; color:var(--muted); display:flex; gap:16px; flex-wrap:wrap;">
+    <span><span class="dot dot-oe1">1</span> = OE1 Seguimiento de órdenes y trazabilidad</span>
+    <span><span class="dot dot-oe2">2</span> = OE2 Control de información de producción</span>
+    <span><span class="dot dot-oe3">3</span> = OE3 Apoyo a la toma de decisiones</span>
+  </div>
+</div>
+
+<hr class="divider" style="max-width:1100px;margin:0 auto;">
+
+<!-- TESTS -->
+<div class="section" id="tests">
+  <div class="section-title">Pruebas JUnit 5</div>
+  <div class="section-sub">Todas las pruebas pasan — verificación de correctitud de los patrones</div>
+
+  <div class="tests-summary">
+    <div>
+      <div class="tests-num">112</div>
+    </div>
+    <div>
+      <div class="tests-label">Tests en total — 100% pasando</div>
+      <div class="tests-sub">Creacionales (5) + Estructurales (7) + Comportamiento (11) = 23 patrones GoF</div>
+    </div>
+  </div>
+
+  <div class="test-list">
+    <div class="test-item">
+      <span class="test-icon">✓</span>
+      <span class="test-name">Chain of Responsibility</span>
+      <span class="test-count">6 tests</span>
+    </div>
+    <div class="test-item">
+      <span class="test-icon">✓</span>
+      <span class="test-name">Command</span>
+      <span class="test-count">6 tests</span>
+    </div>
+    <div class="test-item">
+      <span class="test-icon">✓</span>
+      <span class="test-name">Iterator</span>
+      <span class="test-count">5 tests</span>
+    </div>
+    <div class="test-item">
+      <span class="test-icon">✓</span>
+      <span class="test-name">Mediator</span>
+      <span class="test-count">4 tests</span>
+    </div>
+    <div class="test-item">
+      <span class="test-icon">✓</span>
+      <span class="test-name">Memento</span>
+      <span class="test-count">5 tests</span>
+    </div>
+    <div class="test-item">
+      <span class="test-icon">✓</span>
+      <span class="test-name">Observer</span>
+      <span class="test-count">6 tests</span>
+    </div>
+    <div class="test-item">
+      <span class="test-icon">✓</span>
+      <span class="test-name">State</span>
+      <span class="test-count">7 tests</span>
+    </div>
+    <div class="test-item">
+      <span class="test-icon">✓</span>
+      <span class="test-name">Strategy</span>
+      <span class="test-count">7 tests</span>
+    </div>
+    <div class="test-item">
+      <span class="test-icon">✓</span>
+      <span class="test-name">Template Method</span>
+      <span class="test-count">6 tests</span>
+    </div>
+    <div class="test-item">
+      <span class="test-icon">✓</span>
+      <span class="test-name">Visitor</span>
+      <span class="test-count">5 tests</span>
+    </div>
+    <div class="test-item">
+      <span class="test-icon">✓</span>
+      <span class="test-name">Singleton, Builder, Factory...</span>
+      <span class="test-count">55 tests</span>
+    </div>
+  </div>
+</div>
+
+<footer>
+  <div style="margin-bottom:8px; color:var(--text); font-weight:600;">FábricaViva MES · Patrones de Comportamiento GoF</div>
+  <div>Universidad de Tecnología y Sociedad · Semestre 10 · Patrones de Software · Tercer Corte</div>
+  <div style="margin-top:8px; color:var(--accent);">Branch: dev-comportamiento | 112 tests ✓ | 23 patrones GoF</div>
+</footer>
+
+<script>
+function toggle(card) {
+  const isExpanded = card.classList.contains('expanded');
+  document.querySelectorAll('.pat-card.expanded').forEach(c => c.classList.remove('expanded'));
+  if (!isExpanded) card.classList.add('expanded');
+}
+
+// Nav highlighting on scroll
+const sections = document.querySelectorAll('.section[id]');
+const navLinks = document.querySelectorAll('.nav-links a');
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      navLinks.forEach(a => a.classList.remove('active'));
+      const link = document.querySelector(`.nav-links a[href="#${e.target.id}"]`);
+      if (link) link.classList.add('active');
+    }
+  });
+}, { threshold: 0.3 });
+sections.forEach(s => observer.observe(s));
+</script>
+</body>
+</html>
