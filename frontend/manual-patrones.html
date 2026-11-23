@@ -182,7 +182,7 @@ code,pre{font-family:var(--mono)}
   <a class="sb-link" href="#faq">Preguntas del docente</a>
   <div class="sb-section">Referencia</div>
   <a class="sb-link" href="#glosario">Glosario de siglas</a>
-  <a class="sb-link" href="#demo">Cómo usar la app</a>
+  <a class="sb-link" href="#demo">Demo para la sustentación</a>
 </nav>
 
 <!-- MAIN -->
@@ -248,17 +248,113 @@ code,pre{font-family:var(--mono)}
 
   <!-- MAPA OE -->
   <section id="mapa">
-    <div class="section-title">Mapa Objetivos ↔ Patrones</div>
-    <div class="section-sub">Cada patrón implementado satisface al menos un objetivo específico del sistema.</div>
-    <div class="card" style="padding:0;overflow:hidden">
-      <table class="obj-table">
-        <thead><tr><th>OE</th><th>Descripción corta</th><th>Patrones que lo satisfacen</th></tr></thead>
-        <tbody>
-          <tr><td>OE1</td><td>Seguimiento de órdenes y trazabilidad de productos</td><td><span class="badge b-blue" style="margin-right:4px">Command</span><span class="badge b-blue" style="margin-right:4px">Chain of Responsibility</span><span class="badge b-blue">Iterator</span></td></tr>
-          <tr><td>OE2</td><td>Control de equipos, tiempos y calidad</td><td><span class="badge b-green" style="margin-right:4px">Observer</span><span class="badge b-green" style="margin-right:4px">State</span><span class="badge b-green" style="margin-right:4px">Template Method</span><span class="badge b-green">Memento</span></td></tr>
-          <tr><td>OE3</td><td>Apoyo a toma de decisiones y análisis de desempeño</td><td><span class="badge b-purple" style="margin-right:4px">Strategy</span><span class="badge b-purple" style="margin-right:4px">Mediator</span><span class="badge b-purple" style="margin-right:4px">Visitor</span><span class="badge b-purple">Interpreter</span></td></tr>
-        </tbody>
-      </table>
+    <div class="section-title">¿Cómo resuelve FábricaViva cada objetivo del proyecto?</div>
+    <div class="section-sub">Aquí se explica qué quería lograr el sistema y qué patrón de diseño se usó para lograrlo. Sin siglas técnicas — con ejemplos reales de la app.</div>
+
+    <div class="card" style="padding:14px 18px 10px;margin-bottom:16px;background:rgba(26,94,202,.05);border:1px solid rgba(26,94,202,.2)">
+      <div style="font-size:.82rem;color:var(--muted)">
+        <strong style="color:var(--text)">¿Qué es un OE (Objetivo Específico)?</strong><br>
+        Es una meta concreta que el sistema debe cumplir. Por ejemplo, un OE puede ser: <em>"el sistema debe poder rastrear qué le pasó a cada orden de producción"</em>.
+        Para cumplir ese objetivo, usamos <strong>patrones de diseño</strong> — soluciones probadas para problemas comunes en programación.
+      </div>
+    </div>
+
+    <!-- OE1 -->
+    <div class="card" style="margin-bottom:16px">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px">
+        <div style="background:rgba(26,94,202,.12);color:var(--primary);font-weight:800;font-size:.8rem;padding:4px 10px;border-radius:6px">OE 1</div>
+        <div style="font-weight:700;font-size:1rem">Rastrear órdenes y saber qué pasó con cada producto</div>
+      </div>
+      <p style="font-size:.88rem;color:var(--muted);margin-bottom:12px">
+        <strong>En palabras simples:</strong> el sistema debe registrar cada orden de trabajo — cuándo se creó, cómo avanzó y si terminó bien.
+        También debe recorrer la lista de órdenes y validarlas antes de crearlas.
+      </p>
+      <div style="background:var(--bg3);border-radius:8px;padding:10px 14px;font-size:.82rem;margin-bottom:12px">
+        <strong>¿Dónde verlo en la app?</strong> → Módulo <strong>"Órdenes"</strong> (en el menú lateral).<br>
+        Al crear una orden, el sistema la valida, la ejecuta y la guarda en el historial.
+      </div>
+      <div style="display:flex;flex-direction:column;gap:8px">
+        <div style="display:flex;align-items:flex-start;gap:10px;font-size:.85rem">
+          <span class="badge b-blue" style="flex-shrink:0;margin-top:2px">Command</span>
+          <span>Cada acción (crear orden, cancelar) queda guardada como un "comando". Esto permite deshacer errores y tener historial completo.</span>
+        </div>
+        <div style="display:flex;align-items:flex-start;gap:10px;font-size:.85rem">
+          <span class="badge b-blue" style="flex-shrink:0;margin-top:2px">Chain of Responsibility</span>
+          <span>Antes de crear una orden, el sistema hace 3 validaciones en cadena: ¿hay materiales? ¿hay capacidad en la máquina? ¿tiene prioridad suficiente? Solo si todas pasan, se crea la orden.</span>
+        </div>
+        <div style="display:flex;align-items:flex-start;gap:10px;font-size:.85rem">
+          <span class="badge b-blue" style="flex-shrink:0;margin-top:2px">Iterator</span>
+          <span>Permite recorrer la lista de órdenes una por una, en orden de prioridad, sin necesidad de conocer cómo están guardadas internamente.</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- OE2 -->
+    <div class="card" style="margin-bottom:16px">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px">
+        <div style="background:rgba(14,127,79,.1);color:var(--green);font-weight:800;font-size:.8rem;padding:4px 10px;border-radius:6px">OE 2</div>
+        <div style="font-weight:700;font-size:1rem">Controlar el estado de las máquinas y la calidad en tiempo real</div>
+      </div>
+      <p style="font-size:.88rem;color:var(--muted);margin-bottom:12px">
+        <strong>En palabras simples:</strong> el sistema monitorea cada máquina de la fábrica — sabe si está trabajando, parada o en falla —
+        y registra inspecciones de calidad de forma ordenada. Cuando algo cambia, todos los paneles se actualizan solos.
+      </p>
+      <div style="background:var(--bg3);border-radius:8px;padding:10px 14px;font-size:.82rem;margin-bottom:12px">
+        <strong>¿Dónde verlo en la app?</strong> → Módulo <strong>"Máquinas"</strong> y módulo <strong>"Calidad"</strong>.<br>
+        Al cambiar el estado de una máquina, el Dashboard se actualiza automáticamente. Las inspecciones siguen pasos definidos.
+      </div>
+      <div style="display:flex;flex-direction:column;gap:8px">
+        <div style="display:flex;align-items:flex-start;gap:10px;font-size:.85rem">
+          <span class="badge b-green" style="flex-shrink:0;margin-top:2px">Observer</span>
+          <span>Cuando una máquina cambia (por ejemplo el OEE — eficiencia — baja de 75%), el <em>Panel del Supervisor</em> y la <em>Bitácora</em> se actualizan automáticamente. La máquina no sabe quién la está "mirando".</span>
+        </div>
+        <div style="display:flex;align-items:flex-start;gap:10px;font-size:.85rem">
+          <span class="badge b-green" style="flex-shrink:0;margin-top:2px">State</span>
+          <span>Cada máquina puede estar en uno de 4 estados: <em>Inactiva, En Operación, En Mantenimiento o Fallo</em>. El botón de la app cambia el estado de forma ordenada, sin mezclar lógicas.</span>
+        </div>
+        <div style="display:flex;align-items:flex-start;gap:10px;font-size:.85rem">
+          <span class="badge b-green" style="flex-shrink:0;margin-top:2px">Template Method</span>
+          <span>Las inspecciones (por dimensión, por soldadura) siguen el mismo esquema de 4 pasos. Solo cambia el criterio de evaluación. Es como una planilla estándar que se rellena diferente según el tipo de inspección.</span>
+        </div>
+        <div style="display:flex;align-items:flex-start;gap:10px;font-size:.85rem">
+          <span class="badge b-green" style="flex-shrink:0;margin-top:2px">Memento</span>
+          <span>Permite guardar una "foto" del estado actual de la configuración y restaurarla después si algo sale mal — como el Ctrl+Z de Word pero para la fábrica.</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- OE3 -->
+    <div class="card" style="margin-bottom:0">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px">
+        <div style="background:rgba(107,66,196,.1);color:var(--purple);font-weight:800;font-size:.8rem;padding:4px 10px;border-radius:6px">OE 3</div>
+        <div style="font-weight:700;font-size:1rem">Ayudar al supervisor a tomar mejores decisiones de producción</div>
+      </div>
+      <p style="font-size:.88rem;color:var(--muted);margin-bottom:12px">
+        <strong>En palabras simples:</strong> el sistema ayuda a priorizar el trabajo de forma inteligente,
+        evalúa alertas personalizadas y genera reportes de productividad.
+      </p>
+      <div style="background:var(--bg3);border-radius:8px;padding:10px 14px;font-size:.82rem;margin-bottom:12px">
+        <strong>¿Dónde verlo en la app?</strong> → Módulos <strong>"Planificación"</strong> y <strong>"Alertas"</strong>.<br>
+        En Planificación puedes cambiar el criterio de orden. En Alertas puedes definir reglas combinadas.
+      </div>
+      <div style="display:flex;flex-direction:column;gap:8px">
+        <div style="display:flex;align-items:flex-start;gap:10px;font-size:.85rem">
+          <span class="badge b-purple" style="flex-shrink:0;margin-top:2px">Strategy</span>
+          <span>El supervisor puede elegir cómo ordenar las órdenes de trabajo: por llegada (FIFO — el primero que llegó, primero se atiende), por prioridad o por volumen. El sistema cambia el algoritmo sin modificar el código.</span>
+        </div>
+        <div style="display:flex;align-items:flex-start;gap:10px;font-size:.85rem">
+          <span class="badge b-purple" style="flex-shrink:0;margin-top:2px">Mediator</span>
+          <span>Coordina la comunicación entre módulos. En lugar de que Órdenes, Máquinas y Calidad hablen entre sí directamente (y se enreden), todos pasan por un "mediador" central.</span>
+        </div>
+        <div style="display:flex;align-items:flex-start;gap:10px;font-size:.85rem">
+          <span class="badge b-purple" style="flex-shrink:0;margin-top:2px">Visitor</span>
+          <span>Permite "visitar" todas las máquinas y órdenes para calcular estadísticas (como el OEE — Overall Equipment Effectiveness, la eficiencia global) sin modificar la clase de cada objeto.</span>
+        </div>
+        <div style="display:flex;align-items:flex-start;gap:10px;font-size:.85rem">
+          <span class="badge b-purple" style="flex-shrink:0;margin-top:2px">Interpreter</span>
+          <span>El supervisor escribe reglas de alerta en lenguaje simple, por ejemplo: <em>"OEE menor al 75% Y temperatura mayor a 80°C"</em>. El Interpreter traduce esa regla y la evalúa. Cada condición es una "expresión" que se puede combinar.</span>
+        </div>
+      </div>
     </div>
   </section>
 
@@ -1153,70 +1249,122 @@ code,pre{font-family:var(--mono)}
 
   <!-- DEMO APP -->
   <section id="demo">
-    <div class="section-title">Cómo usar la aplicación FábricaViva</div>
-    <div class="section-sub">Guía rápida para navegar la demo durante la sustentación.</div>
+    <div class="section-title">Guía para la sustentación con la app interactiva</div>
+    <div class="section-sub">Cómo usar FábricaViva MES para mostrarle al docente cada patrón de diseño con un ejemplo real.</div>
 
-    <div style="background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius);padding:14px 18px;margin-bottom:20px;font-size:.85rem">
-      <strong>URL de la app:</strong> <code>http://localhost:8787/fabricaviva-mes.html</code><br>
-      <span style="color:var(--muted)">Requiere tener el servidor activo: <code>python -m http.server 8787 --directory frontend</code></span>
+    <!-- Cómo iniciar -->
+    <div class="card" style="margin-bottom:20px">
+      <div style="font-weight:700;font-size:.95rem;margin-bottom:10px">Paso 1 — Abrir la aplicación</div>
+      <div style="font-size:.85rem;margin-bottom:8px">Tienes dos opciones:</div>
+      <div style="display:flex;flex-direction:column;gap:8px;font-size:.85rem">
+        <div style="background:var(--bg3);border-radius:8px;padding:10px 14px">
+          <strong>Opción A (si el servidor está corriendo):</strong><br>
+          Abre el navegador y escribe: <code>http://localhost:8787/fabricaviva-mes.html</code>
+        </div>
+        <div style="background:var(--bg3);border-radius:8px;padding:10px 14px">
+          <strong>Opción B (si el servidor está apagado):</strong><br>
+          Abre una terminal y escribe:<br>
+          <code>python -m http.server 8787 --directory frontend</code><br>
+          Luego abre: <code>http://localhost:8787/fabricaviva-mes.html</code>
+        </div>
+      </div>
     </div>
 
-    <div class="card" style="padding:0;overflow:hidden">
-      <table class="obj-table">
-        <thead>
-          <tr><th>Módulo</th><th>Dónde está</th><th>Patrón que demuestra</th><th>Qué decirle al docente</th></tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td style="font-weight:700">Dashboard</td>
-            <td style="font-size:.82rem">Pantalla inicial</td>
-            <td style="font-size:.82rem"><span class="badge b-green">Observer</span></td>
-            <td style="font-size:.82rem">"Aquí se ve el OEE global y el estado de cada máquina actualizándose. Los módulos <code>PanelSupervisor</code> y <code>BitacoraEventos</code> son observadores del sensor."</td>
-          </tr>
-          <tr>
-            <td style="font-weight:700">Órdenes</td>
-            <td style="font-size:.82rem">Sidebar → Órdenes</td>
-            <td style="font-size:.82rem"><span class="badge b-blue">Command</span> <span class="badge b-blue">Chain</span></td>
-            <td style="font-size:.82rem">"El botón 'Nueva Orden' crea un <code>ComandoIniciarOrden</code>. Antes de ejecutarse pasa por la cadena de validadores: stock, capacidad y prioridad."</td>
-          </tr>
-          <tr>
-            <td style="font-weight:700">Máquinas</td>
-            <td style="font-size:.82rem">Sidebar → Máquinas</td>
-            <td style="font-size:.82rem"><span class="badge b-green">State</span></td>
-            <td style="font-size:.82rem">"Cada máquina tiene un estado: Inactivo, En Operación, En Mantenimiento o Fallo. Los botones cambian el estado a través del <code>ContextoMaquina</code> sin condiciones if/else."</td>
-          </tr>
-          <tr>
-            <td style="font-weight:700">Calidad</td>
-            <td style="font-size:.82rem">Sidebar → Calidad</td>
-            <td style="font-size:.82rem"><span class="badge b-purple">Template Method</span></td>
-            <td style="font-size:.82rem">"Las inspecciones Dimensional y Soldadura siguen el mismo flujo de 4 pasos. Solo cambia el criterio de evaluación — el esqueleto del algoritmo es compartido."</td>
-          </tr>
-          <tr>
-            <td style="font-weight:700">Lotes</td>
-            <td style="font-size:.82rem">Sidebar → Lotes</td>
-            <td style="font-size:.82rem"><span class="badge b-blue">Iterator</span></td>
-            <td style="font-size:.82rem">"El iterador recorre las piezas del lote por prioridad, sin exponer la estructura interna de la colección."</td>
-          </tr>
-          <tr>
-            <td style="font-weight:700">Planificación</td>
-            <td style="font-size:.82rem">Sidebar → Planificación</td>
-            <td style="font-size:.82rem"><span class="badge b-purple">Strategy</span></td>
-            <td style="font-size:.82rem">"El selector cambia el algoritmo de ordenamiento en tiempo real: FIFO, Prioridad o Volumen. El <code>PlanificadorOrdenes</code> no sabe cuál estrategia usa — solo la ejecuta."</td>
-          </tr>
-          <tr>
-            <td style="font-weight:700">Alertas</td>
-            <td style="font-size:.82rem">Sidebar → Alertas</td>
-            <td style="font-size:.82rem"><span class="badge b-yellow">Interpreter</span></td>
-            <td style="font-size:.82rem">"Aquí se evalúan reglas compuestas: 'OEE &lt; 75% AND Temperatura &gt; 80°C'. Cada condición es una expresión que se puede combinar con AND u OR sin modificar el motor evaluador."</td>
-          </tr>
-          <tr>
-            <td style="font-weight:700">Configuración</td>
-            <td style="font-size:.82rem">Sidebar → Configuración</td>
-            <td style="font-size:.82rem"><span class="badge b-green">Memento</span></td>
-            <td style="font-size:.82rem">"El botón 'Guardar snapshot' crea un <code>ConfiguracionMemento</code>. El botón 'Restaurar' devuelve la configuración a ese estado anterior — sin exponer los atributos internos."</td>
-          </tr>
-        </tbody>
-      </table>
+    <!-- Paso 2: recorrido por módulos -->
+    <div style="font-weight:700;font-size:.95rem;margin-bottom:12px">Paso 2 — Recorre estos módulos en este orden</div>
+    <p style="font-size:.85rem;color:var(--muted);margin-bottom:16px">Para cada módulo se indica: qué hacer, qué patrón usar y exactamente qué decirle al docente.</p>
+
+    <!-- Dashboard -->
+    <div class="card" style="margin-bottom:12px">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">
+        <div style="background:var(--bg3);border-radius:6px;padding:3px 10px;font-weight:700;font-size:.8rem">1</div>
+        <div style="font-weight:700">Dashboard (pantalla de inicio)</div>
+        <span class="badge b-green">Observer</span>
+      </div>
+      <div style="font-size:.85rem;margin-bottom:8px"><strong>Qué hacer:</strong> Cuando abre la app, ya está en el Dashboard. Señala los indicadores de OEE (Overall Equipment Effectiveness = eficiencia global de las máquinas) y el estado de cada equipo.</div>
+      <div style="background:rgba(14,127,79,.06);border-left:3px solid var(--green);border-radius:0 6px 6px 0;padding:10px 14px;font-size:.85rem;font-style:italic">
+        💬 <strong>Di al docente:</strong> "Este panel se actualiza automáticamente cuando una máquina cambia de estado o su OEE varía. El SensorMaquina es el sujeto — no sabe quién lo observa. El PanelSupervisor y la BitacoraEventos son los observadores: se suscriben y reaccionan solos. Eso es el patrón Observer."
+      </div>
+    </div>
+
+    <!-- Órdenes -->
+    <div class="card" style="margin-bottom:12px">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">
+        <div style="background:var(--bg3);border-radius:6px;padding:3px 10px;font-weight:700;font-size:.8rem">2</div>
+        <div style="font-weight:700">Módulo Órdenes</div>
+        <span class="badge b-blue">Command</span>
+        <span class="badge b-blue">Chain</span>
+        <span class="badge b-blue">Iterator</span>
+      </div>
+      <div style="font-size:.85rem;margin-bottom:8px"><strong>Qué hacer:</strong> Haz clic en "Órdenes" en el menú lateral. Crea una nueva orden con el botón "Nueva Orden". Observa que aparece en el historial y puedes navegar la lista.</div>
+      <div style="background:rgba(26,94,202,.06);border-left:3px solid var(--primary);border-radius:0 6px 6px 0;padding:10px 14px;font-size:.85rem;font-style:italic">
+        💬 <strong>Di al docente:</strong> "Al crear esta orden, primero pasa por tres validadores en cadena (patrón Chain of Responsibility): ¿hay material? ¿hay capacidad en la máquina? ¿tiene prioridad? Solo si todo pasa, se ejecuta como un ComandoIniciarOrden — eso es el patrón Command, que permite tener historial y deshacer. Y para recorrer la lista de órdenes una por una, se usa el patrón Iterator."
+      </div>
+    </div>
+
+    <!-- Máquinas -->
+    <div class="card" style="margin-bottom:12px">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">
+        <div style="background:var(--bg3);border-radius:6px;padding:3px 10px;font-weight:700;font-size:.8rem">3</div>
+        <div style="font-weight:700">Módulo Máquinas</div>
+        <span class="badge b-green">State</span>
+      </div>
+      <div style="font-size:.85rem;margin-bottom:8px"><strong>Qué hacer:</strong> Ve al módulo "Máquinas". Elige una máquina y cambia su estado usando los botones (Inactivo → En Operación → En Mantenimiento → Fallo). Ve cómo cambia el color.</div>
+      <div style="background:rgba(14,127,79,.06);border-left:3px solid var(--green);border-radius:0 6px 6px 0;padding:10px 14px;font-size:.85rem;font-style:italic">
+        💬 <strong>Di al docente:</strong> "Cada máquina tiene un contexto (ContextoMaquina) que delega su comportamiento al estado actual. Hay 4 clases de estado: EstadoInactivo, EstadoEnOperacion, EstadoMantenimiento y EstadoFallo. Al hacer clic, el contexto cambia de estado sin usar if/else — eso es el patrón State. El OEE (eficiencia) varía según el estado."
+      </div>
+    </div>
+
+    <!-- Calidad -->
+    <div class="card" style="margin-bottom:12px">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">
+        <div style="background:var(--bg3);border-radius:6px;padding:3px 10px;font-weight:700;font-size:.8rem">4</div>
+        <div style="font-weight:700">Módulo Calidad</div>
+        <span class="badge b-purple">Template Method</span>
+      </div>
+      <div style="font-size:.85rem;margin-bottom:8px"><strong>Qué hacer:</strong> Ve al módulo "Calidad". Ejecuta una inspección dimensional y una de soldadura. Observa que siguen el mismo flujo de pasos.</div>
+      <div style="background:rgba(107,66,196,.08);border-left:3px solid var(--purple);border-radius:0 6px 6px 0;padding:10px 14px;font-size:.85rem;font-style:italic">
+        💬 <strong>Di al docente:</strong> "Ambas inspecciones comparten el mismo esqueleto: preparar → medir → evaluar → registrar. Ese esqueleto está definido en la clase abstracta InspeccionCalidad. Lo que cambia es el paso 'evaluar': la dimensional verifica dimensiones, la de soldadura verifica la temperatura del cordón. Eso es el patrón Template Method."
+      </div>
+    </div>
+
+    <!-- Planificación -->
+    <div class="card" style="margin-bottom:12px">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">
+        <div style="background:var(--bg3);border-radius:6px;padding:3px 10px;font-weight:700;font-size:.8rem">5</div>
+        <div style="font-weight:700">Módulo Planificación</div>
+        <span class="badge b-purple">Strategy</span>
+      </div>
+      <div style="font-size:.85rem;margin-bottom:8px"><strong>Qué hacer:</strong> Ve a "Planificación". Cambia el algoritmo de ordenamiento: selecciona FIFO, luego Prioridad, luego Volumen. Ve cómo cambia el orden de las órdenes en la tabla.</div>
+      <div style="background:rgba(107,66,196,.08);border-left:3px solid var(--purple);border-radius:0 6px 6px 0;padding:10px 14px;font-size:.85rem;font-style:italic">
+        💬 <strong>Di al docente:</strong> "Hay tres estrategias intercambiables: FIFO (First In First Out — el primero en llegar se atiende primero), PorPrioridad y PorVolumen. El PlanificadorOrdenes solo conoce la interfaz EstrategiaOrdenamiento y llama a ordenar(). No sabe cuál estrategia tiene cargada. Se cambia en tiempo real sin tocar el código del planificador — eso es el patrón Strategy."
+      </div>
+    </div>
+
+    <!-- Alertas -->
+    <div class="card" style="margin-bottom:12px">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">
+        <div style="background:var(--bg3);border-radius:6px;padding:3px 10px;font-weight:700;font-size:.8rem">6</div>
+        <div style="font-weight:700">Módulo Alertas</div>
+        <span class="badge b-yellow">Interpreter</span>
+      </div>
+      <div style="font-size:.85rem;margin-bottom:8px"><strong>Qué hacer:</strong> Ve a "Alertas". Fíjate en las reglas definidas, como <em>"OEE &lt; 75% AND Temperatura &gt; 80"</em>. Puedes probar con distintos valores y ver si la regla se cumple.</div>
+      <div style="background:rgba(183,119,13,.08);border-left:3px solid var(--yellow);border-radius:0 6px 6px 0;padding:10px 14px;font-size:.85rem;font-style:italic">
+        💬 <strong>Di al docente:</strong> "El supervisor puede definir reglas de alerta combinando condiciones con AND. Cada condición es una expresión: ExpresionOEE evalúa si el OEE (eficiencia global) está por debajo de un umbral. ExpresionAnd combina dos expresiones y solo se activa si ambas son verdaderas. El motor evaluador no cambia aunque se agreguen nuevas condiciones — eso es el patrón Interpreter."
+      </div>
+    </div>
+
+    <!-- Configuración -->
+    <div class="card" style="margin-bottom:0">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">
+        <div style="background:var(--bg3);border-radius:6px;padding:3px 10px;font-weight:700;font-size:.8rem">7</div>
+        <div style="font-weight:700">Módulo Configuración</div>
+        <span class="badge b-green">Memento</span>
+      </div>
+      <div style="font-size:.85rem;margin-bottom:8px"><strong>Qué hacer:</strong> Ve a "Configuración". Cambia algún parámetro. Haz clic en "Guardar snapshot". Cambia algo más y luego haz clic en "Restaurar" — verás que vuelve al estado anterior.</div>
+      <div style="background:rgba(14,127,79,.06);border-left:3px solid var(--green);border-radius:0 6px 6px 0;padding:10px 14px;font-size:.85rem;font-style:italic">
+        💬 <strong>Di al docente:</strong> "El botón 'Guardar snapshot' crea un ConfiguracionMemento — un objeto que guarda el estado interno sin exponer sus atributos. El botón 'Restaurar' le pide al Caretaker que devuelva ese memento al objeto ConfiguracionPlanta. Es como el Ctrl+Z del sistema — eso es el patrón Memento."
+      </div>
     </div>
   </section>
 
