@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>UML Diagrams</title>
+<style>
+  body { background: #fff; margin: 0; padding: 0; font-family: Arial, sans-serif; }
+  .diagram-block { padding: 28px 40px; border-bottom: 2px solid #ddd; background: #fff; }
+  .diagram-block h2 { font-size: 13px; color: #444; margin: 0 0 14px 0; font-weight: bold; }
+  .mermaid-src { display: none; }
+  .mermaid-out { display: flex; justify-content: center; }
+</style>
+</head>
+<body>
+
+<!-- 1 Observer -->
+<div class="diagram-block" id="d1">
+<h2>1. Observer (Observador)</h2>
+<pre class="mermaid-src" id="src1">
+classDiagram
+  class SensorMaquina {
+    +suscribir(obs ObservadorMes)
+    +desuscribir(obs ObservadorMes)
+    +notificar(evento String)
+  }
+  class ObservadorMes {
+    <<interface>>
+    +actualizar(evento String, sensorId String)
+  }
+  class PanelSupervisor {
+    -nombre String
+    -umbralOee double
+    +actualizar(evento, sensorId)
+  }
+  class BitacoraEventos {
+    +actualizar(evento, sensorId)
+  }
+  SensorMaquina --> ObservadorMes : notifica
+  ObservadorMes <|.. PanelSupervisor
+  ObservadorMes <|.. BitacoraEventos
+</pre>
+<div class="mermaid-out" id="out1"></div>
+</div>
+
+<!-- 2 Command -->
+<div class="diagram-block" id="d2">
+<h2>2. Command (Comando)</h2>
+<pre class="mermaid-src" id="src2">
+classDiagram
+  class ComandoMes {
+    <<interface>>
+    +ejecutar()
+    +deshacer()
+  }
+  class ComandoIniciarOrden {
+    -receptor LineaProduccionReceiver
+    -ordenId String
+    -cantidad int
+  }
+  class ComandoCerrarTurno {
+    -receptor LineaProduccionReceiver
+  }
+  class GestorComandos {
+    +ejecutar(cmd ComandoMes)
+    +deshacerUltimo()
+  }
+  ComandoMes <|.. ComandoIniciarOrden
+  ComandoMes <|.. ComandoCerrarTurno
+  GestorComandos --> ComandoMes : invoca
+</pre>
+<div class="mermaid-out" id="out2"></div>
+</div>
+
+<!-- 3 Strategy -->
+<div class="diagram-block" id="d3">
+<h2>3. Strategy (Estrategia)</h2>
+<pre class="mermaid-src" id="src3">
+classDiagram
+  class EstrategiaOrdenamiento {
+    <<interface>>
+    +ordenar(ordenes) Lista
+  }
+  class EstrategiaFIFO {
+    +ordenar(ordenes) Lista
+  }
+  class EstrategiaPrioridad {
+    +ordenar(ordenes) Lista
+  }
+  class EstrategiaVolumen {
+    +ordenar(ordenes) Lista
+  }
+  class PlanificadorOrdenes {
+    -estrategia EstrategiaOrdenamiento
+    +setEstrategia(e)
+    +planificar(ordenes) Lista
+  }
+  EstrategiaOrdenamiento <|.. EstrategiaFIFO
+  EstrategiaOrdenamiento <|.. EstrategiaPrioridad
+  EstrategiaOrdenamiento <|.. EstrategiaVolumen
+  PlanificadorOrdenes --> EstrategiaOrdenamiento : usa
+</pre>
+<div class="mermaid-out" id="out3"></div>
+</div>
+
+<!-- 4 State -->
+<div class="diagram-block" id="d4">
+<h2>4. State (Estado)</h2>
+<pre class="mermaid-src" id="src4">
+classDiagram
+  class EstadoMaquina {
+    <<interface>>
+    +iniciar(ctx ContextoMaquina)
+    +pausar(ctx ContextoMaquina)
+    +reportarFalla(ctx, causa String)
+    +completarMantenimiento(ctx)
+    +getNombre() String
+  }
+  class EstadoInactivo
+  class EstadoEnOperacion
+  class EstadoEnMantenimiento
+  class EstadoFallo
+  class ContextoMaquina {
+    -estado EstadoMaquina
+    +getEstadoActual() String
+  }
+  EstadoMaquina <|.. EstadoInactivo
+  EstadoMaquina <|.. EstadoEnOperacion
+  EstadoMaquina <|.. EstadoEnMantenimiento
+  EstadoMaquina <|.. EstadoFallo
+  ContextoMaquina --> EstadoMaquina : delega
+</pre>
+<div class="mermaid-out" id="out4"></div>
+</div>
+
+<!-- 5 Template Method -->
+<div class="diagram-block" id="d5">
+<h2>5. Template Method</h2>
+<pre class="mermaid-src" id="src5">
+classDiagram
+  class InspeccionCalidad {
+    <<abstract>>
+    +inspeccionar()
+    #prepararMuestra()
+    #medirParametros()
+    #evaluarResultados()
+    #generarReporte()
+  }
+  class InspeccionDimensional {
+    #medirParametros()
+    #evaluarResultados()
+  }
+  class InspeccionSoldadura {
+    #medirParametros()
+    #evaluarResultados()
+  }
+  InspeccionCalidad <|-- InspeccionDimensional
+  InspeccionCalidad <|-- InspeccionSoldadura
+</pre>
+<div class="mermaid-out" id="out5"></div>
+</div>
+
+<!-- 6 Iterator -->
+<div class="diagram-block" id="d6">
+<h2>6. Iterator (Iterador)</h2>
+<pre class="mermaid-src" id="src6">
+classDiagram
+  class IteradorLotes {
+    <<interface>>
+    +hasNext() boolean
+    +next() LoteProduccion
+  }
+  class LoteProduccion {
+    +crearIterador() IteradorLotes
+    +agregar(pieza, prioridad)
+  }
+  class IteradorLotesPorPrioridad {
+    +hasNext() boolean
+    +next() LoteProduccion
+  }
+  LoteProduccion --> IteradorLotes : crea
+  IteradorLotes <|.. IteradorLotesPorPrioridad
+</pre>
+<div class="mermaid-out" id="out6"></div>
+</div>
+
+<!-- 7 Mediator -->
+<div class="diagram-block" id="d7">
+<h2>7. Mediator (Mediador)</h2>
+<pre class="mermaid-src" id="src7">
+classDiagram
+  class Mediador {
+    <<interface>>
+    +enviar(origen, mensaje)
+    +registrar(modulo)
+  }
+  class CentralMes {
+    +enviar(origen, mensaje)
+    +registrar(modulo)
+  }
+  class ModuloMes {
+    <<abstract>>
+    #mediador Mediador
+    +recibir(origen, mensaje)
+  }
+  class ModuloCalidad
+  class ModuloMantenimiento
+  class ModuloProduccion
+  Mediador <|.. CentralMes
+  ModuloMes <|-- ModuloCalidad
+  ModuloMes <|-- ModuloMantenimiento
+  ModuloMes <|-- ModuloProduccion
+  CentralMes --> ModuloMes : coordina
+</pre>
+<div class="mermaid-out" id="out7"></div>
+</div>
+
+<!-- 8 Memento -->
+<div class="diagram-block" id="d8">
+<h2>8. Memento</h2>
+<pre class="mermaid-src" id="src8">
+classDiagram
+  class ConfiguracionLinea {
+    -velocidad int
+    -temperatura double
+    +guardar() ConfiguracionMemento
+    +restaurar(m ConfiguracionMemento)
+  }
+  class ConfiguracionMemento {
+    -velocidad int
+    -temperatura double
+  }
+  class HistorialConfiguracion {
+    +push(m ConfiguracionMemento)
+    +pop() ConfiguracionMemento
+  }
+  ConfiguracionLinea --> ConfiguracionMemento : crea
+  HistorialConfiguracion --> ConfiguracionMemento : gestiona
+</pre>
+<div class="mermaid-out" id="out8"></div>
+</div>
+
+<!-- 9 Chain of Responsibility -->
+<div class="diagram-block" id="d9">
+<h2>9. Chain of Responsibility</h2>
+<pre class="mermaid-src" id="src9">
+classDiagram
+  class ValidadorOrden {
+    <<interface>>
+    +setSiguiente(v ValidadorOrden)
+    +validar(orden) ResultadoOrden
+  }
+  class ValidadorBase {
+    <<abstract>>
+    #pasarAlSiguiente(orden)
+  }
+  class ValidadorStock
+  class ValidadorCapacidad
+  class ValidadorPrioridad
+  class GestorOrdenes {
+    +construirCadena()
+  }
+  ValidadorOrden <|.. ValidadorBase
+  ValidadorBase <|-- ValidadorStock
+  ValidadorBase <|-- ValidadorCapacidad
+  ValidadorBase <|-- ValidadorPrioridad
+  GestorOrdenes --> ValidadorOrden : invoca
+</pre>
+<div class="mermaid-out" id="out9"></div>
+</div>
+
+<!-- 10 Visitor -->
+<div class="diagram-block" id="d10">
+<h2>10. Visitor (Visitante)</h2>
+<pre class="mermaid-src" id="src10">
+classDiagram
+  class ElementoProductivo {
+    <<interface>>
+    +aceptar(v VisitanteProduccion)
+    +getId() String
+  }
+  class MaquinaElement {
+    +aceptar(v)
+  }
+  class LineaElement {
+    +aceptar(v)
+  }
+  class VisitanteProduccion {
+    <<interface>>
+    +visitarMaquina(m MaquinaElement)
+    +visitarLinea(l LineaElement)
+  }
+  class VisitanteOee {
+    +visitarMaquina(m)
+    +visitarLinea(l)
+  }
+  class VisitanteCostos {
+    +visitarMaquina(m)
+    +visitarLinea(l)
+  }
+  ElementoProductivo <|.. MaquinaElement
+  ElementoProductivo <|.. LineaElement
+  VisitanteProduccion <|.. VisitanteOee
+  VisitanteProduccion <|.. VisitanteCostos
+  ElementoProductivo --> VisitanteProduccion : acepta
+</pre>
+<div class="mermaid-out" id="out10"></div>
+</div>
+
+<!-- 11 Interpreter -->
+<div class="diagram-block" id="d11">
+<h2>11. Interpreter (Intérprete)</h2>
+<pre class="mermaid-src" id="src11">
+classDiagram
+  class ExpresionAlerta {
+    <<interface>>
+    +interpretar(ctx ContextoAlerta) boolean
+    +descripcion() String
+  }
+  class ExpresionOEE {
+    +interpretar(ctx) boolean
+  }
+  class ExpresionTemperatura {
+    +interpretar(ctx) boolean
+  }
+  class ExpresionAnd {
+    -izq ExpresionAlerta
+    -der ExpresionAlerta
+    +interpretar(ctx) boolean
+  }
+  class ExpresionOr {
+    -izq ExpresionAlerta
+    -der ExpresionAlerta
+  }
+  class ContextoAlerta {
+    -variables Mapa
+  }
+  ExpresionAlerta <|.. ExpresionOEE
+  ExpresionAlerta <|.. ExpresionTemperatura
+  ExpresionAlerta <|.. ExpresionAnd
+  ExpresionAlerta <|.. ExpresionOr
+  ExpresionAnd --> ExpresionAlerta : compone
+  ExpresionOr --> ExpresionAlerta : compone
+</pre>
+<div class="mermaid-out" id="out11"></div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mermaid/10.9.3/mermaid.min.js"></script>
+<script>
+mermaid.initialize({
+  startOnLoad: false,
+  theme: 'default',
+  themeVariables: {
+    primaryColor: '#EEF3FF',
+    primaryBorderColor: '#1649C6',
+    primaryTextColor: '#1A2033',
+    lineColor: '#3D4A5C',
+    fontFamily: 'Arial, sans-serif',
+    fontSize: '13px'
+  }
+});
+
+async function renderAll() {
+  for (let i = 1; i <= 11; i++) {
+    const src = document.getElementById('src' + i).textContent.trim();
+    const out = document.getElementById('out' + i);
+    try {
+      const { svg } = await mermaid.render('mermaid-d' + i, src);
+      out.innerHTML = svg;
+    } catch(e) {
+      out.innerHTML = '<pre style="color:red;font-size:11px">' + e.message + '\n\n' + src + '</pre>';
+    }
+  }
+}
+renderAll();
+</script>
+</body>
+</html>
