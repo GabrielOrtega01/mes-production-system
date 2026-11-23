@@ -180,6 +180,9 @@ code,pre{font-family:var(--mono)}
   <div class="sb-section">Verificación</div>
   <a class="sb-link" href="#tests">Pruebas JUnit 5</a>
   <a class="sb-link" href="#faq">Preguntas del docente</a>
+  <div class="sb-section">Referencia</div>
+  <a class="sb-link" href="#glosario">Glosario de siglas</a>
+  <a class="sb-link" href="#demo">Cómo usar la app</a>
 </nav>
 
 <!-- MAIN -->
@@ -1056,6 +1059,164 @@ code,pre{font-family:var(--mono)}
       <div class="faq-a">
         GoF define <strong>11 patrones de comportamiento</strong> en total. Este proyecto implementa los <strong>11 completos</strong>: Observer, Command, State, Chain of Responsibility, Strategy, Template Method, Iterator, Mediator, Memento, Visitor e Interpreter. Cada uno resuelve un problema de diseño específico del dominio manufacturero de FábricaViva.
       </div>
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-q">¿En qué se diferencia Interpreter de Strategy?</div>
+      <div class="faq-a">
+        Una pregunta frecuente porque ambos usan interfaces con múltiples implementaciones. La diferencia clave está en la <strong>composición</strong>:<br><br>
+        <strong>Strategy</strong> intercambia piezas: se elige un algoritmo a la vez y no se combinan entre sí. Ejemplo: cambiar entre FIFO, Prioridad o Volumen en el planificador de órdenes.<br><br>
+        <strong>Interpreter</strong> compone piezas en árbol: las expresiones se anidan sin límite de profundidad. <code>new ExpresionAnd(new ExpresionOEE(0.75), new ExpresionTemperatura(80))</code> crea una nueva regla combinando dos expresiones existentes — sin tocar ninguna clase.<br><br>
+        <strong>Regla para recordarlo:</strong> si las piezas se intercambian → Strategy; si las piezas se combinan entre sí → Interpreter.
+      </div>
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-q">¿Qué es OEE y por qué es importante en el sistema?</div>
+      <div class="faq-a">
+        <strong>OEE</strong> (Overall Equipment Effectiveness — Efectividad Global del Equipo) es la métrica principal de manufactura. Se calcula como:<br><br>
+        <code>OEE = Disponibilidad × Rendimiento × Calidad</code><br><br>
+        Un OEE del 100% significa que la máquina produjo siempre, a velocidad máxima y sin defectos. El estándar industrial considera saludable un OEE superior al 85%.<br><br>
+        En FábricaViva, el <code>PanelSupervisor</code> monitorea el OEE en tiempo real (patrón Observer) y el motor de alertas (patrón Interpreter) dispara notificaciones cuando baja del umbral configurado.
+      </div>
+    </div>
+  </section>
+
+  <hr class="divider">
+
+  <!-- GLOSARIO -->
+  <section id="glosario">
+    <div class="section-title">Glosario de siglas</div>
+    <div class="section-sub">Significado de las abreviaciones usadas en el proyecto y cómo explicarlas.</div>
+    <div class="card" style="padding:0;overflow:hidden">
+      <table class="obj-table">
+        <thead>
+          <tr><th>Sigla</th><th>Significado</th><th>Rol en el proyecto</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td style="font-family:var(--mono);font-size:.85rem;color:var(--primary);white-space:nowrap">MES</td>
+            <td><strong>Manufacturing Execution System</strong><br><span style="color:var(--muted);font-size:.82rem">Sistema de Ejecución de Manufactura</span></td>
+            <td style="font-size:.82rem">El sistema que se está construyendo. Coordina la producción en tiempo real entre el ERP y la planta física.</td>
+          </tr>
+          <tr>
+            <td style="font-family:var(--mono);font-size:.85rem;color:var(--primary);white-space:nowrap">OEE</td>
+            <td><strong>Overall Equipment Effectiveness</strong><br><span style="color:var(--muted);font-size:.82rem">Efectividad Global del Equipo</span></td>
+            <td style="font-size:.82rem">Métrica central: <code>Disponibilidad × Rendimiento × Calidad</code>. Valor saludable &gt;85%. Lo usan Observer (monitoreo) e Interpreter (alertas).</td>
+          </tr>
+          <tr>
+            <td style="font-family:var(--mono);font-size:.85rem;color:var(--primary);white-space:nowrap">ERP</td>
+            <td><strong>Enterprise Resource Planning</strong><br><span style="color:var(--muted);font-size:.82rem">Planificación de Recursos Empresariales</span></td>
+            <td style="font-size:.82rem">Sistema empresarial (ej. SAP) que envía órdenes al MES y recibe reportes de producción.</td>
+          </tr>
+          <tr>
+            <td style="font-family:var(--mono);font-size:.85rem;color:var(--primary);white-space:nowrap">CNC</td>
+            <td><strong>Computer Numerical Control</strong><br><span style="color:var(--muted);font-size:.82rem">Control Numérico por Computadora</span></td>
+            <td style="font-size:.82rem">Máquina industrial (torno, fresadora) controlada por programa. FábricaViva simula sensores de máquinas CNC-01, CNC-02, CNC-03.</td>
+          </tr>
+          <tr>
+            <td style="font-family:var(--mono);font-size:.85rem;color:var(--primary);white-space:nowrap">MESA</td>
+            <td><strong>Manufacturing Enterprise Solutions Association</strong></td>
+            <td style="font-size:.82rem">Asociación que define el estándar de las 11 funciones que debe tener un MES. Usado como marco teórico del proyecto.</td>
+          </tr>
+          <tr>
+            <td style="font-family:var(--mono);font-size:.85rem;color:var(--primary);white-space:nowrap">OPC UA</td>
+            <td><strong>OPC Unified Architecture</strong></td>
+            <td style="font-size:.82rem">Protocolo estándar de comunicación entre máquinas industriales (sensores, PLCs) y software MES. La UA es la versión moderna del protocolo OPC.</td>
+          </tr>
+          <tr>
+            <td style="font-family:var(--mono);font-size:.85rem;color:var(--primary);white-space:nowrap">TPM</td>
+            <td><strong>Total Productive Maintenance</strong><br><span style="color:var(--muted);font-size:.82rem">Mantenimiento Productivo Total</span></td>
+            <td style="font-size:.82rem">Filosofía de cero averías. Relacionado con el módulo de Mantenimiento y el patrón State (EstadoEnMantenimiento).</td>
+          </tr>
+          <tr>
+            <td style="font-family:var(--mono);font-size:.85rem;color:var(--primary);white-space:nowrap">FIFO</td>
+            <td><strong>First In, First Out</strong><br><span style="color:var(--muted);font-size:.82rem">Primero en entrar, primero en salir</span></td>
+            <td style="font-size:.82rem">Estrategia de ordenamiento de órdenes: la orden más antigua se procesa primero. Implementada en <code>EstrategiaFIFO</code> (patrón Strategy).</td>
+          </tr>
+          <tr>
+            <td style="font-family:var(--mono);font-size:.85rem;color:var(--primary);white-space:nowrap">QA</td>
+            <td><strong>Quality Assurance</strong><br><span style="color:var(--muted);font-size:.82rem">Aseguramiento de Calidad</span></td>
+            <td style="font-size:.82rem">Módulo de calidad del MES. Las clases <code>InspeccionDimensional</code> e <code>InspeccionSoldadura</code> implementan el patrón Template Method.</td>
+          </tr>
+          <tr>
+            <td style="font-family:var(--mono);font-size:.85rem;color:var(--primary);white-space:nowrap">GoF</td>
+            <td><strong>Gang of Four</strong></td>
+            <td style="font-size:.82rem">Los cuatro autores del libro "Design Patterns" (1994): Gamma, Helm, Johnson, Vlissides. Definieron los 23 patrones clásicos que incluyen los 11 de comportamiento implementados.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <hr class="divider">
+
+  <!-- DEMO APP -->
+  <section id="demo">
+    <div class="section-title">Cómo usar la aplicación FábricaViva</div>
+    <div class="section-sub">Guía rápida para navegar la demo durante la sustentación.</div>
+
+    <div style="background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius);padding:14px 18px;margin-bottom:20px;font-size:.85rem">
+      <strong>URL de la app:</strong> <code>http://localhost:8787/fabricaviva-mes.html</code><br>
+      <span style="color:var(--muted)">Requiere tener el servidor activo: <code>python -m http.server 8787 --directory frontend</code></span>
+    </div>
+
+    <div class="card" style="padding:0;overflow:hidden">
+      <table class="obj-table">
+        <thead>
+          <tr><th>Módulo</th><th>Dónde está</th><th>Patrón que demuestra</th><th>Qué decirle al docente</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td style="font-weight:700">Dashboard</td>
+            <td style="font-size:.82rem">Pantalla inicial</td>
+            <td style="font-size:.82rem"><span class="badge b-green">Observer</span></td>
+            <td style="font-size:.82rem">"Aquí se ve el OEE global y el estado de cada máquina actualizándose. Los módulos <code>PanelSupervisor</code> y <code>BitacoraEventos</code> son observadores del sensor."</td>
+          </tr>
+          <tr>
+            <td style="font-weight:700">Órdenes</td>
+            <td style="font-size:.82rem">Sidebar → Órdenes</td>
+            <td style="font-size:.82rem"><span class="badge b-blue">Command</span> <span class="badge b-blue">Chain</span></td>
+            <td style="font-size:.82rem">"El botón 'Nueva Orden' crea un <code>ComandoIniciarOrden</code>. Antes de ejecutarse pasa por la cadena de validadores: stock, capacidad y prioridad."</td>
+          </tr>
+          <tr>
+            <td style="font-weight:700">Máquinas</td>
+            <td style="font-size:.82rem">Sidebar → Máquinas</td>
+            <td style="font-size:.82rem"><span class="badge b-green">State</span></td>
+            <td style="font-size:.82rem">"Cada máquina tiene un estado: Inactivo, En Operación, En Mantenimiento o Fallo. Los botones cambian el estado a través del <code>ContextoMaquina</code> sin condiciones if/else."</td>
+          </tr>
+          <tr>
+            <td style="font-weight:700">Calidad</td>
+            <td style="font-size:.82rem">Sidebar → Calidad</td>
+            <td style="font-size:.82rem"><span class="badge b-purple">Template Method</span></td>
+            <td style="font-size:.82rem">"Las inspecciones Dimensional y Soldadura siguen el mismo flujo de 4 pasos. Solo cambia el criterio de evaluación — el esqueleto del algoritmo es compartido."</td>
+          </tr>
+          <tr>
+            <td style="font-weight:700">Lotes</td>
+            <td style="font-size:.82rem">Sidebar → Lotes</td>
+            <td style="font-size:.82rem"><span class="badge b-blue">Iterator</span></td>
+            <td style="font-size:.82rem">"El iterador recorre las piezas del lote por prioridad, sin exponer la estructura interna de la colección."</td>
+          </tr>
+          <tr>
+            <td style="font-weight:700">Planificación</td>
+            <td style="font-size:.82rem">Sidebar → Planificación</td>
+            <td style="font-size:.82rem"><span class="badge b-purple">Strategy</span></td>
+            <td style="font-size:.82rem">"El selector cambia el algoritmo de ordenamiento en tiempo real: FIFO, Prioridad o Volumen. El <code>PlanificadorOrdenes</code> no sabe cuál estrategia usa — solo la ejecuta."</td>
+          </tr>
+          <tr>
+            <td style="font-weight:700">Alertas</td>
+            <td style="font-size:.82rem">Sidebar → Alertas</td>
+            <td style="font-size:.82rem"><span class="badge b-yellow">Interpreter</span></td>
+            <td style="font-size:.82rem">"Aquí se evalúan reglas compuestas: 'OEE &lt; 75% AND Temperatura &gt; 80°C'. Cada condición es una expresión que se puede combinar con AND u OR sin modificar el motor evaluador."</td>
+          </tr>
+          <tr>
+            <td style="font-weight:700">Configuración</td>
+            <td style="font-size:.82rem">Sidebar → Configuración</td>
+            <td style="font-size:.82rem"><span class="badge b-green">Memento</span></td>
+            <td style="font-size:.82rem">"El botón 'Guardar snapshot' crea un <code>ConfiguracionMemento</code>. El botón 'Restaurar' devuelve la configuración a ese estado anterior — sin exponer los atributos internos."</td>
+          </tr>
+        </tbody>
+      </table>
     </div>
   </section>
 
