@@ -1,0 +1,1091 @@
+<meta charset="UTF-8">
+<title>Manual de Patrones — FábricaViva MES</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap">
+<style>
+:root {
+  --bg:       #F7F9FC;
+  --bg2:      #FFFFFF;
+  --bg3:      #EEF2F8;
+  --border:   #DDE3EE;
+  --text:     #1A202C;
+  --muted:    #5A6880;
+  --dim:      #9BAABB;
+  --primary:  #1A5ECA;
+  --primary2: #0F3F8E;
+  --green:    #0E7F4F;
+  --red:      #C0392B;
+  --yellow:   #B7770D;
+  --purple:   #6B42C4;
+  --mono:     'JetBrains Mono', monospace;
+  --radius:   10px;
+  --sidebar:  260px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--text);font-size:15px;line-height:1.6}
+a{color:var(--primary);text-decoration:none}
+a:hover{text-decoration:underline}
+code,pre{font-family:var(--mono)}
+
+/* ── LAYOUT ── */
+.layout{display:flex;min-height:100vh}
+.sidebar{
+  width:var(--sidebar);min-width:var(--sidebar);
+  position:sticky;top:0;height:100vh;overflow-y:auto;
+  background:var(--bg2);border-right:1px solid var(--border);
+  display:flex;flex-direction:column;padding:0;flex-shrink:0
+}
+.main{flex:1;min-width:0;padding:40px 48px;max-width:900px}
+
+/* ── SIDEBAR ── */
+.sb-logo{padding:22px 20px 16px;border-bottom:1px solid var(--border)}
+.sb-logo-name{font-size:1rem;font-weight:800;color:var(--text)}
+.sb-logo-sub{font-size:.72rem;color:var(--muted);margin-top:2px}
+.sb-section{padding:12px 12px 4px;font-size:.65rem;font-weight:700;color:var(--dim);letter-spacing:.08em;text-transform:uppercase}
+.sb-link{display:flex;align-items:center;gap:8px;padding:7px 14px;border-radius:6px;margin:1px 6px;font-size:.8rem;color:var(--muted);cursor:pointer;transition:all .12s;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sb-link:hover{background:var(--bg3);color:var(--text);text-decoration:none}
+.sb-link.active{background:rgba(26,94,202,.08);color:var(--primary);font-weight:600}
+.sb-num{width:20px;height:20px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:.65rem;font-weight:700;flex-shrink:0}
+.n-blue{background:rgba(26,94,202,.12);color:var(--primary)}
+.n-green{background:rgba(14,127,79,.1);color:var(--green)}
+.n-purple{background:rgba(107,66,196,.1);color:var(--purple)}
+
+/* ── HERO ── */
+.hero{background:linear-gradient(135deg,#1A5ECA 0%,#0F3F8E 100%);color:#fff;border-radius:16px;padding:40px 44px;margin-bottom:36px}
+.hero-tag{font-size:.72rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;opacity:.75;margin-bottom:10px}
+.hero-title{font-size:2rem;font-weight:800;line-height:1.15;margin-bottom:10px}
+.hero-desc{font-size:.95rem;opacity:.85;max-width:560px;line-height:1.65}
+.hero-meta{display:flex;gap:16px;margin-top:20px;flex-wrap:wrap}
+.hero-pill{background:rgba(255,255,255,.15);border-radius:20px;padding:4px 14px;font-size:.78rem;font-weight:500}
+
+/* ── SECTION ── */
+.section-title{font-size:1.3rem;font-weight:800;margin-bottom:6px;color:var(--text)}
+.section-sub{font-size:.88rem;color:var(--muted);margin-bottom:24px}
+.divider{border:none;border-top:1px solid var(--border);margin:36px 0}
+
+/* ── OBJ TABLE ── */
+.obj-table{width:100%;border-collapse:collapse;font-size:.85rem;margin-bottom:0}
+.obj-table th{background:var(--bg3);padding:10px 14px;text-align:left;font-weight:700;color:var(--muted);font-size:.72rem;text-transform:uppercase;letter-spacing:.04em;border-bottom:2px solid var(--border)}
+.obj-table td{padding:12px 14px;border-bottom:1px solid var(--border);vertical-align:top}
+.obj-table tr:last-child td{border-bottom:none}
+.obj-table td:first-child{font-weight:700;color:var(--primary);white-space:nowrap;width:60px}
+
+/* ── PATTERN SECTION ── */
+.pattern{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);margin-bottom:28px;overflow:hidden}
+.pattern-header{padding:20px 24px 16px;border-bottom:1px solid var(--border);display:flex;align-items:flex-start;gap:14px}
+.pattern-num{width:40px;height:40px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:1rem;font-weight:800;flex-shrink:0;background:rgba(26,94,202,.08);color:var(--primary)}
+.pattern-title-block{flex:1}
+.pattern-name{font-size:1.1rem;font-weight:800;color:var(--text)}
+.pattern-pkg{font-size:.75rem;color:var(--muted);font-family:var(--mono);margin-top:2px}
+.pattern-badges{display:flex;gap:6px;margin-top:8px;flex-wrap:wrap}
+.badge{display:inline-block;padding:3px 10px;border-radius:20px;font-size:.7rem;font-weight:700}
+.b-blue{background:rgba(26,94,202,.1);color:var(--primary);border:1px solid rgba(26,94,202,.2)}
+.b-green{background:rgba(14,127,79,.1);color:var(--green);border:1px solid rgba(14,127,79,.2)}
+.b-purple{background:rgba(107,66,196,.1);color:var(--purple);border:1px solid rgba(107,66,196,.2)}
+.b-yellow{background:rgba(183,119,13,.1);color:var(--yellow);border:1px solid rgba(183,119,13,.2)}
+.pattern-body{padding:20px 24px}
+.p-label{font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin-bottom:6px}
+.p-block{margin-bottom:18px}
+.p-block:last-child{margin-bottom:0}
+.p-text{font-size:.88rem;line-height:1.65;color:var(--text)}
+.p-text strong{color:var(--text);font-weight:600}
+.classes-row{display:flex;gap:6px;flex-wrap:wrap;margin-top:6px}
+.class-tag{background:var(--bg3);border:1px solid var(--border);border-radius:6px;padding:4px 10px;font-size:.75rem;font-family:var(--mono);color:var(--text)}
+.class-tag.abstract{border-color:var(--primary);color:var(--primary);background:rgba(26,94,202,.05)}
+
+/* ── CODE BLOCK ── */
+.code-block{background:#1E1E2E;border-radius:8px;overflow:hidden;margin-top:10px}
+.code-header{background:#181825;padding:8px 14px;display:flex;align-items:center;gap:8px;border-bottom:1px solid rgba(255,255,255,.06)}
+.code-dots{display:flex;gap:5px}
+.code-dot{width:10px;height:10px;border-radius:50%}
+.d-red{background:#FF5F57}.d-yellow{background:#FEBC2E}.d-green{background:#28C840}
+.code-lang{font-size:.7rem;color:rgba(255,255,255,.35);font-family:var(--mono);margin-left:auto}
+.code-block pre{padding:16px 18px;font-size:.8rem;line-height:1.65;overflow-x:auto;color:#CDD6F4}
+.kw{color:#89B4FA}  /* keywords */
+.ty{color:#A6E3A1}  /* types */
+.st{color:#FAB387}  /* strings */
+.cm{color:#585B70;font-style:italic}  /* comments */
+.fn{color:#89DCEB}  /* function names */
+.nu{color:#F38BA8}  /* numbers */
+
+/* ── COMPARACION ── */
+.compare-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:8px}
+.compare-card{border-radius:8px;padding:12px 14px;font-size:.82rem}
+.compare-yes{background:rgba(14,127,79,.06);border:1px solid rgba(14,127,79,.2)}
+.compare-no{background:rgba(192,57,43,.05);border:1px solid rgba(192,57,43,.15)}
+.compare-label{font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;margin-bottom:5px}
+.compare-yes .compare-label{color:var(--green)}
+.compare-no .compare-label{color:var(--red)}
+
+/* ── TESTS TABLE ── */
+.tests-table{width:100%;border-collapse:collapse;font-size:.85rem}
+.tests-table th{background:var(--bg3);padding:10px 14px;text-align:left;font-weight:700;color:var(--muted);font-size:.72rem;text-transform:uppercase;letter-spacing:.04em;border-bottom:2px solid var(--border)}
+.tests-table td{padding:10px 14px;border-bottom:1px solid var(--border)}
+.tests-table tr:last-child td{border-bottom:none;font-weight:700;background:var(--bg3)}
+.passed{color:var(--green);font-weight:700}
+
+/* ── FAQ ── */
+.faq-item{border:1px solid var(--border);border-radius:var(--radius);margin-bottom:10px;overflow:hidden}
+.faq-q{padding:14px 18px;font-size:.88rem;font-weight:600;cursor:pointer;display:flex;justify-content:space-between;align-items:center;background:var(--bg2);transition:background .15s;user-select:none}
+.faq-q:hover{background:var(--bg3)}
+.faq-q::after{content:'▸';color:var(--muted);font-size:.8rem;transition:transform .2s}
+.faq-item.open .faq-q::after{transform:rotate(90deg)}
+.faq-a{display:none;padding:14px 18px;font-size:.85rem;line-height:1.7;color:var(--muted);background:var(--bg);border-top:1px solid var(--border)}
+.faq-item.open .faq-a{display:block}
+.faq-a strong{color:var(--text)}
+
+/* ── OBJETIVO CHIP ── */
+.oe-chip{display:inline-flex;align-items:center;gap:5px;padding:4px 12px;border-radius:20px;font-size:.75rem;font-weight:600;background:rgba(26,94,202,.06);border:1px solid rgba(26,94,202,.18);color:var(--primary)}
+
+/* ── CARD ── */
+.card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:20px 24px;margin-bottom:20px}
+.card-title{font-size:.92rem;font-weight:700;margin-bottom:14px;color:var(--text)}
+
+/* ── FOOTER ── */
+.page-footer{padding:28px 0;text-align:center;font-size:.78rem;color:var(--dim);border-top:1px solid var(--border);margin-top:36px}
+
+@media(max-width:768px){
+  .layout{flex-direction:column}
+  .sidebar{width:100%;height:auto;position:static;border-right:none;border-bottom:1px solid var(--border)}
+  .main{padding:24px 18px}
+  .compare-row{grid-template-columns:1fr}
+  .hero{padding:28px 24px}
+  .hero-title{font-size:1.4rem}
+}
+</style>
+
+<div class="layout">
+<!-- SIDEBAR -->
+<nav class="sidebar">
+  <div class="sb-logo">
+    <div class="sb-logo-name">FábricaViva MES</div>
+    <div class="sb-logo-sub">Manual Técnico · Patrones GoF</div>
+  </div>
+  <div class="sb-section">Proyecto</div>
+  <a class="sb-link active" href="#objetivos">Objetivos del sistema</a>
+  <a class="sb-link" href="#mapa">Mapa OE ↔ Patrones</a>
+  <div class="sb-section">Patrones de comportamiento</div>
+  <a class="sb-link" href="#observer"><span class="sb-num n-blue">1</span>Observer</a>
+  <a class="sb-link" href="#command"><span class="sb-num n-blue">2</span>Command</a>
+  <a class="sb-link" href="#state"><span class="sb-num n-blue">3</span>State</a>
+  <a class="sb-link" href="#chain"><span class="sb-num n-blue">4</span>Chain of Responsibility</a>
+  <a class="sb-link" href="#strategy"><span class="sb-num n-blue">5</span>Strategy</a>
+  <a class="sb-link" href="#template"><span class="sb-num n-blue">6</span>Template Method</a>
+  <a class="sb-link" href="#iterator"><span class="sb-num n-blue">7</span>Iterator</a>
+  <a class="sb-link" href="#mediator"><span class="sb-num n-blue">8</span>Mediator</a>
+  <a class="sb-link" href="#memento"><span class="sb-num n-blue">9</span>Memento</a>
+  <a class="sb-link" href="#visitor"><span class="sb-num n-blue">10</span>Visitor</a>
+  <a class="sb-link" href="#interpreter"><span class="sb-num n-blue">11</span>Interpreter</a>
+  <div class="sb-section">Verificación</div>
+  <a class="sb-link" href="#tests">Pruebas JUnit 5</a>
+  <a class="sb-link" href="#faq">Preguntas del docente</a>
+</nav>
+
+<!-- MAIN -->
+<main class="main">
+
+  <!-- HERO -->
+  <div class="hero">
+    <div class="hero-tag">Semestre 10 · Patrones de Software · UTS</div>
+    <div class="hero-title">FábricaViva MES<br>Manual Técnico de Patrones GoF</div>
+    <div class="hero-desc">Documento de sustentación del proyecto de control de producción manufacturera. Explica los 11 patrones de comportamiento (GoF) implementados, el problema que resuelve cada uno y por qué se eligió sobre las alternativas.</div>
+    <div class="hero-meta">
+      <span class="hero-pill">11 Patrones GoF</span>
+      <span class="hero-pill">62 Pruebas JUnit 5</span>
+      <span class="hero-pill">Java 17 · Maven</span>
+      <span class="hero-pill">Patrones de comportamiento</span>
+    </div>
+  </div>
+
+  <!-- OBJETIVOS -->
+  <section id="objetivos">
+    <div class="section-title">Objetivos del sistema</div>
+    <div class="section-sub">Los patrones de diseño fueron seleccionados para satisfacer directamente cada objetivo específico del proyecto.</div>
+    <div class="card">
+      <div class="card-title">Objetivo General</div>
+      <p class="p-text">Desarrollar un sistema de control de producción que permita mejorar el seguimiento de las actividades realizadas en una planta manufacturera, facilitando el <strong>control de las órdenes de producción</strong>, la <strong>trazabilidad de los productos</strong> y el <strong>análisis de la información</strong> generada durante el proceso productivo.</p>
+    </div>
+    <div class="card">
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px">
+        <div>
+          <div class="p-label" style="margin-bottom:8px">OE1</div>
+          <p class="p-text" style="font-size:.82rem">Facilitar el seguimiento de las <strong>órdenes de producción</strong> y de los productos fabricados, permitiendo conocer el estado y avance de los procesos, así como mantener un registro de la información relacionada con cada producto.</p>
+          <div style="margin-top:10px;display:flex;flex-wrap:wrap;gap:4px">
+            <span class="badge b-blue">Command</span>
+            <span class="badge b-blue">Chain</span>
+            <span class="badge b-blue">Iterator</span>
+          </div>
+        </div>
+        <div>
+          <div class="p-label" style="margin-bottom:8px">OE2</div>
+          <p class="p-text" style="font-size:.82rem">Mejorar el control de la información generada durante el proceso de producción, registrando aspectos relacionados con el <strong>funcionamiento de los equipos</strong>, los <strong>tiempos de producción</strong> y el <strong>control de calidad</strong>.</p>
+          <div style="margin-top:10px;display:flex;flex-wrap:wrap;gap:4px">
+            <span class="badge b-blue">Observer</span>
+            <span class="badge b-blue">State</span>
+            <span class="badge b-blue">Template Method</span>
+            <span class="badge b-blue">Memento</span>
+          </div>
+        </div>
+        <div>
+          <div class="p-label" style="margin-bottom:8px">OE3</div>
+          <p class="p-text" style="font-size:.82rem">Proporcionar información organizada que <strong>apoye la toma de decisiones</strong>, permitiendo identificar posibles dificultades en el proceso productivo y analizar el <strong>desempeño general</strong>.</p>
+          <div style="margin-top:10px;display:flex;flex-wrap:wrap;gap:4px">
+            <span class="badge b-blue">Strategy</span>
+            <span class="badge b-blue">Mediator</span>
+            <span class="badge b-blue">Visitor</span>
+            <span class="badge b-blue">Interpreter</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <hr class="divider">
+
+  <!-- MAPA OE -->
+  <section id="mapa">
+    <div class="section-title">Mapa Objetivos ↔ Patrones</div>
+    <div class="section-sub">Cada patrón implementado satisface al menos un objetivo específico del sistema.</div>
+    <div class="card" style="padding:0;overflow:hidden">
+      <table class="obj-table">
+        <thead><tr><th>OE</th><th>Descripción corta</th><th>Patrones que lo satisfacen</th></tr></thead>
+        <tbody>
+          <tr><td>OE1</td><td>Seguimiento de órdenes y trazabilidad de productos</td><td><span class="badge b-blue" style="margin-right:4px">Command</span><span class="badge b-blue" style="margin-right:4px">Chain of Responsibility</span><span class="badge b-blue">Iterator</span></td></tr>
+          <tr><td>OE2</td><td>Control de equipos, tiempos y calidad</td><td><span class="badge b-green" style="margin-right:4px">Observer</span><span class="badge b-green" style="margin-right:4px">State</span><span class="badge b-green" style="margin-right:4px">Template Method</span><span class="badge b-green">Memento</span></td></tr>
+          <tr><td>OE3</td><td>Apoyo a toma de decisiones y análisis de desempeño</td><td><span class="badge b-purple" style="margin-right:4px">Strategy</span><span class="badge b-purple" style="margin-right:4px">Mediator</span><span class="badge b-purple" style="margin-right:4px">Visitor</span><span class="badge b-purple">Interpreter</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <hr class="divider">
+  <div class="section-title">Patrones de Comportamiento</div>
+  <div class="section-sub" style="margin-bottom:28px">Los 11 patrones GoF implementados en el sistema, con justificación técnica para cada decisión de diseño.</div>
+
+  <!-- ═══ 1. OBSERVER ═══ -->
+  <div class="pattern" id="observer">
+    <div class="pattern-header">
+      <div class="pattern-num">1</div>
+      <div class="pattern-title-block">
+        <div class="pattern-name">Observer</div>
+        <div class="pattern-pkg">paquete: com.fabricaviva.observador</div>
+        <div class="pattern-badges">
+          <span class="badge b-blue">Comportamiento</span>
+          <span class="badge b-green">OE2 — Equipos</span>
+        </div>
+      </div>
+      <span class="oe-chip">OE2</span>
+    </div>
+    <div class="pattern-body">
+      <div class="p-block">
+        <div class="p-label">¿Qué es?</div>
+        <p class="p-text">Define una dependencia uno-a-muchos entre objetos. Cuando un objeto (sujeto) cambia de estado, todos sus dependientes (observadores) son notificados automáticamente. También conocido como <em>Publish-Subscribe</em> a nivel de objeto.</p>
+      </div>
+      <div class="p-block">
+        <div class="p-label">Problema que resuelve en FábricaViva</div>
+        <p class="p-text">Los módulos del sistema — el <code>PanelSupervisor</code> y la <code>BitacoraEventos</code> — deben reaccionar en tiempo real a cambios en los sensores de las máquinas (variaciones de OEE, paradas, alertas) sin que el sensor conozca quién lo está escuchando. Esto permite agregar o quitar módulos de monitoreo sin tocar la lógica del sensor.</p>
+      </div>
+      <div class="p-block">
+        <div class="p-label">¿Por qué Observer y no otra alternativa?</div>
+        <div class="compare-row">
+          <div class="compare-card compare-yes">
+            <div class="compare-label">✓ Observer (elegido)</div>
+            Mantiene el acoplamiento dentro de la JVM sin infraestructura externa. El sensor no conoce a sus observadores: solo llama a <code>notificarObservadores()</code>. Fácil de agregar nuevos observadores en runtime.
+          </div>
+          <div class="compare-card compare-no">
+            <div class="compare-label">✗ Alternativas descartadas</div>
+            <strong>Polling:</strong> consultaría el estado cada N ms generando carga innecesaria. <strong>Kafka/RabbitMQ:</strong> introduce infraestructura de mensajería externa no justificada para un sistema embebido en una sola JVM.
+          </div>
+        </div>
+      </div>
+      <div class="p-block">
+        <div class="p-label">Clases del proyecto</div>
+        <div class="classes-row">
+          <span class="class-tag">SensorMaquina</span>
+          <span class="class-tag abstract">ObservadorMaquina (interface)</span>
+          <span class="class-tag">PanelSupervisor</span>
+          <span class="class-tag">BitacoraEventos</span>
+        </div>
+      </div>
+      <div class="p-block">
+        <div class="p-label">Fragmento de código</div>
+        <div class="code-block">
+          <div class="code-header"><div class="code-dots"><div class="code-dot d-red"></div><div class="code-dot d-yellow"></div><div class="code-dot d-green"></div></div><span class="code-lang">SensorMaquina.java</span></div>
+          <pre><span class="cm">// Notifica a todos los observadores registrados</span>
+<span class="kw">public void</span> <span class="fn">notificarObservadores</span>(<span class="ty">EventoMaquina</span> evento) {
+    observadores.<span class="fn">forEach</span>(obs -> obs.<span class="fn">actualizar</span>(evento));
+}
+
+<span class="cm">// Registrar / desregistrar observadores en runtime</span>
+<span class="kw">public void</span> <span class="fn">agregarObservador</span>(<span class="ty">ObservadorMaquina</span> obs) {
+    observadores.<span class="fn">add</span>(obs);
+}
+<span class="kw">public void</span> <span class="fn">removerObservador</span>(<span class="ty">ObservadorMaquina</span> obs) {
+    observadores.<span class="fn">remove</span>(obs);
+}</pre>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ 2. COMMAND ═══ -->
+  <div class="pattern" id="command">
+    <div class="pattern-header">
+      <div class="pattern-num">2</div>
+      <div class="pattern-title-block">
+        <div class="pattern-name">Command</div>
+        <div class="pattern-pkg">paquete: com.fabricaviva.comando</div>
+        <div class="pattern-badges">
+          <span class="badge b-blue">Comportamiento</span>
+          <span class="badge b-green">OE1 — Órdenes</span>
+        </div>
+      </div>
+      <span class="oe-chip">OE1</span>
+    </div>
+    <div class="pattern-body">
+      <div class="p-block">
+        <div class="p-label">¿Qué es?</div>
+        <p class="p-text">Encapsula una solicitud como un objeto, permitiendo parametrizar clientes con diferentes solicitudes, almacenar solicitudes en un historial y soportar operaciones deshacer/rehacer.</p>
+      </div>
+      <div class="p-block">
+        <div class="p-label">Problema que resuelve en FábricaViva</div>
+        <p class="p-text">Cada operación sobre la línea de producción (iniciar una orden, cerrar un turno) debe quedar registrada para <strong>auditoría</strong> y debe poder <strong>deshacerse</strong> en caso de error del operador. Sin Command, una llamada directa a un método no deja rastro ni permite reversión.</p>
+      </div>
+      <div class="p-block">
+        <div class="p-label">¿Por qué Command y no otra alternativa?</div>
+        <div class="compare-row">
+          <div class="compare-card compare-yes">
+            <div class="compare-label">✓ Command (elegido)</div>
+            Separa el <em>"qué se hace"</em> (el comando) del <em>"quién lo ejecuta"</em> (el receiver). El <code>GestorComandos</code> mantiene la pila de historial. Implementar deshacer es trivial: cada comando sabe revertirse.
+          </div>
+          <div class="compare-card compare-no">
+            <div class="compare-label">✗ Alternativas descartadas</div>
+            <strong>Llamada directa a métodos:</strong> no permite historial ni deshacer. <strong>Transaction Script:</strong> mezcla la lógica de qué se hace con quién la ejecuta, generando acoplamiento fuerte.
+          </div>
+        </div>
+      </div>
+      <div class="p-block">
+        <div class="p-label">Clases del proyecto</div>
+        <div class="classes-row">
+          <span class="class-tag">GestorComandos</span>
+          <span class="class-tag abstract">ComandoProduccion (interface)</span>
+          <span class="class-tag">ComandoIniciarOrden</span>
+          <span class="class-tag">ComandoCerrarTurno</span>
+          <span class="class-tag">LineaProduccionReceiver</span>
+        </div>
+      </div>
+      <div class="p-block">
+        <div class="p-label">Fragmento de código</div>
+        <div class="code-block">
+          <div class="code-header"><div class="code-dots"><div class="code-dot d-red"></div><div class="code-dot d-yellow"></div><div class="code-dot d-green"></div></div><span class="code-lang">GestorComandos.java</span></div>
+          <pre><span class="kw">public void</span> <span class="fn">ejecutar</span>(<span class="ty">ComandoProduccion</span> cmd) {
+    cmd.<span class="fn">ejecutar</span>();       <span class="cm">// delega al receiver</span>
+    historial.<span class="fn">push</span>(cmd); <span class="cm">// guarda en la pila</span>
+}
+
+<span class="kw">public void</span> <span class="fn">deshacer</span>() {
+    <span class="kw">if</span> (!historial.<span class="fn">isEmpty</span>()) {
+        historial.<span class="fn">pop</span>().<span class="fn">deshacer</span>();
+    }
+}</pre>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ 3. STATE ═══ -->
+  <div class="pattern" id="state">
+    <div class="pattern-header">
+      <div class="pattern-num">3</div>
+      <div class="pattern-title-block">
+        <div class="pattern-name">State</div>
+        <div class="pattern-pkg">paquete: com.fabricaviva.estado</div>
+        <div class="pattern-badges">
+          <span class="badge b-blue">Comportamiento</span>
+          <span class="badge b-green">OE2 — Equipos</span>
+        </div>
+      </div>
+      <span class="oe-chip">OE2</span>
+    </div>
+    <div class="pattern-body">
+      <div class="p-block">
+        <div class="p-label">¿Qué es?</div>
+        <p class="p-text">Permite a un objeto alterar su comportamiento cuando su estado interno cambia. El objeto parecerá cambiar de clase. Cada estado se representa como una clase separada que implementa la misma interfaz.</p>
+      </div>
+      <div class="p-block">
+        <div class="p-label">Problema que resuelve en FábricaViva</div>
+        <p class="p-text">Cada máquina tiene un ciclo de vida definido: <strong>IDLE → PRODUCIENDO → FALLA → MANTENIMIENTO → IDLE</strong>. El comportamiento ante acciones (iniciar, pausar, reportar falla) cambia radicalmente según el estado actual. Sin State, cada método necesitaría un bloque <code>if/switch</code> que crece con cada nuevo estado.</p>
+      </div>
+      <div class="p-block">
+        <div class="p-label">¿Por qué State y no otra alternativa?</div>
+        <div class="compare-row">
+          <div class="compare-card compare-yes">
+            <div class="compare-label">✓ State (elegido)</div>
+            Elimina los <code>switch</code> anidados. Agregar un nuevo estado (ej. CALIBRANDO) solo requiere crear una nueva clase sin modificar las existentes. Las transiciones inválidas (ej. iniciar desde FALLA) se bloquean naturalmente.
+          </div>
+          <div class="compare-card compare-no">
+            <div class="compare-label">✗ Alternativas descartadas</div>
+            <strong>if/switch por estado:</strong> genera código espagueti difícil de mantener. <strong>Strategy:</strong> modela algoritmos intercambiables, no ciclos de vida de objetos con transiciones entre estados.
+          </div>
+        </div>
+      </div>
+      <div class="p-block">
+        <div class="p-label">Clases del proyecto</div>
+        <div class="classes-row">
+          <span class="class-tag">ContextoMaquina</span>
+          <span class="class-tag abstract">EstadoMaquina (interface)</span>
+          <span class="class-tag">EstadoIdle</span>
+          <span class="class-tag">EstadoProduciendo</span>
+          <span class="class-tag">EstadoFalla</span>
+        </div>
+      </div>
+      <div class="p-block">
+        <div class="p-label">Fragmento de código</div>
+        <div class="code-block">
+          <div class="code-header"><div class="code-dots"><div class="code-dot d-red"></div><div class="code-dot d-yellow"></div><div class="code-dot d-green"></div></div><span class="code-lang">EstadoIdle.java</span></div>
+          <pre><span class="kw">public void</span> <span class="fn">iniciar</span>(<span class="ty">ContextoMaquina</span> ctx, <span class="ty">OrdenProduccion</span> orden) {
+    ctx.<span class="fn">setEstado</span>(<span class="kw">new</span> <span class="ty">EstadoProduciendo</span>()); <span class="cm">// transición válida</span>
+    ctx.<span class="fn">setOrdenActual</span>(orden);
+}
+
+<span class="kw">public void</span> <span class="fn">reportarFalla</span>(<span class="ty">ContextoMaquina</span> ctx) {
+    <span class="cm">// No aplica desde IDLE — transición bloqueada</span>
+    <span class="kw">throw new</span> <span class="ty">EstadoInvalidoException</span>(<span class="st">"No se puede reportar falla en IDLE"</span>);
+}</pre>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ 4. CHAIN ═══ -->
+  <div class="pattern" id="chain">
+    <div class="pattern-header">
+      <div class="pattern-num">4</div>
+      <div class="pattern-title-block">
+        <div class="pattern-name">Chain of Responsibility</div>
+        <div class="pattern-pkg">paquete: com.fabricaviva.cadena</div>
+        <div class="pattern-badges">
+          <span class="badge b-blue">Comportamiento</span>
+          <span class="badge b-green">OE1 — Órdenes</span>
+        </div>
+      </div>
+      <span class="oe-chip">OE1</span>
+    </div>
+    <div class="pattern-body">
+      <div class="p-block">
+        <div class="p-label">¿Qué es?</div>
+        <p class="p-text">Pasa una solicitud a través de una cadena de manejadores. Cada manejador decide si procesa la solicitud o la pasa al siguiente. Desacopla al emisor del receptor y permite configurar la cadena dinámicamente.</p>
+      </div>
+      <div class="p-block">
+        <div class="p-label">Problema que resuelve en FábricaViva</div>
+        <p class="p-text">Antes de aprobar una orden de producción, debe pasar por múltiples validaciones: <strong>disponibilidad de stock</strong>, <strong>capacidad de la planta</strong> y <strong>nivel de prioridad</strong>. El sistema debe poder agregar o quitar validaciones (ej. agregar ValidadorPresupuesto) sin modificar el núcleo del gestor.</p>
+      </div>
+      <div class="p-block">
+        <div class="p-label">¿Por qué Chain y no otra alternativa?</div>
+        <div class="compare-row">
+          <div class="compare-card compare-yes">
+            <div class="compare-label">✓ Chain of Responsibility (elegido)</div>
+            Cada validador es independiente y extensible. Agregar una nueva regla de negocio es crear un nuevo <code>ValidadorOrden</code> y añadirlo a la cadena. Cumple el principio Open/Closed.
+          </div>
+          <div class="compare-card compare-no">
+            <div class="compare-label">✗ Alternativas descartadas</div>
+            <strong>Método monolítico:</strong> un único método con todos los <code>if</code> de validación es difícil de mantener y extender. <strong>Decorator:</strong> añade responsabilidades a objetos, no transfiere la responsabilidad de decidir.
+          </div>
+        </div>
+      </div>
+      <div class="p-block">
+        <div class="p-label">Clases del proyecto</div>
+        <div class="classes-row">
+          <span class="class-tag">GestorOrdenes</span>
+          <span class="class-tag abstract">ValidadorOrden (abstract)</span>
+          <span class="class-tag">ValidadorStock</span>
+          <span class="class-tag">ValidadorCapacidad</span>
+          <span class="class-tag">ValidadorPrioridad</span>
+          <span class="class-tag">ResultadoOrden</span>
+        </div>
+      </div>
+      <div class="p-block">
+        <div class="p-label">Fragmento de código</div>
+        <div class="code-block">
+          <div class="code-header"><div class="code-dots"><div class="code-dot d-red"></div><div class="code-dot d-yellow"></div><div class="code-dot d-green"></div></div><span class="code-lang">ValidadorStock.java</span></div>
+          <pre><span class="kw">public</span> <span class="ty">ResultadoOrden</span> <span class="fn">validar</span>(<span class="ty">OrdenProduccion</span> orden) {
+    <span class="kw">if</span> (orden.<span class="fn">getCantidad</span>() > stockDisponible)
+        <span class="kw">return</span> <span class="ty">ResultadoOrden</span>.<span class="fn">rechazar</span>(<span class="kw">this</span>, <span class="st">"Stock insuficiente"</span>);
+
+    <span class="cm">// Pasar al siguiente eslabón si existe</span>
+    <span class="kw">return</span> siguiente != <span class="kw">null</span>
+        ? siguiente.<span class="fn">validar</span>(orden)
+        : <span class="ty">ResultadoOrden</span>.<span class="fn">aprobar</span>();
+}</pre>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ 5. STRATEGY ═══ -->
+  <div class="pattern" id="strategy">
+    <div class="pattern-header">
+      <div class="pattern-num">5</div>
+      <div class="pattern-title-block">
+        <div class="pattern-name">Strategy</div>
+        <div class="pattern-pkg">paquete: com.fabricaviva.estrategia</div>
+        <div class="pattern-badges">
+          <span class="badge b-blue">Comportamiento</span>
+          <span class="badge b-purple">OE3 — Decisiones</span>
+        </div>
+      </div>
+      <span class="oe-chip">OE3</span>
+    </div>
+    <div class="pattern-body">
+      <div class="p-block">
+        <div class="p-label">¿Qué es?</div>
+        <p class="p-text">Define una familia de algoritmos, encapsula cada uno y los hace intercambiables. Permite variar el algoritmo de forma independiente de los clientes que lo usan, usando composición en lugar de herencia.</p>
+      </div>
+      <div class="p-block">
+        <div class="p-label">Problema que resuelve en FábricaViva</div>
+        <p class="p-text">La cola de producción puede ordenarse por distintos criterios según el turno: <strong>FIFO</strong> (orden de llegada), <strong>Alta Prioridad Primero</strong> o <strong>Mayor Volumen Primero</strong>. El supervisor debe poder cambiar el criterio <strong>en tiempo de ejecución</strong> sin reiniciar el sistema ni modificar el planificador.</p>
+      </div>
+      <div class="p-block">
+        <div class="p-label">¿Por qué Strategy y no otra alternativa?</div>
+        <div class="compare-row">
+          <div class="compare-card compare-yes">
+            <div class="compare-label">✓ Strategy (elegido)</div>
+            Usa composición: el <code>PlanificadorOrdenes</code> delega en la estrategia inyectada. Cambiar el algoritmo en runtime es una sola línea: <code>setEstrategia(nueva)</code>. Sin recompilación, sin downtime.
+          </div>
+          <div class="compare-card compare-no">
+            <div class="compare-label">✗ Alternativas descartadas</div>
+            <strong>Switch/if por algoritmo:</strong> viola Open/Closed, hay que modificar el planificador para agregar criterios. <strong>Template Method:</strong> requiere herencia; cambiar el algoritmo en runtime implicaría instanciar un objeto diferente, perdiendo el contexto acumulado.
+          </div>
+        </div>
+      </div>
+      <div class="p-block">
+        <div class="p-label">Clases del proyecto</div>
+        <div class="classes-row">
+          <span class="class-tag">PlanificadorOrdenes</span>
+          <span class="class-tag abstract">EstrategiaOrdenamiento (interface)</span>
+          <span class="class-tag">EstrategiaFIFO</span>
+          <span class="class-tag">EstrategiaPrioridad</span>
+          <span class="class-tag">EstrategiaVolumen</span>
+        </div>
+      </div>
+      <div class="p-block">
+        <div class="p-label">Fragmento de código</div>
+        <div class="code-block">
+          <div class="code-header"><div class="code-dots"><div class="code-dot d-red"></div><div class="code-dot d-yellow"></div><div class="code-dot d-green"></div></div><span class="code-lang">PlanificadorOrdenes.java</span></div>
+          <pre><span class="cm">// Cambio de estrategia en runtime — sin reiniciar el sistema</span>
+<span class="kw">public void</span> <span class="fn">setEstrategia</span>(<span class="ty">EstrategiaOrdenamiento</span> nueva) {
+    <span class="kw">this</span>.estrategia = nueva;
+}
+
+<span class="kw">public</span> <span class="ty">List</span>&lt;<span class="ty">OrdenProduccion</span>&gt; <span class="fn">planificar</span>(<span class="ty">List</span>&lt;<span class="ty">OrdenProduccion</span>&gt; ordenes) {
+    <span class="kw">return</span> estrategia.<span class="fn">ordenar</span>(ordenes); <span class="cm">// delega completamente</span>
+}</pre>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ 6. TEMPLATE METHOD ═══ -->
+  <div class="pattern" id="template">
+    <div class="pattern-header">
+      <div class="pattern-num">6</div>
+      <div class="pattern-title-block">
+        <div class="pattern-name">Template Method</div>
+        <div class="pattern-pkg">paquete: com.fabricaviva.inspeccion</div>
+        <div class="pattern-badges">
+          <span class="badge b-blue">Comportamiento</span>
+          <span class="badge b-green">OE2 — Calidad</span>
+        </div>
+      </div>
+      <span class="oe-chip">OE2</span>
+    </div>
+    <div class="pattern-body">
+      <div class="p-block">
+        <div class="p-label">¿Qué es?</div>
+        <p class="p-text">Define el esqueleto de un algoritmo en una clase base, delegando algunos pasos a las subclases. Permite que las subclases redefinan ciertos pasos del algoritmo sin cambiar su estructura general.</p>
+      </div>
+      <div class="p-block">
+        <div class="p-label">Problema que resuelve en FábricaViva</div>
+        <p class="p-text">Los protocolos de inspección dimensional y visual comparten exactamente los mismos pasos: preparar instrumentos, contar defectos y registrar el resultado. Solo difieren en el <strong>criterio de evaluación</strong>: la inspección dimensional acepta hasta un 3% de defectos; la visual hasta un 5%.</p>
+      </div>
+      <div class="p-block">
+        <div class="p-label">¿Por qué Template Method y no otra alternativa?</div>
+        <div class="compare-row">
+          <div class="compare-card compare-yes">
+            <div class="compare-label">✓ Template Method (elegido)</div>
+            El algoritmo tiene estructura fija (4 pasos) con exactamente un paso variable (<code>evaluar</code>). Template Method captura esto perfectamente: define el <code>final</code> en el método plantilla y el <code>abstract</code> en el hook.
+          </div>
+          <div class="compare-card compare-no">
+            <div class="compare-label">✗ Alternativas descartadas</div>
+            <strong>Duplicar código:</strong> viola DRY — los 3 pasos fijos estarían repetidos en cada tipo. <strong>Strategy:</strong> válido, pero cuando el algoritmo tiene estructura fija con un único punto de variación, Template Method es más idiomático y expresivo.
+          </div>
+        </div>
+      </div>
+      <div class="p-block">
+        <div class="p-label">Clases del proyecto</div>
+        <div class="classes-row">
+          <span class="class-tag abstract">InspeccionCalidad (abstract)</span>
+          <span class="class-tag">InspeccionDimensional</span>
+          <span class="class-tag">InspeccionVisual</span>
+          <span class="class-tag">ResultadoInspeccion</span>
+        </div>
+      </div>
+      <div class="p-block">
+        <div class="p-label">Fragmento de código</div>
+        <div class="code-block">
+          <div class="code-header"><div class="code-dots"><div class="code-dot d-red"></div><div class="code-dot d-yellow"></div><div class="code-dot d-green"></div></div><span class="code-lang">InspeccionCalidad.java (abstract)</span></div>
+          <pre><span class="cm">// Método plantilla — final: las subclases no pueden reordenar pasos</span>
+<span class="kw">public final</span> <span class="ty">ResultadoInspeccion</span> <span class="fn">ejecutar</span>(<span class="ty">LoteProduccion</span> lote) {
+    <span class="fn">prepararInstrumentos</span>();             <span class="cm">// paso fijo</span>
+    <span class="kw">int</span> defectos = <span class="fn">contarDefectos</span>(lote); <span class="cm">// paso fijo</span>
+    <span class="kw">boolean</span> ok = <span class="fn">evaluar</span>(defectos, lote); <span class="cm">// HOOK — lo definen las subclases</span>
+    <span class="kw">return</span> <span class="fn">registrar</span>(lote, defectos, ok); <span class="cm">// paso fijo</span>
+}
+
+<span class="kw">protected abstract boolean</span> <span class="fn">evaluar</span>(<span class="kw">int</span> defectos, <span class="ty">LoteProduccion</span> lote);</pre>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ 7. ITERATOR ═══ -->
+  <div class="pattern" id="iterator">
+    <div class="pattern-header">
+      <div class="pattern-num">7</div>
+      <div class="pattern-title-block">
+        <div class="pattern-name">Iterator</div>
+        <div class="pattern-pkg">paquete: com.fabricaviva.iterador</div>
+        <div class="pattern-badges">
+          <span class="badge b-blue">Comportamiento</span>
+          <span class="badge b-green">OE1 — Trazabilidad</span>
+        </div>
+      </div>
+      <span class="oe-chip">OE1</span>
+    </div>
+    <div class="pattern-body">
+      <div class="p-block">
+        <div class="p-label">¿Qué es?</div>
+        <p class="p-text">Proporciona una forma de acceder secuencialmente a los elementos de una colección sin exponer su representación interna. Separa el algoritmo de recorrido del objeto que almacena los datos.</p>
+      </div>
+      <div class="p-block">
+        <div class="p-label">Problema que resuelve en FábricaViva</div>
+        <p class="p-text">Los lotes de producción deben poder recorrerse de <strong>múltiples formas</strong>: en orden de llegada (FIFO) para el turno mañana, o por prioridad para turno noche cuando hay urgencias. La colección <code>ColeccionLotes</code> no debe exponer su estructura interna (una lista enlazada) para permitir esto.</p>
+      </div>
+      <div class="p-block">
+        <div class="p-label">¿Por qué Iterator y no otra alternativa?</div>
+        <div class="compare-row">
+          <div class="compare-card compare-yes">
+            <div class="compare-label">✓ Iterator (elegido)</div>
+            Encapsula el mecanismo de recorrido. El cliente solo llama <code>hasNext()</code> y <code>next()</code> sin importar si internamente hay un <code>ArrayList</code>, un árbol o una base de datos.
+          </div>
+          <div class="compare-card compare-no">
+            <div class="compare-label">✗ Alternativas descartadas</div>
+            <strong>Exponer la lista directamente:</strong> viola encapsulamiento y acopla al cliente con la implementación. <strong>Comparator sobre lista:</strong> correcto funcionalmente, pero no encapsula el recorrido como abstracción reutilizable.
+          </div>
+        </div>
+      </div>
+      <div class="p-block">
+        <div class="p-label">Clases del proyecto</div>
+        <div class="classes-row">
+          <span class="class-tag">ColeccionLotes</span>
+          <span class="class-tag">LoteProduccion</span>
+        </div>
+      </div>
+      <div class="p-block">
+        <div class="p-label">Fragmento de código</div>
+        <div class="code-block">
+          <div class="code-header"><div class="code-dots"><div class="code-dot d-red"></div><div class="code-dot d-yellow"></div><div class="code-dot d-green"></div></div><span class="code-lang">ColeccionLotes.java</span></div>
+          <pre><span class="kw">public</span> <span class="ty">Iterator</span>&lt;<span class="ty">LoteProduccion</span>&gt; <span class="fn">iteradorFifo</span>() {
+    <span class="kw">return</span> lotes.<span class="fn">iterator</span>(); <span class="cm">// orden de inserción</span>
+}
+
+<span class="kw">public</span> <span class="ty">Iterator</span>&lt;<span class="ty">LoteProduccion</span>&gt; <span class="fn">iteradorPorPrioridad</span>() {
+    <span class="kw">return</span> lotes.<span class="fn">stream</span>()
+        .<span class="fn">sorted</span>(<span class="ty">Comparator</span>.<span class="fn">comparingInt</span>(<span class="ty">LoteProduccion</span>::<span class="fn">getPrioridad</span>))
+        .<span class="fn">iterator</span>();
+}</pre>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ 8. MEDIATOR ═══ -->
+  <div class="pattern" id="mediator">
+    <div class="pattern-header">
+      <div class="pattern-num">8</div>
+      <div class="pattern-title-block">
+        <div class="pattern-name">Mediator</div>
+        <div class="pattern-pkg">paquete: com.fabricaviva.mediador</div>
+        <div class="pattern-badges">
+          <span class="badge b-blue">Comportamiento</span>
+          <span class="badge b-purple">OE3 — Comunicación</span>
+        </div>
+      </div>
+      <span class="oe-chip">OE3</span>
+    </div>
+    <div class="pattern-body">
+      <div class="p-block">
+        <div class="p-label">¿Qué es?</div>
+        <p class="p-text">Define un objeto que encapsula cómo un conjunto de objetos interactúan entre sí. Promueve el acoplamiento débil evitando que los objetos se refieran unos a otros explícitamente, centralizando la comunicación.</p>
+      </div>
+      <div class="p-block">
+        <div class="p-label">Problema que resuelve en FábricaViva</div>
+        <p class="p-text">Los módulos del sistema — Producción, Calidad y Mantenimiento — necesitan coordinarse: cuando Calidad detecta defectos, Mantenimiento debe ser notificado. Sin Mediator, cada módulo conocería a los demás, formando un <strong>grafo de dependencias</strong> N×N imposible de mantener.</p>
+      </div>
+      <div class="p-block">
+        <div class="p-label">¿Por qué Mediator y no otra alternativa?</div>
+        <div class="compare-row">
+          <div class="compare-card compare-yes">
+            <div class="compare-label">✓ Mediator (elegido)</div>
+            <code>CentralMes</code> es el único punto de comunicación. Los módulos solo conocen a la central, no entre sí. Agregar un nuevo módulo (ej. Logística) solo requiere registrarlo en la central.
+          </div>
+          <div class="compare-card compare-no">
+            <div class="compare-label">✗ Alternativas descartadas</div>
+            <strong>Observer global:</strong> funciona para notificaciones uno-a-muchos pero no para comunicación bidireccional entre módulos específicos. <strong>Event Bus:</strong> externaliza la comunicación sin centralizar la lógica de enrutamiento.
+          </div>
+        </div>
+      </div>
+      <div class="p-block">
+        <div class="p-label">Clases del proyecto</div>
+        <div class="classes-row">
+          <span class="class-tag">CentralMes</span>
+          <span class="class-tag abstract">ColaboradorMes (interface)</span>
+          <span class="class-tag">ModuloCalidad</span>
+          <span class="class-tag">ModuloMantenimiento</span>
+        </div>
+      </div>
+      <div class="p-block">
+        <div class="p-label">Fragmento de código</div>
+        <div class="code-block">
+          <div class="code-header"><div class="code-dots"><div class="code-dot d-red"></div><div class="code-dot d-yellow"></div><div class="code-dot d-green"></div></div><span class="code-lang">CentralMes.java</span></div>
+          <pre><span class="kw">public void</span> <span class="fn">enviarMensaje</span>(<span class="ty">ColaboradorMes</span> emisor, <span class="ty">String</span> mensaje) {
+    colaboradores.<span class="fn">stream</span>()
+        .<span class="fn">filter</span>(c -> c != emisor)        <span class="cm">// no enviar al emisor</span>
+        .<span class="fn">forEach</span>(c -> c.<span class="fn">recibirMensaje</span>(mensaje));
+}</pre>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ 9. MEMENTO ═══ -->
+  <div class="pattern" id="memento">
+    <div class="pattern-header">
+      <div class="pattern-num">9</div>
+      <div class="pattern-title-block">
+        <div class="pattern-name">Memento</div>
+        <div class="pattern-pkg">paquete: com.fabricaviva.memento</div>
+        <div class="pattern-badges">
+          <span class="badge b-blue">Comportamiento</span>
+          <span class="badge b-green">OE2 — Configuración</span>
+        </div>
+      </div>
+      <span class="oe-chip">OE2</span>
+    </div>
+    <div class="pattern-body">
+      <div class="p-block">
+        <div class="p-label">¿Qué es?</div>
+        <p class="p-text">Captura y externaliza el estado interno de un objeto sin violar su encapsulamiento, de forma que el objeto pueda ser restaurado a ese estado más adelante. Implementa el mecanismo deshacer/checkpoint.</p>
+      </div>
+      <div class="p-block">
+        <div class="p-label">Problema que resuelve en FábricaViva</div>
+        <p class="p-text">Al inicio de cada turno, el supervisor configura parámetros críticos: meta de OEE, capacidad máxima y stock disponible. Si durante el turno hay un error de configuración, debe poder <strong>restaurar el último checkpoint</strong> válido sin exponer los atributos internos de <code>ConfiguracionTurno</code>.</p>
+      </div>
+      <div class="p-block">
+        <div class="p-label">¿Por qué Memento y no otra alternativa?</div>
+        <div class="compare-row">
+          <div class="compare-card compare-yes">
+            <div class="compare-label">✓ Memento (elegido)</div>
+            Respeta el encapsulamiento: solo <code>ConfiguracionTurno</code> sabe cómo crear y restaurar su propio snapshot (<code>InstantaneTurno</code>). El historial (<code>HistorialTurnos</code>) no tiene acceso a los atributos internos.
+          </div>
+          <div class="compare-card compare-no">
+            <div class="compare-label">✗ Alternativas descartadas</div>
+            <strong>Serialización JSON:</strong> expone todos los atributos públicamente, viola encapsulamiento y requiere manejo de versiones. <strong>Command + historial:</strong> registra acciones, no snapshots completos del estado del objeto.
+          </div>
+        </div>
+      </div>
+      <div class="p-block">
+        <div class="p-label">Clases del proyecto</div>
+        <div class="classes-row">
+          <span class="class-tag">ConfiguracionTurno</span>
+          <span class="class-tag">HistorialTurnos</span>
+          <span class="class-tag">InstantaneTurno</span>
+        </div>
+      </div>
+      <div class="p-block">
+        <div class="p-label">Fragmento de código</div>
+        <div class="code-block">
+          <div class="code-header"><div class="code-dots"><div class="code-dot d-red"></div><div class="code-dot d-yellow"></div><div class="code-dot d-green"></div></div><span class="code-lang">HistorialTurnos.java</span></div>
+          <pre><span class="kw">public void</span> <span class="fn">guardar</span>(<span class="ty">ConfiguracionTurno</span> cfg) {
+    pila.<span class="fn">push</span>(cfg.<span class="fn">crearSnapshot</span>()); <span class="cm">// solo cfg sabe qué guardar</span>
+}
+
+<span class="kw">public void</span> <span class="fn">restaurar</span>(<span class="ty">ConfiguracionTurno</span> cfg) {
+    cfg.<span class="fn">restaurarDesde</span>(pila.<span class="fn">pop</span>()); <span class="cm">// solo cfg sabe cómo restaurar</span>
+}</pre>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ 10. VISITOR ═══ -->
+  <div class="pattern" id="visitor">
+    <div class="pattern-header">
+      <div class="pattern-num">10</div>
+      <div class="pattern-title-block">
+        <div class="pattern-name">Visitor</div>
+        <div class="pattern-pkg">paquete: com.fabricaviva.visitante</div>
+        <div class="pattern-badges">
+          <span class="badge b-blue">Comportamiento</span>
+          <span class="badge b-purple">OE3 — Análisis</span>
+        </div>
+      </div>
+      <span class="oe-chip">OE3</span>
+    </div>
+    <div class="pattern-body">
+      <div class="p-block">
+        <div class="p-label">¿Qué es?</div>
+        <p class="p-text">Permite definir una nueva operación sobre los elementos de una estructura de objetos sin cambiar las clases de dichos elementos. Separa el algoritmo de la estructura de datos.</p>
+      </div>
+      <div class="p-block">
+        <div class="p-label">Problema que resuelve en FábricaViva</div>
+        <p class="p-text">Se necesitan múltiples reportes sobre la misma jerarquía de elementos productivos (máquinas y líneas): calcular el <strong>OEE promedio</strong> (<code>VisitanteOee</code>) y el <strong>costo por hora</strong> (<code>VisitanteCostos</code>). En el futuro se agregarán más métricas sin modificar las clases de máquinas.</p>
+      </div>
+      <div class="p-block">
+        <div class="p-label">¿Por qué Visitor y no otra alternativa?</div>
+        <div class="compare-row">
+          <div class="compare-card compare-yes">
+            <div class="compare-label">✓ Visitor (elegido)</div>
+            Agregar un nuevo reporte (ej. <code>VisitanteEmisiones</code>) no modifica ninguna clase existente — solo se crea el nuevo visitante. Las clases de máquinas permanecen estables.
+          </div>
+          <div class="compare-card compare-no">
+            <div class="compare-label">✗ Alternativas descartadas</div>
+            <strong>Métodos en las clases de máquinas:</strong> cada nuevo cálculo viola Single Responsibility y requiere modificar clases existentes. <strong>Herencia:</strong> genera una jerarquía explosiva (MaquinaConOEE, MaquinaConCostos, MaquinaConOEEyCostos...).
+          </div>
+        </div>
+      </div>
+      <div class="p-block">
+        <div class="p-label">Clases del proyecto</div>
+        <div class="classes-row">
+          <span class="class-tag abstract">ElementoProductivo (interface)</span>
+          <span class="class-tag">MaquinaElement</span>
+          <span class="class-tag">LineaElement</span>
+          <span class="class-tag abstract">VisitanteProduccion (interface)</span>
+          <span class="class-tag">VisitanteOee</span>
+          <span class="class-tag">VisitanteCostos</span>
+        </div>
+      </div>
+      <div class="p-block">
+        <div class="p-label">Fragmento de código</div>
+        <div class="code-block">
+          <div class="code-header"><div class="code-dots"><div class="code-dot d-red"></div><div class="code-dot d-yellow"></div><div class="code-dot d-green"></div></div><span class="code-lang">MaquinaElement.java / VisitanteOee.java</span></div>
+          <pre><span class="cm">// MaquinaElement — acepta cualquier visitante (double dispatch)</span>
+<span class="kw">public void</span> <span class="fn">aceptar</span>(<span class="ty">VisitanteProduccion</span> visitante) {
+    visitante.<span class="fn">visitarMaquina</span>(<span class="kw">this</span>);
+}
+
+<span class="cm">// VisitanteOee — acumula OEE de cada máquina visitada</span>
+<span class="kw">public void</span> <span class="fn">visitarMaquina</span>(<span class="ty">MaquinaElement</span> maq) {
+    suma  += maq.<span class="fn">getOee</span>();
+    conteo++;
+}</pre>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ 11. INTERPRETER ═══ -->
+  <div class="pattern" id="interpreter">
+    <div class="pattern-header">
+      <div class="pattern-num">11</div>
+      <div class="pattern-title-block">
+        <div class="pattern-name">Interpreter</div>
+        <div class="pattern-pkg">paquete: com.fabricaviva.interprete</div>
+        <div class="pattern-badges">
+          <span class="badge b-blue">Comportamiento</span>
+          <span class="badge b-purple">OE3 — Alertas</span>
+        </div>
+      </div>
+      <span class="oe-chip">OE3</span>
+    </div>
+    <div class="pattern-body">
+      <div class="p-block">
+        <div class="p-label">¿Qué es?</div>
+        <p class="p-text">Define una representación gramatical para un lenguaje y proporciona un intérprete para trabajar con esa gramática. Modela reglas o expresiones como árboles de objetos evaluables.</p>
+      </div>
+      <div class="p-block">
+        <div class="p-label">Problema que resuelve en FábricaViva</div>
+        <p class="p-text">Las reglas de alerta del sistema deben ser expresivas y extensibles: <em>"activar alerta si OEE &lt; 70% <strong>Y</strong> hay máquina en falla"</em> se modela como un árbol de expresiones (<code>ExpresionAnd</code> con <code>ExpresionOEE</code> y <code>ExpresionFalla</code>). Nuevas reglas se agregan sin modificar el motor evaluador.</p>
+      </div>
+      <div class="p-block">
+        <div class="p-label">¿Por qué Interpreter y no otra alternativa?</div>
+        <div class="compare-row">
+          <div class="compare-card compare-yes">
+            <div class="compare-label">✓ Interpreter (elegido)</div>
+            Las reglas son composables: <code>AND</code>, <code>OR</code> y expresiones hoja (<code>OEE</code>, <code>Temperatura</code>) se combinan libremente. Agregar una nueva regla es crear una nueva <code>ExpresionAlerta</code> sin tocar el motor.
+          </div>
+          <div class="compare-card compare-no">
+            <div class="compare-label">✗ Alternativas descartadas</div>
+            <strong>if/else hardcodeado:</strong> cada nueva regla requiere modificar el motor — el sistema no escala. <strong>Drools / motor de reglas externo:</strong> es una dependencia de producción costosa para 5–10 reglas simples.
+          </div>
+        </div>
+      </div>
+      <div class="p-block">
+        <div class="p-label">Clases del proyecto</div>
+        <div class="classes-row">
+          <span class="class-tag">ContextoAlerta</span>
+          <span class="class-tag abstract">ExpresionAlerta (interface)</span>
+          <span class="class-tag">ExpresionAnd</span>
+          <span class="class-tag">ExpresionOr</span>
+          <span class="class-tag">ExpresionOEE</span>
+          <span class="class-tag">ExpresionTemperatura</span>
+        </div>
+      </div>
+      <div class="p-block">
+        <div class="p-label">Fragmento de código</div>
+        <div class="code-block">
+          <div class="code-header"><div class="code-dots"><div class="code-dot d-red"></div><div class="code-dot d-yellow"></div><div class="code-dot d-green"></div></div><span class="code-lang">ExpresionAnd.java / ExpresionOEE.java</span></div>
+          <pre><span class="cm">// ExpresionAnd — nodo compuesto que combina dos reglas</span>
+<span class="kw">public boolean</span> <span class="fn">interpretar</span>(<span class="ty">ContextoAlerta</span> ctx) {
+    <span class="kw">return</span> izquierda.<span class="fn">interpretar</span>(ctx) && derecha.<span class="fn">interpretar</span>(ctx);
+}
+
+<span class="cm">// ExpresionOEE — nodo hoja: OEE global por debajo del umbral</span>
+<span class="kw">public boolean</span> <span class="fn">interpretar</span>(<span class="ty">ContextoAlerta</span> ctx) {
+    <span class="kw">return</span> ctx.<span class="fn">getOeeGlobal</span>() < umbral; <span class="cm">// umbral = 0.70</span>
+}</pre>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <hr class="divider">
+
+  <!-- PRUEBAS JUNIT 5 -->
+  <section id="tests">
+    <div class="section-title">Pruebas JUnit 5</div>
+    <div class="section-sub">62 pruebas unitarias verifican el comportamiento correcto de los 11 patrones implementados.</div>
+    <div class="card" style="padding:0;overflow:hidden">
+      <table class="tests-table">
+        <thead>
+          <tr><th>#</th><th>Patrón</th><th>Clase de prueba</th><th>Tests</th><th>Estado</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>1</td><td>Observer</td><td><code>ObservadorTest</code></td><td>6</td><td class="passed">✓ PASSED</td></tr>
+          <tr><td>2</td><td>Command</td><td><code>ComandoTest</code></td><td>6</td><td class="passed">✓ PASSED</td></tr>
+          <tr><td>3</td><td>State</td><td><code>EstadoTest</code></td><td>7</td><td class="passed">✓ PASSED</td></tr>
+          <tr><td>4</td><td>Chain of Responsibility</td><td><code>CadenaTest</code></td><td>6</td><td class="passed">✓ PASSED</td></tr>
+          <tr><td>5</td><td>Strategy</td><td><code>EstrategiaTest</code></td><td>7</td><td class="passed">✓ PASSED</td></tr>
+          <tr><td>6</td><td>Template Method</td><td><code>TemplateMethodTest</code></td><td>6</td><td class="passed">✓ PASSED</td></tr>
+          <tr><td>7</td><td>Iterator</td><td><code>IteradorTest</code></td><td>5</td><td class="passed">✓ PASSED</td></tr>
+          <tr><td>8</td><td>Mediator</td><td><code>MediadorTest</code></td><td>4</td><td class="passed">✓ PASSED</td></tr>
+          <tr><td>9</td><td>Memento</td><td><code>MementoTest</code></td><td>5</td><td class="passed">✓ PASSED</td></tr>
+          <tr><td>10</td><td>Visitor</td><td><code>VisitanteTest</code></td><td>5</td><td class="passed">✓ PASSED</td></tr>
+          <tr><td>11</td><td>Interpreter</td><td><code>InterpreteTest</code></td><td>5</td><td class="passed">✓ PASSED</td></tr>
+          <tr><td colspan="3" style="font-weight:700">TOTAL</td><td style="font-weight:800;color:var(--green);font-size:1rem">62</td><td class="passed">62/62 ✓</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <hr class="divider">
+
+  <!-- FAQ -->
+  <section id="faq">
+    <div class="section-title">Preguntas frecuentes del docente</div>
+    <div class="section-sub">Respuestas preparadas para las preguntas más probables durante la sustentación.</div>
+
+    <div class="faq-item open">
+      <div class="faq-q">¿Cuál es la diferencia entre Strategy y Template Method?</div>
+      <div class="faq-a">
+        <strong>Strategy</strong> usa <em>composición</em>: el algoritmo se inyecta desde fuera del objeto en tiempo de ejecución. <strong>Template Method</strong> usa <em>herencia</em>: el esqueleto del algoritmo vive en la superclase y solo algunos pasos se sobreescriben.<br><br>
+        En el proyecto se usó <strong>Strategy para el planificador</strong> porque el algoritmo completo cambia (FIFO vs Prioridad vs Volumen) y se necesita cambiar en runtime sin reiniciar. Se usó <strong>Template Method para la inspección</strong> porque el proceso tiene 4 pasos fijos y solo uno varía (el criterio de evaluación): 3% dimensional vs 5% visual.
+      </div>
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-q">¿Por qué usaste Observer en lugar de un Event Bus?</div>
+      <div class="faq-a">
+        <strong>Observer</strong> mantiene el acoplamiento dentro de la JVM sin infraestructura externa. Es suficiente cuando los productores y consumidores de eventos viven en el mismo proceso.<br><br>
+        Un <strong>Event Bus</strong> (ej. Guava EventBus, Spring Events) sería apropiado si los módulos estuvieran en servicios separados (microservicios), lo cual añadiría complejidad innecesaria para un sistema monolítico embebido como FábricaViva.
+      </div>
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-q">¿Qué diferencia hay entre Mediator y Observer?</div>
+      <div class="faq-a">
+        <strong>Observer</strong> es <em>uno-a-muchos</em> y unidireccional: un sujeto notifica a múltiples observadores, pero los observadores no se comunican entre sí ni conocen al sujeto en detalle.<br><br>
+        <strong>Mediator</strong> es <em>muchos-a-muchos</em> y bidireccional: centraliza la comunicación entre múltiples colaboradores. La <code>CentralMes</code> es el único componente que conoce la lógica de enrutamiento — quién debe recibir qué mensaje — sin que los módulos se conozcan directamente.
+      </div>
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-q">¿Por qué Memento y no serialización JSON?</div>
+      <div class="faq-a">
+        <strong>Memento</strong> respeta el principio de encapsulamiento: el objeto <code>ConfiguracionTurno</code> es el único que sabe cómo crear y restaurar su propio snapshot (<code>InstantaneTurno</code>). El historial (<code>HistorialTurnos</code>) solo almacena el snapshot opaco sin acceder a los atributos internos.<br><br>
+        La <strong>serialización JSON</strong> expone todos los atributos públicamente, viola el encapsulamiento, requiere manejo de versiones del esquema y añade dependencias externas (Gson, Jackson).
+      </div>
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-q">¿Podrías agregar un nuevo tipo de inspección al proyecto?</div>
+      <div class="faq-a">
+        Sí, con <strong>Template Method</strong> es trivial. Solo se crea una nueva subclase de <code>InspeccionCalidad</code> y se sobreescribe el método <code>evaluar()</code> con el nuevo criterio (ej. <code>InspeccionQuimica</code> con umbral del 1%). <strong>No se modifica ninguna clase existente</strong> — esto cumple el principio Open/Closed: abierto para extensión, cerrado para modificación.
+      </div>
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-q">¿Qué es el principio Open/Closed y cómo lo aplica Chain of Responsibility?</div>
+      <div class="faq-a">
+        El principio <strong>Open/Closed</strong> dice que una entidad de software debe estar <em>abierta para extensión</em> pero <em>cerrada para modificación</em>.<br><br>
+        Con <strong>Chain of Responsibility</strong>, para agregar una nueva regla de validación (ej. <code>ValidadorPresupuesto</code> que rechaza órdenes que excedan el presupuesto del turno), solo se crea una nueva clase que extiende <code>ValidadorOrden</code> y se agrega a la cadena. Los validadores existentes (<code>ValidadorStock</code>, <code>ValidadorCapacidad</code>) <strong>no se tocan</strong>.
+      </div>
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-q">¿Por qué implementaste Interpreter si las reglas son pocas?</div>
+      <div class="faq-a">
+        Aunque actualmente hay 5 reglas, el valor de <strong>Interpreter</strong> está en la <em>extensibilidad</em>. Agregar una nueva condición (ej. temperatura del horno > 200°C) es crear una nueva clase <code>ExpresionTemperatura</code> sin modificar el motor evaluador. Las reglas también se pueden componer: <code>new ExpresionAnd(new ExpresionOEE(0.70), new ExpresionTemperatura(200))</code>.<br><br>
+        Con <code>if/else</code> hardcodeado, agregar la misma regla requeriría modificar el motor central — lo que con el tiempo generaría un método gigante e inmantenible.
+      </div>
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-q">¿Cuántos patrones de comportamiento GoF existen y cuáles implementaron?</div>
+      <div class="faq-a">
+        GoF define <strong>11 patrones de comportamiento</strong> en total. Este proyecto implementa los <strong>11 completos</strong>: Observer, Command, State, Chain of Responsibility, Strategy, Template Method, Iterator, Mediator, Memento, Visitor e Interpreter. Cada uno resuelve un problema de diseño específico del dominio manufacturero de FábricaViva.
+      </div>
+    </div>
+  </section>
+
+  <div class="page-footer">FábricaViva MES · Manual Técnico de Patrones GoF · Patrones de Software · UTS Semestre 10</div>
+
+</main>
+</div>
+
+<script>
+// Sidebar active link on scroll
+const sections = document.querySelectorAll('section[id], div.pattern[id]');
+const links = document.querySelectorAll('.sb-link[href^="#"]');
+
+const observer = new IntersectionObserver(entries => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      links.forEach(l => l.classList.remove('active'));
+      const link = document.querySelector(`.sb-link[href="#${entry.target.id}"]`);
+      if (link) link.classList.add('active');
+    }
+  });
+}, { rootMargin: '-20% 0px -70% 0px' });
+
+sections.forEach(s => observer.observe(s));
+
+// FAQ accordion
+document.querySelectorAll('.faq-q').forEach(q => {
+  q.addEventListener('click', () => {
+    const item = q.parentElement;
+    item.classList.toggle('open');
+  });
+});
+</script>

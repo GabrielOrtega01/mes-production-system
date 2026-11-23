@@ -1,0 +1,1483 @@
+<meta charset="UTF-8">
+<meta name="claude:viewport-fit-sides" content="cover">
+<title>FábricaViva · MES</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap">
+<style>
+/* ═══════════════════════════════════════════════
+   DESIGN TOKENS — FábricaViva MES
+   ═══════════════════════════════════════════════ */
+:root {
+  /* Surfaces */
+  --bg:          #F4F6F9;
+  --surface:     #FFFFFF;
+  --surface-2:   #F9FAFC;
+  --surface-3:   #EEF1F6;
+  /* Borders */
+  --bd:          #E3E8EF;
+  --bd-s:        #CDD5DF;
+  /* Brand */
+  --blue:        #1649C6;
+  --blue-h:      #1239AB;
+  --blue-50:     #EEF3FF;
+  --blue-100:    #DCE9FF;
+  /* Text */
+  --tx:          #1A2033;
+  --tx-2:        #3D4A5C;
+  --tx-3:        #6B7A8E;
+  --tx-4:        #A0AABA;
+  /* Status */
+  --g:           #0A6B3C;   --g-50: #E6F7EE;
+  --a:           #A85000;   --a-50: #FFF4E6;
+  --r:           #C01E2E;   --r-50: #FFF0F2;
+  --s:           #4A5568;   --s-50: #EDF2F7;
+  --p:           #6B3FA0;   --p-50: #F5F0FF;
+  --cy:          #0A6B8A;   --cy-50:#E6F5FA;
+  /* Shadows */
+  --sh-sm:  0 1px 2px rgba(26,32,51,.04), 0 1px 3px rgba(26,32,51,.06);
+  --sh:     0 2px 8px rgba(26,32,51,.06), 0 1px 3px rgba(26,32,51,.04);
+  --sh-lg:  0 4px 16px rgba(26,32,51,.08), 0 2px 6px rgba(26,32,51,.04);
+  /* Mono */
+  --mono: 'JetBrains Mono', 'Cascadia Code', 'Fira Mono', monospace;
+  color-scheme: light;
+}
+/* Reset */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+  font-size: 13.5px;
+  line-height: 1.5;
+  background: var(--bg);
+  color: var(--tx);
+  -webkit-font-smoothing: antialiased;
+}
+button  { font-family: inherit; cursor: pointer; border: none; background: none; }
+input, select { font-family: inherit; font-size: 13px; }
+code { font-family: var(--mono); font-size: 12px; }
+
+/* ── LAYOUT ── */
+.app { display: flex; height: 100vh; overflow: hidden; }
+
+/* ── SIDEBAR ── */
+.sidebar {
+  width: 228px; min-width: 228px;
+  background: var(--surface);
+  border-right: 1px solid var(--bd);
+  display: flex; flex-direction: column;
+  overflow-y: auto; overflow-x: hidden;
+}
+.sb-brand {
+  display: flex; align-items: center; gap: 10px;
+  padding: 18px 16px 14px;
+  border-bottom: 1px solid var(--bd);
+  user-select: none;
+}
+.sb-logo {
+  width: 34px; height: 34px; border-radius: 9px;
+  background: var(--blue); color: #fff;
+  font-weight: 700; font-size: 13px; letter-spacing: -.3px;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+}
+.sb-name { font-size: 13.5px; font-weight: 700; color: var(--tx); line-height: 1.2; }
+.sb-sub  { font-size: 11px; color: var(--tx-3); margin-top: 1px; }
+.sb-section {
+  padding: 16px 16px 4px;
+  font-size: 10.5px; font-weight: 600;
+  color: var(--tx-4); letter-spacing: .07em; text-transform: uppercase;
+}
+.nav-item {
+  display: flex; align-items: center; gap: 9px;
+  margin: 1px 8px; padding: 7px 10px;
+  border-radius: 7px; cursor: pointer;
+  font-size: 13px; color: var(--tx-2);
+  transition: background .12s, color .12s;
+  user-select: none; border-left: 2px solid transparent;
+  position: relative;
+}
+.nav-item:hover { background: var(--surface-3); color: var(--tx); }
+.nav-item.active {
+  background: var(--blue-50); color: var(--blue);
+  font-weight: 600; border-left-color: var(--blue);
+}
+.nav-icon { font-size: 14px; width: 20px; text-align: center; flex-shrink: 0; }
+.nav-label { flex: 1; }
+.nav-pill {
+  font-size: 10px; font-weight: 700; min-width: 18px; height: 18px;
+  padding: 0 5px; border-radius: 9px; display: flex; align-items: center; justify-content: center;
+  background: var(--r); color: #fff;
+}
+.nav-pill.yellow { background: var(--a); }
+.sb-footer {
+  margin-top: auto; padding: 12px 16px;
+  font-size: 11px; color: var(--tx-4);
+  border-top: 1px solid var(--bd);
+}
+
+/* ── MAIN ── */
+.main { flex: 1; overflow-y: auto; display: flex; flex-direction: column; min-width: 0; }
+
+/* ── TOPBAR ── */
+.topbar {
+  position: sticky; top: 0; z-index: 50;
+  height: 52px; background: var(--surface);
+  border-bottom: 1px solid var(--bd);
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 24px; gap: 12px;
+}
+.tb-title { font-size: 15px; font-weight: 600; color: var(--tx); }
+.tb-actions { display: flex; align-items: center; gap: 8px; }
+.tb-clock {
+  font-family: var(--mono); font-size: 12px;
+  color: var(--tx-3); background: var(--surface-3);
+  padding: 4px 10px; border-radius: 6px;
+  border: 1px solid var(--bd);
+}
+
+/* ── CONTENT ── */
+.view { display: none; padding: 22px 24px; flex-direction: column; gap: 18px; }
+.view.active { display: flex; }
+
+/* ── BUTTONS ── */
+.btn {
+  display: inline-flex; align-items: center; gap: 5px;
+  padding: 6px 13px; border-radius: 7px;
+  font-size: 12.5px; font-weight: 500;
+  transition: all .12s; white-space: nowrap;
+}
+.btn-primary { background: var(--blue); color: #fff; box-shadow: var(--sh-sm); }
+.btn-primary:hover { background: var(--blue-h); }
+.btn-outline { background: var(--surface); color: var(--tx-2); border: 1px solid var(--bd-s); }
+.btn-outline:hover { background: var(--surface-3); color: var(--tx); }
+.btn-ghost  { background: transparent; color: var(--tx-3); }
+.btn-ghost:hover { background: var(--surface-3); color: var(--tx-2); }
+.btn-green  { background: var(--g); color: #fff; }
+.btn-green:hover { opacity: .88; }
+.btn-red    { background: var(--r); color: #fff; }
+.btn-red:hover { opacity: .88; }
+.btn-amber  { background: var(--a); color: #fff; }
+.btn-amber:hover { opacity: .88; }
+.btn-sm { padding: 4px 10px; font-size: 12px; border-radius: 6px; }
+.btn-row { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; }
+
+/* ── CARDS ── */
+.card {
+  background: var(--surface); border: 1px solid var(--bd);
+  border-radius: 10px; overflow: hidden; box-shadow: var(--sh-sm);
+}
+.card-head {
+  padding: 12px 16px; border-bottom: 1px solid var(--bd);
+  display: flex; align-items: center; justify-content: space-between; gap: 10px;
+  background: var(--surface);
+}
+.card-title { font-size: 13.5px; font-weight: 600; color: var(--tx); }
+.card-sub   { font-size: 11.5px; color: var(--tx-3); margin-top: 1px; }
+.card-body  { padding: 14px 16px; }
+
+/* ── KPI TILES ── */
+.kpi-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px; }
+.kpi {
+  background: var(--surface); border: 1px solid var(--bd);
+  border-radius: 10px; padding: 16px 18px; box-shadow: var(--sh-sm);
+  display: flex; flex-direction: column; gap: 2px;
+}
+.kpi-label { font-size: 11px; font-weight: 600; text-transform: uppercase;
+  letter-spacing: .07em; color: var(--tx-3); margin-bottom: 6px; }
+.kpi-num   { font-size: 28px; font-weight: 700; line-height: 1; color: var(--tx); font-variant-numeric: tabular-nums; }
+.kpi-num span { font-size: 14px; font-weight: 500; color: var(--tx-3); margin-left: 2px; }
+.kpi-meta  { font-size: 11.5px; color: var(--tx-3); margin-top: 5px; }
+.kpi-ok    { color: var(--g); }
+.kpi-warn  { color: var(--a); }
+.kpi-bad   { color: var(--r); }
+.kpi-blue  { color: var(--blue); }
+
+/* ── GRID LAYOUTS ── */
+.two-col   { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+.three-col { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+
+/* ── MACHINE CARDS ── */
+.machine-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(192px, 1fr)); gap: 10px; }
+.mcard {
+  background: var(--surface); border: 1.5px solid var(--bd);
+  border-radius: 10px; padding: 14px; cursor: pointer;
+  transition: border-color .15s, box-shadow .15s;
+  box-shadow: var(--sh-sm);
+}
+.mcard:hover { border-color: var(--bd-s); box-shadow: var(--sh); }
+.mcard.selected { border-color: var(--blue); box-shadow: 0 0 0 3px var(--blue-100); }
+.mcard-top { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 10px; }
+.mcard-name { font-size: 13.5px; font-weight: 600; color: var(--tx); }
+.mcard-id   { font-size: 11px; color: var(--tx-3); font-family: var(--mono); margin-top: 1px; }
+.oee-wrap { margin-top: 8px; }
+.oee-row  { display: flex; justify-content: space-between; align-items: center;
+  font-size: 11px; color: var(--tx-3); margin-bottom: 4px; }
+.oee-val  { font-weight: 600; font-size: 12px; }
+.oee-track { height: 5px; background: var(--surface-3); border-radius: 3px; overflow: hidden; border: 1px solid var(--bd); }
+.oee-fill  { height: 100%; border-radius: 3px; transition: width .4s; }
+.mcard-order { font-size: 11px; color: var(--tx-3); margin-top: 8px;
+  padding: 4px 8px; background: var(--surface-2);
+  border-radius: 5px; font-family: var(--mono); border: 1px solid var(--bd); }
+
+/* ── STATE BADGES ── */
+.badge {
+  display: inline-flex; align-items: center; gap: 5px;
+  padding: 2px 8px; border-radius: 5px;
+  font-size: 11px; font-weight: 600; white-space: nowrap;
+}
+.badge::before { content: ''; width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
+.b-idle         { background: var(--s-50); color: var(--s); }
+.b-idle::before         { background: var(--s); }
+.b-produciendo  { background: var(--g-50); color: var(--g); }
+.b-produciendo::before  { background: var(--g); }
+.b-falla        { background: var(--r-50); color: var(--r); }
+.b-falla::before        { background: var(--r); }
+.b-mantenimiento{ background: var(--a-50); color: var(--a); }
+.b-mantenimiento::before{ background: var(--a); }
+/* Generic badges */
+.b-blue   { background: var(--blue-50); color: var(--blue); }
+.b-green  { background: var(--g-50); color: var(--g); }
+.b-amber  { background: var(--a-50); color: var(--a); }
+.b-red    { background: var(--r-50); color: var(--r); }
+.b-purple { background: var(--p-50); color: var(--p); }
+.b-cyan   { background: var(--cy-50); color: var(--cy); }
+.b-slate  { background: var(--s-50); color: var(--s); }
+
+/* ── TABLE ── */
+.tbl-wrap { overflow-x: auto; }
+.tbl { width: 100%; border-collapse: collapse; font-size: 13px; }
+.tbl th {
+  background: var(--surface-2); padding: 8px 14px;
+  text-align: left; font-size: 10.5px; font-weight: 600;
+  color: var(--tx-3); text-transform: uppercase; letter-spacing: .07em;
+  border-bottom: 1px solid var(--bd); white-space: nowrap;
+}
+.tbl td {
+  padding: 9px 14px; border-bottom: 1px solid var(--bd);
+  color: var(--tx-2); vertical-align: middle;
+}
+.tbl tbody tr:last-child td { border-bottom: none; }
+.tbl tbody tr:hover td { background: var(--surface-2); }
+
+/* ── FORM ── */
+.form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.form-full  { grid-column: 1 / -1; }
+.f-label {
+  display: block; font-size: 11.5px; font-weight: 600;
+  color: var(--tx-2); margin-bottom: 5px;
+  text-transform: uppercase; letter-spacing: .04em;
+}
+.f-ctrl {
+  width: 100%; padding: 7px 10px;
+  background: var(--surface); border: 1.5px solid var(--bd);
+  border-radius: 7px; color: var(--tx); font-size: 13px;
+  outline: none; transition: border-color .12s;
+}
+.f-ctrl:focus { border-color: var(--blue); box-shadow: 0 0 0 3px var(--blue-100); }
+.f-ctrl::placeholder { color: var(--tx-4); }
+select.f-ctrl option { background: var(--surface); }
+
+/* ── SECTION HEADER ── */
+.sec-head {
+  display: flex; align-items: flex-start; justify-content: space-between; gap: 12px;
+  margin-bottom: 2px;
+}
+.sec-title { font-size: 15px; font-weight: 700; color: var(--tx); }
+.sec-sub   { font-size: 12px; color: var(--tx-3); margin-top: 2px; }
+
+/* ── ALERT LOG ── */
+.alert-row {
+  display: flex; align-items: flex-start; gap: 10px;
+  padding: 9px 0; border-bottom: 1px solid var(--bd);
+}
+.alert-row:last-child { border-bottom: none; }
+.alert-dot { width: 8px; height: 8px; border-radius: 50%; margin-top: 4px; flex-shrink: 0; }
+.a-red    { background: var(--r); }
+.a-amber  { background: var(--a); }
+.a-green  { background: var(--g); }
+.a-blue   { background: var(--blue); }
+.alert-msg { flex: 1; font-size: 12.5px; color: var(--tx-2); }
+.alert-ts  { font-size: 11px; font-family: var(--mono); color: var(--tx-4); white-space: nowrap; }
+
+/* ── CMD LOG ── */
+.cmd-row {
+  display: flex; align-items: center; gap: 8px;
+  padding: 7px 10px; border-radius: 7px;
+  background: var(--surface-2); margin-bottom: 5px;
+  border: 1px solid var(--bd); font-size: 12.5px;
+}
+.cmd-icon { color: var(--tx-3); font-size: 13px; width: 16px; text-align: center; }
+.cmd-text { flex: 1; color: var(--tx-2); }
+.cmd-ts   { font-family: var(--mono); font-size: 11px; color: var(--tx-4); }
+
+/* ── CHAIN STEPS ── */
+.chain-step {
+  display: flex; align-items: flex-start; gap: 10px;
+  padding: 8px 12px; border-radius: 7px; margin-bottom: 6px;
+  font-size: 12.5px; border: 1px solid;
+}
+.cs-pass { background: var(--g-50); border-color: #A7DFC0; color: var(--g); }
+.cs-fail { background: var(--r-50); border-color: #FFBCC5; color: var(--r); }
+.cs-icon { font-size: 14px; flex-shrink: 0; margin-top: 1px; }
+.cs-name { font-weight: 600; }
+.cs-msg  { font-size: 11.5px; opacity: .8; margin-top: 1px; }
+
+/* ── INSPECTION STEPS ── */
+.insp-step {
+  background: var(--surface-2); border: 1px solid var(--bd);
+  border-radius: 7px; padding: 10px 12px; margin-bottom: 6px;
+}
+.insp-step-label { font-size: 10.5px; font-weight: 600; color: var(--tx-3);
+  text-transform: uppercase; letter-spacing: .07em; margin-bottom: 3px; }
+.insp-step-val { font-size: 12.5px; color: var(--tx-2); }
+
+/* ── MEDIATOR MSGS ── */
+.med-msg {
+  padding: 8px 12px; border-left: 3px solid var(--blue-100);
+  margin-bottom: 6px; border-radius: 0 7px 7px 0;
+  background: var(--surface-2);
+}
+.med-from { font-size: 10.5px; font-weight: 700; color: var(--blue); letter-spacing: .04em; }
+.med-text { font-size: 12.5px; color: var(--tx-2); margin-top: 1px; }
+
+/* ── PROGRESS ── */
+.prog-wrap { background: var(--surface-3); border-radius: 4px; height: 7px; overflow: hidden; border: 1px solid var(--bd); }
+.prog-bar  { height: 100%; border-radius: 4px; transition: width .3s; }
+
+/* ── SNAP LIST ── */
+.snap-item {
+  padding: 10px 12px; background: var(--surface-2);
+  border: 1px solid var(--bd); border-radius: 8px; margin-bottom: 6px;
+}
+.snap-label { font-size: 12.5px; font-weight: 600; color: var(--tx-2); margin-bottom: 3px; }
+.snap-meta  { font-size: 11.5px; color: var(--tx-3); }
+
+/* ── RULE ITEM ── */
+.rule-row {
+  display: flex; align-items: center; gap: 10px;
+  padding: 10px 0; border-bottom: 1px solid var(--bd);
+}
+.rule-row:last-child { border-bottom: none; }
+.rule-name { font-size: 12.5px; font-weight: 500; color: var(--tx); }
+.rule-desc { font-size: 11.5px; color: var(--tx-3); margin-top: 1px; }
+
+/* ── EMPTY STATE ── */
+.empty { text-align: center; padding: 32px 16px; color: var(--tx-4); font-size: 13px; }
+
+/* ── MODAL ── */
+.modal-bg {
+  position: fixed; inset: 0; background: rgba(26,32,51,.5);
+  backdrop-filter: blur(4px); z-index: 1000;
+  display: flex; align-items: center; justify-content: center; padding: 20px;
+}
+.modal-bg[hidden] { display: none !important; }
+.modal {
+  background: var(--surface); border: 1px solid var(--bd);
+  border-radius: 12px; padding: 22px; width: 100%;
+  max-width: 500px; max-height: 90vh; overflow-y: auto;
+  box-shadow: var(--sh-lg);
+}
+.modal-title { font-size: 15px; font-weight: 700; color: var(--tx); margin-bottom: 18px; }
+.modal-foot  { display: flex; gap: 8px; justify-content: flex-end; margin-top: 18px; }
+.divider     { height: 1px; background: var(--bd); margin: 14px 0; }
+
+/* ── TOAST ── */
+#toast { position: fixed; bottom: 22px; right: 22px; z-index: 9999; display: flex; flex-direction: column; gap: 8px; pointer-events: none; }
+.toast {
+  background: var(--tx); color: #fff; border-radius: 8px;
+  padding: 10px 14px; font-size: 12.5px; max-width: 300px;
+  box-shadow: var(--sh-lg); pointer-events: all;
+  animation: tIn .18s ease;
+}
+.toast.t-green  { background: #0D6B40; }
+.toast.t-red    { background: #C01E2E; }
+.toast.t-amber  { background: #A85000; }
+.toast.t-blue   { background: var(--blue); }
+@keyframes tIn { from { transform: translateY(8px); opacity: 0; } to { transform: none; opacity: 1; } }
+
+/* ── RESPONSIVE ── */
+@media(max-width:768px) {
+  .sidebar { width: 48px; min-width: 48px; }
+  .sb-brand, .sb-section, .nav-label, .sb-footer { display: none; }
+  .nav-item { justify-content: center; padding: 10px; border-left: none !important; }
+  .two-col, .three-col, .form-grid { grid-template-columns: 1fr; }
+  .kpi-row { grid-template-columns: 1fr 1fr; }
+}
+</style>
+
+<!-- ═══════════ APP STRUCTURE ═══════════ -->
+<div class="app">
+  <!-- SIDEBAR -->
+  <nav class="sidebar">
+    <div class="sb-brand">
+      <div class="sb-logo">FV</div>
+      <div>
+        <div class="sb-name">FábricaViva</div>
+        <div class="sb-sub">Sistema MES v1.0</div>
+      </div>
+    </div>
+
+    <div class="sb-section">Principal</div>
+    <div class="nav-item active" data-view="dashboard">
+      <span class="nav-icon">◧</span>
+      <span class="nav-label">Dashboard</span>
+    </div>
+    <div class="nav-item" data-view="ordenes">
+      <span class="nav-icon">≡</span>
+      <span class="nav-label">Órdenes</span>
+      <span class="nav-pill" id="pill-ordenes" hidden>0</span>
+    </div>
+    <div class="nav-item" data-view="maquinas">
+      <span class="nav-icon">⚙</span>
+      <span class="nav-label">Máquinas</span>
+    </div>
+
+    <div class="sb-section">Producción</div>
+    <div class="nav-item" data-view="calidad">
+      <span class="nav-icon">◎</span>
+      <span class="nav-label">Calidad</span>
+    </div>
+    <div class="nav-item" data-view="lotes">
+      <span class="nav-icon">▣</span>
+      <span class="nav-label">Lotes</span>
+    </div>
+    <div class="nav-item" data-view="planificacion">
+      <span class="nav-icon">▤</span>
+      <span class="nav-label">Planificación</span>
+    </div>
+
+    <div class="sb-section">Sistema</div>
+    <div class="nav-item" data-view="alertas">
+      <span class="nav-icon">◉</span>
+      <span class="nav-label">Alertas</span>
+      <span class="nav-pill yellow" id="pill-alertas" hidden>0</span>
+    </div>
+    <div class="nav-item" data-view="config">
+      <span class="nav-icon">⊕</span>
+      <span class="nav-label">Configuración</span>
+    </div>
+
+    <div class="sb-footer">FábricaViva MES · Planta Norte</div>
+  </nav>
+
+  <!-- MAIN -->
+  <div class="main">
+    <div class="topbar">
+      <div class="tb-title" id="tb-title">Dashboard</div>
+      <div class="tb-actions">
+        <div class="tb-clock" id="clock">00:00:00</div>
+        <button class="btn btn-outline btn-sm" onclick="undoLast()">↩ Deshacer</button>
+        <button class="btn btn-primary btn-sm" onclick="openModal('modal-orden')">+ Nueva Orden</button>
+      </div>
+    </div>
+
+    <!-- DASHBOARD -->
+    <div class="view active" id="view-dashboard">
+      <div class="kpi-row" id="kpi-row"></div>
+      <div class="two-col">
+        <div class="card">
+          <div class="card-head">
+            <div>
+              <div class="card-title">Estado de Máquinas</div>
+              <div class="card-sub">Flota activa de producción</div>
+            </div>
+            <span id="dash-oee" class="badge b-blue">OEE —%</span>
+          </div>
+          <div class="card-body">
+            <div class="machine-grid" id="dash-machines"></div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-head">
+            <div class="card-title">Actividad Reciente</div>
+          </div>
+          <div class="card-body" id="activity-log" style="max-height:340px;overflow-y:auto"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ÓRDENES -->
+    <div class="view" id="view-ordenes">
+      <div class="sec-head">
+        <div>
+          <div class="sec-title">Órdenes de Producción</div>
+          <div class="sec-sub">Validación por cadena de responsabilidad · Acciones reversibles mediante Command</div>
+        </div>
+        <button class="btn btn-primary btn-sm" onclick="openModal('modal-orden')">+ Nueva Orden</button>
+      </div>
+      <div class="card">
+        <div class="card-head">
+          <div class="card-title">Historial de Comandos</div>
+          <span class="badge b-slate" id="cmd-count">0 acciones</span>
+        </div>
+        <div class="card-body" id="cmd-log" style="max-height:110px;overflow-y:auto"></div>
+      </div>
+      <div class="card">
+        <div class="card-head">
+          <div class="card-title">Órdenes</div>
+          <select id="filter-estado" onchange="renderOrdenes()" class="f-ctrl" style="width:140px;padding:4px 8px;font-size:12px">
+            <option value="">Todos los estados</option>
+            <option value="PENDIENTE">Pendiente</option>
+            <option value="EN_PROCESO">En proceso</option>
+            <option value="COMPLETADA">Completada</option>
+            <option value="RECHAZADA">Rechazada</option>
+          </select>
+        </div>
+        <div class="tbl-wrap">
+          <table class="tbl">
+            <thead><tr><th>Referencia</th><th>Producto</th><th>Cant.</th><th>Prioridad</th><th>Estado</th><th>Máquina</th><th>Acciones</th></tr></thead>
+            <tbody id="tbl-ordenes"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- MÁQUINAS -->
+    <div class="view" id="view-maquinas">
+      <div class="sec-head">
+        <div>
+          <div class="sec-title">Máquinas y Equipos</div>
+          <div class="sec-sub">Ciclo de vida de máquina gestionado con State Pattern · IDLE → PRODUCIENDO → FALLA → MANTENIMIENTO → IDLE</div>
+        </div>
+      </div>
+      <div class="machine-grid" id="machine-grid"></div>
+      <div class="card" id="machine-panel" hidden>
+        <div class="card-head">
+          <div>
+            <div class="card-title" id="mp-title">—</div>
+            <div class="card-sub" id="mp-sub">Selecciona una máquina</div>
+          </div>
+        </div>
+        <div class="card-body">
+          <div class="two-col">
+            <div>
+              <div class="f-label" style="margin-bottom:8px">Transiciones de Estado</div>
+              <div class="btn-row" style="margin-bottom:16px">
+                <button class="btn btn-green btn-sm" onclick="machineAction('iniciar')">▶ Iniciar</button>
+                <button class="btn btn-outline btn-sm" onclick="machineAction('pausar')">⏸ Pausar</button>
+                <button class="btn btn-red btn-sm" onclick="machineAction('falla')">⚠ Falla</button>
+                <button class="btn btn-amber btn-sm" onclick="machineAction('mantenimiento')">✓ Completar Mto.</button>
+              </div>
+              <div class="f-label">Ajuste OEE Manual</div>
+              <div style="display:flex;gap:10px;align-items:center;margin-top:6px">
+                <input type="range" id="oee-slider" min="0" max="100" style="flex:1" oninput="updateOee(this.value)">
+                <span id="oee-val" style="font-family:var(--mono);font-size:13px;width:38px;text-align:right;color:var(--tx-2)">85%</span>
+              </div>
+            </div>
+            <div>
+              <div class="f-label">Historial de Transiciones</div>
+              <div id="state-history" style="margin-top:8px"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- CALIDAD -->
+    <div class="view" id="view-calidad">
+      <div class="sec-head">
+        <div>
+          <div class="sec-title">Control de Calidad</div>
+          <div class="sec-sub">Protocolo de inspección con Template Method · Criterios de aceptación por tipo</div>
+        </div>
+      </div>
+      <div class="two-col">
+        <div class="card">
+          <div class="card-head"><div class="card-title">Lotes Pendientes de Inspección</div></div>
+          <div class="card-body" id="lotes-inspeccion"></div>
+        </div>
+        <div class="card">
+          <div class="card-head"><div class="card-title">Ejecutar Inspección</div></div>
+          <div class="card-body">
+            <div style="display:flex;flex-direction:column;gap:11px">
+              <div>
+                <label class="f-label">Lote</label>
+                <select id="insp-lote" class="f-ctrl"></select>
+              </div>
+              <div>
+                <label class="f-label">Tipo de Inspección</label>
+                <select id="insp-tipo" class="f-ctrl">
+                  <option value="DIMENSIONAL">Dimensional — criterio &lt; 3% defectos</option>
+                  <option value="VISUAL">Visual — criterio &lt; 5% defectos</option>
+                </select>
+              </div>
+              <div>
+                <label class="f-label">Muestras</label>
+                <input type="number" id="insp-muestras" value="100" min="10" max="500" class="f-ctrl">
+              </div>
+              <button class="btn btn-primary" style="width:100%;justify-content:center" onclick="ejecutarInspeccion()">▶ Ejecutar inspección</button>
+            </div>
+            <div id="insp-result" style="margin-top:14px"></div>
+          </div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-head"><div class="card-title">Resultados de Inspección</div></div>
+        <div class="tbl-wrap">
+          <table class="tbl">
+            <thead><tr><th>Lote</th><th>Tipo</th><th>Muestras</th><th>Defectos</th><th>Tasa</th><th>Resultado</th><th>Hora</th></tr></thead>
+            <tbody id="tbl-insp"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- LOTES -->
+    <div class="view" id="view-lotes">
+      <div class="sec-head">
+        <div>
+          <div class="sec-title">Lotes de Producción</div>
+          <div class="sec-sub">Recorrido mediante Iterator — alterna entre orden FIFO y por prioridad</div>
+        </div>
+        <div class="btn-row">
+          <button class="btn btn-outline btn-sm" id="btn-fifo" onclick="setIterador('FIFO')">FIFO</button>
+          <button class="btn btn-primary btn-sm" id="btn-prio" onclick="setIterador('PRIORIDAD')">Por Prioridad</button>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-head">
+          <div class="card-title" id="lotes-label">Orden FIFO</div>
+          <span class="badge b-blue" id="lotes-count">—</span>
+        </div>
+        <div class="tbl-wrap">
+          <table class="tbl">
+            <thead><tr><th>#</th><th>ID Lote</th><th>Producto</th><th>Cant.</th><th>Prioridad</th><th>Estado</th><th>Avance</th></tr></thead>
+            <tbody id="tbl-lotes"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- PLANIFICACIÓN -->
+    <div class="view" id="view-planificacion">
+      <div class="sec-head">
+        <div>
+          <div class="sec-title">Planificación de Órdenes</div>
+          <div class="sec-sub">Estrategia intercambiable en tiempo de ejecución — Strategy Pattern</div>
+        </div>
+      </div>
+      <div class="card" style="margin-bottom:0">
+        <div class="card-body">
+          <div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap">
+            <div>
+              <div class="f-label" style="margin-bottom:7px">Estrategia activa</div>
+              <div class="btn-row">
+                <button class="btn btn-primary btn-sm" id="strat-fifo" onclick="setEstrategia('FIFO')">FIFO</button>
+                <button class="btn btn-outline btn-sm" id="strat-prio" onclick="setEstrategia('PRIORIDAD')">Alta Prioridad</button>
+                <button class="btn btn-outline btn-sm" id="strat-vol" onclick="setEstrategia('VOLUMEN')">Mayor Volumen</button>
+              </div>
+            </div>
+            <div style="margin-left:auto;font-size:12.5px;color:var(--tx-3)" id="strat-desc">Las órdenes se procesan en el orden en que llegaron.</div>
+          </div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-head">
+          <div class="card-title">Cola de producción</div>
+          <span class="badge b-blue" id="plan-count">—</span>
+        </div>
+        <div class="tbl-wrap">
+          <table class="tbl">
+            <thead><tr><th>Pos.</th><th>Referencia</th><th>Producto</th><th>Cant.</th><th>Prioridad</th><th>Estado</th></tr></thead>
+            <tbody id="tbl-plan"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ALERTAS -->
+    <div class="view" id="view-alertas">
+      <div class="sec-head">
+        <div>
+          <div class="sec-title">Alertas y Monitoreo</div>
+          <div class="sec-sub">Observer + Interpreter para evaluación de reglas · Mediator para comunicación entre módulos</div>
+        </div>
+      </div>
+      <div class="two-col">
+        <div class="card">
+          <div class="card-head">
+            <div class="card-title">Reglas de Alerta</div>
+            <button class="btn btn-outline btn-sm" onclick="evaluarReglas()">▶ Evaluar ahora</button>
+          </div>
+          <div class="card-body" id="reglas-list"></div>
+        </div>
+        <div class="card">
+          <div class="card-head">
+            <div class="card-title">Canal Central MES</div>
+            <button class="btn btn-ghost btn-sm" onclick="S.mediadorLog=[];renderMediador()">Limpiar</button>
+          </div>
+          <div class="card-body" id="mediador-log" style="max-height:270px;overflow-y:auto"></div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-head">
+          <div class="card-title">Registro de Alertas</div>
+          <button class="btn btn-ghost btn-sm" onclick="S.alertas=[];renderAlertas();renderPills()">Limpiar</button>
+        </div>
+        <div class="card-body" id="alertas-log" style="max-height:280px;overflow-y:auto"></div>
+      </div>
+    </div>
+
+    <!-- CONFIG -->
+    <div class="view" id="view-config">
+      <div class="sec-head">
+        <div>
+          <div class="sec-title">Configuración del Turno</div>
+          <div class="sec-sub">Memento — guarda snapshots del turno y permite restaurar configuraciones previas</div>
+        </div>
+      </div>
+      <div class="two-col">
+        <div class="card">
+          <div class="card-head"><div class="card-title">Parámetros del Turno Activo</div></div>
+          <div class="card-body">
+            <div class="form-grid">
+              <div>
+                <label class="f-label">Turno</label>
+                <select id="cfg-turno" class="f-ctrl">
+                  <option>MAÑANA</option><option>TARDE</option><option>NOCHE</option>
+                </select>
+              </div>
+              <div>
+                <label class="f-label">Meta OEE (%)</label>
+                <input type="number" id="cfg-oee" min="50" max="100" value="85" class="f-ctrl">
+              </div>
+              <div>
+                <label class="f-label">Capacidad máx. (ud.)</label>
+                <input type="number" id="cfg-cap" min="50" max="1000" value="300" class="f-ctrl">
+              </div>
+              <div>
+                <label class="f-label">Stock disponible (ud.)</label>
+                <input type="number" id="cfg-stock" min="0" max="5000" value="1000" class="f-ctrl">
+              </div>
+              <div class="form-full btn-row">
+                <button class="btn btn-primary" onclick="guardarConfig()">💾 Guardar checkpoint</button>
+                <button class="btn btn-outline" onclick="deshacerConfig()">↩ Restaurar anterior</button>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-head">
+            <div class="card-title">Historial de Snapshots</div>
+            <span class="badge b-slate" id="snap-count">0 guardados</span>
+          </div>
+          <div class="card-body" id="snap-list" style="max-height:270px;overflow-y:auto"></div>
+        </div>
+      </div>
+    </div>
+  </div><!-- /main -->
+</div><!-- /app -->
+
+<!-- TOAST -->
+<div id="toast"></div>
+
+<!-- MODAL NUEVA ORDEN -->
+<div class="modal-bg" id="modal-orden" hidden>
+  <div class="modal">
+    <div class="modal-title">Nueva Orden de Producción</div>
+    <div class="form-grid">
+      <div>
+        <label class="f-label">Referencia</label>
+        <input id="f-ref" class="f-ctrl" placeholder="OP-XXX">
+      </div>
+      <div>
+        <label class="f-label">Producto</label>
+        <input id="f-prod" class="f-ctrl" placeholder="Nombre del producto">
+      </div>
+      <div>
+        <label class="f-label">Cantidad (unidades)</label>
+        <input id="f-cant" type="number" min="1" value="50" class="f-ctrl">
+      </div>
+      <div>
+        <label class="f-label">Prioridad</label>
+        <select id="f-prio" class="f-ctrl">
+          <option value="ALTA">ALTA</option>
+          <option value="NORMAL" selected>NORMAL</option>
+          <option value="BAJA">BAJA</option>
+        </select>
+      </div>
+    </div>
+    <div id="chain-steps" style="margin-top:14px;display:none">
+      <div class="divider"></div>
+      <div class="f-label" style="margin-bottom:8px">Validación — Cadena de Responsabilidad</div>
+      <div id="chain-inner"></div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-outline" onclick="closeModal('modal-orden')">Cancelar</button>
+      <button class="btn btn-primary" onclick="crearOrden()">Validar y crear</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL FALLA -->
+<div class="modal-bg" id="modal-falla" hidden>
+  <div class="modal">
+    <div class="modal-title">Reporte de Falla</div>
+    <div>
+      <label class="f-label">Descripción de la falla</label>
+      <input id="f-falla" class="f-ctrl" placeholder="Ej: Falla hidráulica en eje Z">
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-outline" onclick="closeModal('modal-falla')">Cancelar</button>
+      <button class="btn btn-red" onclick="confirmarFalla()">⚠ Confirmar falla</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════ JAVASCRIPT — GoF PATTERNS ═══════════ -->
+<script>
+'use strict';
+
+/* ── OBSERVER / EventBus ── */
+class EventBus {
+  constructor() { this._h = {}; }
+  on(ev, fn) { (this._h[ev] = this._h[ev]||[]).push(fn); return this; }
+  emit(ev, d) { (this._h[ev]||[]).forEach(fn => fn(d)); }
+}
+const BUS = new EventBus();
+
+/* ── STATE (ContextoMaquina) ── */
+class ContextoMaquina {
+  constructor(id, nombre, oee) {
+    this.id = id; this.nombre = nombre; this.oee = oee;
+    this.estado = 'IDLE'; this.causa = null;
+    this.ordenActual = null; this.historial = [];
+    this.costoHora = 80 + (Math.random()*120|0);
+  }
+  _t(nuevo) {
+    this.historial.push({de: this.estado, a: nuevo, ts: new Date().toLocaleTimeString()});
+    if(this.historial.length>8) this.historial.shift();
+    this.estado = nuevo;
+    BUS.emit('machine:change', {id: this.id});
+  }
+  iniciar(ref) {
+    if(this.estado !== 'IDLE') return false;
+    this._t('PRODUCIENDO'); this.ordenActual = ref;
+    BUS.emit('mediador', {de:'PRODUCCIÓN', msg:`${this.nombre} inició producción: ${ref}`});
+    return true;
+  }
+  pausar() {
+    if(this.estado !== 'PRODUCIENDO') return false;
+    this._t('IDLE'); this.ordenActual = null; return true;
+  }
+  reportarFalla(causa) {
+    if(this.estado !== 'PRODUCIENDO') return false;
+    this._t('FALLA'); this.causa = causa;
+    BUS.emit('alerta', {tipo:'red', msg:`FALLA en ${this.nombre}: ${causa}`});
+    BUS.emit('mediador', {de:'MANTENIMIENTO', msg:`⚠ Falla reportada en ${this.nombre}: ${causa}`});
+    return true;
+  }
+  iniciarMto() {
+    if(this.estado !== 'FALLA') return false;
+    this._t('MANTENIMIENTO');
+    BUS.emit('mediador', {de:'MANTENIMIENTO', msg:`Técnico asignado a ${this.nombre}`});
+    return true;
+  }
+  completarMto() {
+    if(this.estado !== 'MANTENIMIENTO') return false;
+    this._t('IDLE'); this.causa = null;
+    BUS.emit('alerta', {tipo:'green', msg:`${this.nombre} restaurada — operativa`});
+    BUS.emit('mediador', {de:'MANTENIMIENTO', msg:`${this.nombre} completó mantenimiento — operativa`});
+    return true;
+  }
+  setOee(v) {
+    this.oee = v;
+    if(v < 0.70) BUS.emit('alerta', {tipo:'amber', msg:`OEE bajo en ${this.nombre}: ${(v*100).toFixed(0)}%`});
+    BUS.emit('machine:change', {id: this.id});
+  }
+}
+
+/* ── VISITOR ── */
+class VisitanteOee {
+  constructor() { this._v = []; }
+  visitarMaquina(m) { this._v.push(m.oee); }
+  oeePromedio() { return this._v.length ? this._v.reduce((a,b)=>a+b,0)/this._v.length : 0; }
+}
+class VisitanteCostos {
+  constructor() { this.total = 0; }
+  visitarMaquina(m) { if(m.estado==='PRODUCIENDO') this.total += m.costoHora; }
+}
+
+/* ── COMMAND ── */
+class GestorComandos {
+  constructor() { this.historial = []; }
+  ejecutar(cmd) {
+    const ok = cmd.ejecutar();
+    if(ok !== false) { this.historial.push(cmd); BUS.emit('cmd', cmd); }
+    return ok;
+  }
+  deshacer() {
+    if(!this.historial.length) { toast('No hay acciones para deshacer', 'amber'); return; }
+    const cmd = this.historial.pop();
+    cmd.deshacer();
+    BUS.emit('cmd:undo', cmd);
+    toast(`Deshecho: ${cmd.desc}`, 'amber');
+    renderAll();
+  }
+}
+class CmdIniciarOrden {
+  constructor(o, m) { this.o=o; this.m=m; this.desc=`Iniciar ${o.ref} en ${m.nombre}`; }
+  ejecutar() {
+    if(!this.m.iniciar(this.o.ref)) return false;
+    this.o.estado='EN_PROCESO'; this.o.maquinaId=this.m.id; return true;
+  }
+  deshacer() { this.m.pausar(); this.o.estado='PENDIENTE'; this.o.maquinaId=null; }
+}
+class CmdCompletarOrden {
+  constructor(o) { this.o=o; this.m=S.maquinas.find(m=>m.id===o.maquinaId); this.desc=`Completar ${o.ref}`; }
+  ejecutar() { if(this.m) this.m.pausar(); this.o.estado='COMPLETADA'; return true; }
+  deshacer() { this.o.estado='EN_PROCESO'; if(this.m) this.m.iniciar(this.o.ref); }
+}
+
+/* ── CHAIN OF RESPONSIBILITY ── */
+function validarOrden(orden, cfg) {
+  const steps = [];
+  if(orden.cantidad > cfg.stock) {
+    steps.push({n:'ValidadorStock', ok:false, m:`Stock insuficiente — pedido ${orden.cantidad}, disponible ${cfg.stock}`});
+    return {ok:false, steps, razon:'Stock insuficiente'};
+  }
+  steps.push({n:'ValidadorStock', ok:true, m:`Stock suficiente — disponible: ${cfg.stock} ud`});
+  if(orden.cantidad > cfg.capacidad) {
+    steps.push({n:'ValidadorCapacidad', ok:false, m:`Capacidad superada — máx: ${cfg.capacidad} ud por turno`});
+    return {ok:false, steps, razon:'Capacidad de turno superada'};
+  }
+  steps.push({n:'ValidadorCapacidad', ok:true, m:`Capacidad OK — máx: ${cfg.capacidad} ud`});
+  const activas = S.maquinas.filter(m=>m.estado==='PRODUCIENDO').length;
+  if(activas >= 4 && orden.prioridad === 'BAJA') {
+    steps.push({n:'ValidadorPrioridad', ok:false, m:`Planta saturada (${activas}/5) — solo NORMAL o ALTA permitidas`});
+    return {ok:false, steps, razon:'Planta saturada — prioridad insuficiente'};
+  }
+  steps.push({n:'ValidadorPrioridad', ok:true, m:`Prioridad aceptada — ${activas}/5 máquinas activas`});
+  return {ok:true, steps};
+}
+
+/* ── STRATEGY ── */
+const ESTRATEGIAS = {
+  FIFO:      { nombre:'FIFO', desc:'Las órdenes se procesan en el orden en que llegaron al sistema.', fn: a => [...a] },
+  PRIORIDAD: { nombre:'Alta Prioridad', desc:'Las órdenes ALTA primero, luego NORMAL, luego BAJA.', fn: a => [...a].sort((x,y)=>({'ALTA':0,'NORMAL':1,'BAJA':2})[x.prioridad]-({'ALTA':0,'NORMAL':1,'BAJA':2})[y.prioridad]) },
+  VOLUMEN:   { nombre:'Mayor Volumen', desc:'Las órdenes de mayor cantidad se procesan primero.', fn: a => [...a].sort((x,y)=>y.cantidad-x.cantidad) },
+};
+
+/* ── ITERATOR ── */
+const iterarFifo     = lotes => [...lotes];
+const iterarPrioridad = lotes => [...lotes].sort((a,b)=>a.prioridad-b.prioridad);
+
+/* ── TEMPLATE METHOD ── */
+function inspeccionarLote(loteId, tipo, muestras, seed) {
+  const rng = (()=>{ let s=seed||Date.now(); return ()=>{ s=(s*1664525+1013904223)&0xffffffff; return (s>>>0)/0x100000000; }; })();
+  const tasa = tipo==='DIMENSIONAL' ? 0.015+rng()*0.04 : 0.02+rng()*0.06;
+  const defectos = Math.round(muestras*tasa);
+  const umbral = tipo==='DIMENSIONAL' ? 0.03 : 0.05;
+  const aprobado = tasa < umbral;
+  return {
+    loteId, tipo, muestras, defectos, tasa, aprobado,
+    pasos: [
+      {n:'Preparar instrumentos', v: tipo==='DIMENSIONAL'?'Calibre digital + micrómetro':'Cámara + luz LED'},
+      {n:'Contar defectos', v:`${defectos} defectos en ${muestras} muestras (${(tasa*100).toFixed(1)}%)`},
+      {n:'Evaluar criterio', v:`Umbral ${(umbral*100)}% → ${aprobado?'APROBADO':'RECHAZADO'} (${(tasa*100).toFixed(1)}%)`},
+      {n:'Registrar resultado', v:`Bitácora actualizada — ${new Date().toLocaleTimeString()}`},
+    ],
+    fecha: new Date().toLocaleTimeString()
+  };
+}
+
+/* ── INTERPRETER ── */
+const REGLAS = [
+  {id:1, n:'OEE global bajo',           d:'OEE promedio de la flota < 70%',    f:()=>{ const v=new VisitanteOee(); S.maquinas.forEach(m=>v.visitarMaquina(m)); return v.oeePromedio()<0.70; }},
+  {id:2, n:'Máquina en falla',          d:'Al menos una máquina en estado FALLA', f:()=>S.maquinas.some(m=>m.estado==='FALLA')},
+  {id:3, n:'Stock crítico',             d:'Stock disponible < 200 unidades',   f:()=>S.turno.stock<200},
+  {id:4, n:'Planta saturada',           d:'4 o más máquinas en producción',    f:()=>S.maquinas.filter(m=>m.estado==='PRODUCIENDO').length>=4},
+  {id:5, n:'Cola de pendientes alta',   d:'Más de 5 órdenes PENDIENTE',        f:()=>S.ordenes.filter(o=>o.estado==='PENDIENTE').length>5},
+];
+
+/* ── MEMENTO ── */
+class HistorialTurnos {
+  constructor() { this.pila=[]; }
+  guardar(cfg) { this.pila.push(JSON.parse(JSON.stringify(cfg))); }
+  deshacer(cfg) {
+    if(!this.pila.length) { toast('No hay checkpoints guardados','amber'); return false; }
+    Object.assign(cfg, this.pila.pop()); return true;
+  }
+}
+
+/* ═══ STATE ═══ */
+const gestor = new GestorComandos();
+const historial = new HistorialTurnos();
+let selectedMachine = null;
+let iteradorActual  = 'FIFO';
+let estrategiaActual = 'FIFO';
+
+const S = {
+  maquinas: [
+    new ContextoMaquina('CNC-01','CNC-01',0.88),
+    new ContextoMaquina('CNC-02','CNC-02',0.76),
+    new ContextoMaquina('CNC-03','CNC-03',0.91),
+    new ContextoMaquina('TORN-01','TORN-01',0.82),
+    new ContextoMaquina('SOLD-01','SOLD-01',0.69),
+  ],
+  ordenes: [
+    {id:1,ref:'OP-001',producto:'Engranaje Z32',         cantidad:200,prioridad:'ALTA',  estado:'EN_PROCESO', maquinaId:'CNC-01'},
+    {id:2,ref:'OP-002',producto:'Eje de Transmisión',    cantidad:50, prioridad:'NORMAL',estado:'PENDIENTE',  maquinaId:null},
+    {id:3,ref:'OP-003',producto:'Placa Base Hidráulica', cantidad:300,prioridad:'BAJA',  estado:'PENDIENTE',  maquinaId:null},
+    {id:4,ref:'OP-004',producto:'Rodamiento 6204',       cantidad:500,prioridad:'ALTA',  estado:'EN_PROCESO', maquinaId:'TORN-01'},
+    {id:5,ref:'OP-005',producto:'Válvula de Control',    cantidad:80, prioridad:'NORMAL',estado:'COMPLETADA', maquinaId:null},
+    {id:6,ref:'OP-006',producto:'Pistón Neumático',      cantidad:120,prioridad:'BAJA',  estado:'PENDIENTE',  maquinaId:null},
+  ],
+  lotes: [
+    {id:'L001',producto:'Engranaje Z32',cantidad:200,prioridad:1,estado:'EN_INSPECCION',avance:65},
+    {id:'L002',producto:'Eje de Transmisión',cantidad:50,prioridad:2,estado:'PENDIENTE',avance:0},
+    {id:'L003',producto:'Rodamiento 6204',cantidad:500,prioridad:1,estado:'APROBADO',avance:100},
+    {id:'L004',producto:'Válvula de Control',cantidad:80,prioridad:3,estado:'PENDIENTE',avance:0},
+    {id:'L005',producto:'Pistón Neumático',cantidad:120,prioridad:2,estado:'RECHAZADO',avance:0},
+    {id:'L006',producto:'Placa Base',cantidad:300,prioridad:1,estado:'PENDIENTE',avance:0},
+  ],
+  inspecciones: [],
+  alertas: [],
+  mediadorLog: [],
+  cmdLog: [],
+  turno: {turno:'MAÑANA', oee:85, capacidad:300, stock:1000},
+  _id: 7,
+};
+
+// Init machines
+S.maquinas[0].iniciar('OP-001');
+S.maquinas[3].iniciar('OP-004');
+
+/* ═══ OBSERVER BINDINGS ═══ */
+BUS.on('alerta', ({tipo,msg}) => {
+  S.alertas.unshift({tipo,msg,ts:new Date().toLocaleTimeString()});
+  if(S.alertas.length>50) S.alertas.pop();
+  renderPills();
+  addActivity(msg, tipo);
+  if(document.getElementById('view-alertas').classList.contains('active')) renderAlertas();
+});
+BUS.on('mediador', ({de,msg}) => {
+  S.mediadorLog.unshift({de,msg,ts:new Date().toLocaleTimeString()});
+  if(S.mediadorLog.length>40) S.mediadorLog.pop();
+  if(document.getElementById('view-alertas').classList.contains('active')) renderMediador();
+});
+BUS.on('cmd', cmd => { S.cmdLog.unshift({d:cmd.desc,ts:new Date().toLocaleTimeString(),u:false}); if(S.cmdLog.length>20) S.cmdLog.pop(); });
+BUS.on('cmd:undo', cmd => { S.cmdLog.unshift({d:'↩ '+cmd.desc,ts:new Date().toLocaleTimeString(),u:true}); });
+BUS.on('machine:change', () => { renderAll(); if(selectedMachine) renderMachinePanel(); });
+
+// Initial events
+BUS.emit('alerta',{tipo:'amber',msg:'SOLD-01: OEE bajo (69%) — revisar parámetros de operación'});
+BUS.emit('mediador',{de:'SISTEMA',msg:'FábricaViva MES iniciado correctamente'});
+BUS.emit('mediador',{de:'PRODUCCIÓN',msg:'OP-001 asignada a CNC-01 — inicio de turno'});
+BUS.emit('mediador',{de:'PRODUCCIÓN',msg:'OP-004 asignada a TORN-01 — inicio de turno'});
+
+/* ═══ HELPERS ═══ */
+function stateClass(e) {
+  return {IDLE:'b-idle',PRODUCIENDO:'b-produciendo',FALLA:'b-falla',MANTENIMIENTO:'b-mantenimiento'}[e]||'b-idle';
+}
+function oeeColor(v) { return v>=0.80?'var(--g)':v>=0.70?'var(--a)':'var(--r)'; }
+
+function machineMiniHtml(m, selectable) {
+  const ord = S.ordenes.find(o=>o.ref===m.ordenActual);
+  return `
+  <div class="mcard${selectable&&m.id===selectedMachine?' selected':''}" ${selectable?`onclick="selectMachine('${m.id}')"`:''}>
+    <div class="mcard-top">
+      <div>
+        <div class="mcard-name">${m.nombre}</div>
+        <div class="mcard-id">${m.id}</div>
+      </div>
+      <span class="badge ${stateClass(m.estado)}">${m.estado}</span>
+    </div>
+    <div class="oee-wrap">
+      <div class="oee-row"><span>OEE</span><span class="oee-val" style="color:${oeeColor(m.oee)}">${(m.oee*100).toFixed(0)}%</span></div>
+      <div class="oee-track"><div class="oee-fill" style="width:${m.oee*100}%;background:${oeeColor(m.oee)}"></div></div>
+    </div>
+    ${m.ordenActual
+      ? `<div class="mcard-order">${m.ordenActual}</div>`
+      : `<div class="mcard-order" style="color:var(--tx-4)">— sin orden asignada —</div>`}
+  </div>`;
+}
+
+/* ═══ RENDER FUNCTIONS ═══ */
+function renderAll() {
+  renderKpis(); renderDashMachines(); renderOrdenes();
+  renderMachineGrid(); renderLotes(); renderPlan(); renderCmdLog(); renderPills();
+  if(document.getElementById('view-calidad').classList.contains('active')) renderInspLotes();
+}
+
+function renderKpis() {
+  const activas = S.maquinas.filter(m=>m.estado==='PRODUCIENDO').length;
+  const ov = new VisitanteOee(); S.maquinas.forEach(m=>ov.visitarMaquina(m));
+  const oee = (ov.oeePromedio()*100).toFixed(1);
+  const cv  = new VisitanteCostos(); S.maquinas.forEach(m=>cv.visitarMaquina(m));
+  const pend = S.ordenes.filter(o=>o.estado==='PENDIENTE').length;
+  const oeeClass = +oee>=80?'kpi-ok':+oee>=70?'kpi-warn':'kpi-bad';
+  document.getElementById('kpi-row').innerHTML = `
+    <div class="kpi"><div class="kpi-label">Máquinas activas</div><div class="kpi-num">${activas}<span>/5</span></div><div class="kpi-meta">En producción</div></div>
+    <div class="kpi"><div class="kpi-label">OEE Global</div><div class="kpi-num ${oeeClass}">${oee}<span>%</span></div><div class="kpi-meta">Promedio flota</div></div>
+    <div class="kpi"><div class="kpi-label">Órd. Pendientes</div><div class="kpi-num kpi-blue">${pend}</div><div class="kpi-meta">En cola</div></div>
+    <div class="kpi"><div class="kpi-label">Costo activo</div><div class="kpi-num">$${cv.total}</div><div class="kpi-meta">$/hora en producción</div></div>
+  `;
+  const oel = document.getElementById('dash-oee');
+  if(oel) { oel.textContent=`OEE ${oee}%`; oel.className=`badge ${+oee>=80?'b-green':+oee>=70?'b-amber':'b-red'}`; }
+}
+
+function renderDashMachines() {
+  const el = document.getElementById('dash-machines');
+  if(el) el.innerHTML = S.maquinas.map(m=>machineMiniHtml(m,false)).join('');
+}
+
+function renderMachineGrid() {
+  const el = document.getElementById('machine-grid');
+  if(el) el.innerHTML = S.maquinas.map(m=>machineMiniHtml(m,true)).join('');
+}
+
+function selectMachine(id) {
+  selectedMachine = id;
+  document.getElementById('machine-panel').hidden = false;
+  renderMachinePanel(); renderMachineGrid();
+}
+function renderMachinePanel() {
+  const m = S.maquinas.find(x=>x.id===selectedMachine); if(!m) return;
+  document.getElementById('mp-title').textContent = `${m.nombre} — ${m.estado}`;
+  document.getElementById('mp-sub').textContent   = m.ordenActual ? `Orden activa: ${m.ordenActual}` : 'Sin orden asignada';
+  document.getElementById('oee-slider').value = (m.oee*100).toFixed(0);
+  document.getElementById('oee-val').textContent  = (m.oee*100).toFixed(0)+'%';
+  const hist = document.getElementById('state-history');
+  if(!m.historial.length) { hist.innerHTML='<div class="empty" style="padding:12px">Sin transiciones registradas</div>'; return; }
+  hist.innerHTML = m.historial.slice().reverse().map(h=>`
+    <div style="display:flex;align-items:center;gap:8px;padding:5px 0;border-bottom:1px solid var(--bd)">
+      <span class="badge ${stateClass(h.de)}" style="font-size:10.5px">${h.de}</span>
+      <span style="color:var(--tx-4);font-size:12px">→</span>
+      <span class="badge ${stateClass(h.a)}" style="font-size:10.5px">${h.a}</span>
+      <span style="margin-left:auto;font-family:var(--mono);font-size:10.5px;color:var(--tx-4)">${h.ts}</span>
+    </div>`).join('');
+}
+
+function machineAction(act) {
+  const m = S.maquinas.find(x=>x.id===selectedMachine); if(!m) return;
+  if(act==='iniciar') {
+    const ord = S.ordenes.find(o=>o.estado==='PENDIENTE');
+    if(!ord){toast('No hay órdenes pendientes en cola','amber');return;}
+    const ok = gestor.ejecutar(new CmdIniciarOrden(ord,m));
+    if(ok===false) toast(`${m.nombre} no puede iniciar en estado ${m.estado}`,'red');
+    else { toast(`${m.nombre} → PRODUCIENDO`,'green'); renderAll(); }
+  } else if(act==='pausar') {
+    if(!m.pausar()) toast(`${m.nombre} no está en producción`,'red');
+    else { toast(`${m.nombre} → IDLE`,''); renderAll(); }
+  } else if(act==='falla') {
+    openModal('modal-falla');
+  } else if(act==='mantenimiento') {
+    if(m.estado==='FALLA') m.iniciarMto();
+    if(!m.completarMto()) toast(`${m.nombre} no está en mantenimiento`,'red');
+    else { toast(`${m.nombre} → IDLE (mantenimiento completado)`,'green'); renderAll(); }
+  }
+  renderMachinePanel();
+}
+function confirmarFalla() {
+  const m = S.maquinas.find(x=>x.id===selectedMachine); if(!m) return;
+  const causa = document.getElementById('f-falla').value.trim()||'Falla no especificada';
+  if(!m.reportarFalla(causa)) toast(`${m.nombre} no está en producción`,'red');
+  else { toast(`⚠ Falla registrada en ${m.nombre}`,'red'); renderAll(); }
+  closeModal('modal-falla'); renderMachinePanel();
+}
+function updateOee(v) {
+  const m = S.maquinas.find(x=>x.id===selectedMachine); if(!m) return;
+  document.getElementById('oee-val').textContent = v+'%';
+  m.setOee(v/100);
+}
+
+function prioClass(p) { return {ALTA:'b-red',NORMAL:'b-blue',BAJA:'b-slate'}[p]||'b-slate'; }
+function estadoOrdenClass(e) { return {PENDIENTE:'b-blue',EN_PROCESO:'b-green',COMPLETADA:'b-slate',RECHAZADA:'b-red'}[e]||'b-slate'; }
+
+function renderOrdenes() {
+  const f = document.getElementById('filter-estado').value;
+  const rows = f ? S.ordenes.filter(o=>o.estado===f) : S.ordenes;
+  document.getElementById('tbl-ordenes').innerHTML = rows.map(o=>{
+    const m = S.maquinas.find(m=>m.id===o.maquinaId);
+    return `<tr>
+      <td><code style="color:var(--blue);font-size:12px">${o.ref}</code></td>
+      <td style="color:var(--tx)">${o.producto}</td>
+      <td style="font-variant-numeric:tabular-nums">${o.cantidad}</td>
+      <td><span class="badge ${prioClass(o.prioridad)}">${o.prioridad}</span></td>
+      <td><span class="badge ${estadoOrdenClass(o.estado)}">${o.estado.replace('_',' ')}</span></td>
+      <td>${m?`<code style="font-size:11px;color:var(--tx-3)">${m.id}</code>`:'<span style="color:var(--tx-4)">—</span>'}</td>
+      <td>
+        ${o.estado==='PENDIENTE'?`<button class="btn btn-green btn-sm" onclick="asignarOrden(${o.id})">▶ Iniciar</button>`:''}
+        ${o.estado==='EN_PROCESO'?`<button class="btn btn-outline btn-sm" onclick="completarOrden(${o.id})">✓ Completar</button>`:''}
+      </td>
+    </tr>`;
+  }).join('');
+}
+function asignarOrden(id) {
+  const o=S.ordenes.find(x=>x.id===id); if(!o) return;
+  const libre=S.maquinas.find(m=>m.estado==='IDLE');
+  if(!libre){toast('No hay máquinas disponibles (IDLE)','amber');return;}
+  const ok=gestor.ejecutar(new CmdIniciarOrden(o,libre));
+  if(ok!==false){toast(`${o.ref} → ${libre.nombre}`,'green');renderAll();}
+}
+function completarOrden(id) {
+  const o=S.ordenes.find(x=>x.id===id); if(!o) return;
+  const ok=gestor.ejecutar(new CmdCompletarOrden(o));
+  if(ok!==false){toast(`${o.ref} completada ✓`,'green');renderAll();}
+}
+function undoLast() { gestor.deshacer(); }
+
+function renderCmdLog() {
+  const el=document.getElementById('cmd-log'); if(!el) return;
+  document.getElementById('cmd-count').textContent=`${S.cmdLog.length} acciones`;
+  el.innerHTML=S.cmdLog.length
+    ? S.cmdLog.map(c=>`<div class="cmd-row"><span class="cmd-icon">${c.u?'↩':'▶'}</span><span class="cmd-text">${c.d}</span><span class="cmd-ts">${c.ts}</span></div>`).join('')
+    : '<div class="empty">Sin acciones registradas</div>';
+}
+
+function renderLotes() {
+  const lotes = iteradorActual==='FIFO' ? iterarFifo(S.lotes) : iterarPrioridad(S.lotes);
+  const badge = {PENDIENTE:'b-blue',EN_INSPECCION:'b-amber',APROBADO:'b-green',RECHAZADO:'b-red'};
+  const prioBg = ['','b-red','b-amber','b-slate'];
+  document.getElementById('tbl-lotes').innerHTML = lotes.map((l,i)=>`
+    <tr>
+      <td style="color:var(--tx-4);font-family:var(--mono)">${i+1}</td>
+      <td><code style="color:var(--blue);font-size:12px">${l.id}</code></td>
+      <td>${l.producto}</td>
+      <td>${l.cantidad}</td>
+      <td><span class="badge ${prioBg[l.prioridad]}">P${l.prioridad}</span></td>
+      <td><span class="badge ${badge[l.estado]}">${l.estado}</span></td>
+      <td style="width:130px">
+        <div class="prog-wrap"><div class="prog-bar" style="width:${l.avance}%;background:${l.avance===100?'var(--g)':'var(--blue)'}"></div></div>
+        <span style="font-size:11px;color:var(--tx-3)">${l.avance}%</span>
+      </td>
+    </tr>`).join('');
+  document.getElementById('lotes-count').textContent = `${lotes.length} lotes`;
+  document.getElementById('lotes-label').textContent = `Orden: ${iteradorActual==='FIFO'?'FIFO (inserción)':'Prioridad (P1 → P3)'}`;
+}
+function setIterador(m) {
+  iteradorActual = m;
+  document.getElementById('btn-fifo').className=`btn btn-sm ${m==='FIFO'?'btn-primary':'btn-outline'}`;
+  document.getElementById('btn-prio').className=`btn btn-sm ${m==='PRIORIDAD'?'btn-primary':'btn-outline'}`;
+  renderLotes();
+}
+
+function renderPlan() {
+  const pend = S.ordenes.filter(o=>o.estado!=='COMPLETADA'&&o.estado!=='RECHAZADA');
+  const sorted = ESTRATEGIAS[estrategiaActual].fn(pend);
+  document.getElementById('tbl-plan').innerHTML = sorted.map((o,i)=>`
+    <tr>
+      <td style="color:var(--tx-4);font-family:var(--mono);font-weight:600">${i+1}</td>
+      <td><code style="color:var(--blue);font-size:12px">${o.ref}</code></td>
+      <td>${o.producto}</td>
+      <td>${o.cantidad}</td>
+      <td><span class="badge ${prioClass(o.prioridad)}">${o.prioridad}</span></td>
+      <td><span class="badge ${estadoOrdenClass(o.estado)}">${o.estado.replace('_',' ')}</span></td>
+    </tr>`).join('');
+  document.getElementById('plan-count').textContent=`${sorted.length} órdenes`;
+  document.getElementById('strat-desc').textContent=ESTRATEGIAS[estrategiaActual].desc;
+}
+function setEstrategia(e) {
+  estrategiaActual = e;
+  ['fifo','prio','vol'].forEach(k=>{
+    const id={fifo:'FIFO',prio:'PRIORIDAD',vol:'VOLUMEN'}[k];
+    document.getElementById(`strat-${k}`).className=`btn btn-sm ${id===e?'btn-primary':'btn-outline'}`;
+  });
+  renderPlan(); toast(`Estrategia: ${ESTRATEGIAS[e].nombre}`,'blue');
+}
+
+function renderInspLotes() {
+  const lotes = S.lotes.filter(l=>l.estado==='PENDIENTE'||l.estado==='EN_INSPECCION');
+  const el=document.getElementById('lotes-inspeccion');
+  if(el) el.innerHTML=lotes.length?lotes.map(l=>`
+    <div style="display:flex;align-items:center;gap:10px;padding:8px 10px;background:var(--surface-2);border:1px solid var(--bd);border-radius:7px;margin-bottom:6px">
+      <code style="color:var(--blue);font-size:12px">${l.id}</code>
+      <span style="flex:1;font-size:13px">${l.producto}</span>
+      <span style="font-size:11.5px;color:var(--tx-3)">${l.cantidad} ud</span>
+      <span class="badge ${l.estado==='EN_INSPECCION'?'b-amber':'b-blue'}">${l.estado}</span>
+    </div>`).join(''):'<div class="empty">No hay lotes pendientes de inspección</div>';
+  const sel=document.getElementById('insp-lote');
+  if(sel){sel.innerHTML='';lotes.forEach(l=>{const o=document.createElement('option');o.value=l.id;o.textContent=`${l.id} — ${l.producto}`;sel.appendChild(o);});}
+}
+function ejecutarInspeccion() {
+  const loteId=document.getElementById('insp-lote').value;
+  const tipo=document.getElementById('insp-tipo').value;
+  const muestras=parseInt(document.getElementById('insp-muestras').value)||100;
+  if(!loteId){toast('Selecciona un lote','amber');return;}
+  const r=inspeccionarLote(loteId,tipo,muestras);
+  S.inspecciones.unshift(r);
+  const lote=S.lotes.find(l=>l.id===loteId);
+  if(lote) lote.estado=r.aprobado?'APROBADO':'RECHAZADO';
+  document.getElementById('insp-result').innerHTML=`
+    <div style="background:${r.aprobado?'var(--g-50)':'var(--r-50)'};border:1px solid ${r.aprobado?'#A7DFC0':'#FFBCC5'};border-radius:8px;padding:14px">
+      <div style="font-weight:700;font-size:14px;color:${r.aprobado?'var(--g)':'var(--r)'};margin-bottom:10px">${r.aprobado?'✓ LOTE APROBADO':'✗ LOTE RECHAZADO'}</div>
+      ${r.pasos.map(p=>`<div class="insp-step"><div class="insp-step-label">${p.n}</div><div class="insp-step-val">${p.v}</div></div>`).join('')}
+    </div>`;
+  renderTblInsp(); renderInspLotes(); renderLotes();
+  BUS.emit('mediador',{de:'CALIDAD',msg:`Inspección ${tipo} en lote ${loteId}: ${r.aprobado?'APROBADO':'RECHAZADO'} — tasa ${(r.tasa*100).toFixed(1)}%`});
+  toast(`Lote ${loteId}: ${r.aprobado?'aprobado ✓':'rechazado ✗'}`, r.aprobado?'green':'red');
+}
+function renderTblInsp() {
+  document.getElementById('tbl-insp').innerHTML=S.inspecciones.map(r=>`
+    <tr>
+      <td><code style="font-size:12px;color:var(--blue)">${r.loteId}</code></td>
+      <td><span class="badge ${r.tipo==='DIMENSIONAL'?'b-blue':'b-purple'}">${r.tipo}</span></td>
+      <td>${r.muestras}</td><td>${r.defectos}</td>
+      <td>${(r.tasa*100).toFixed(1)}%</td>
+      <td><span class="badge ${r.aprobado?'b-green':'b-red'}">${r.aprobado?'APROBADO':'RECHAZADO'}</span></td>
+      <td style="font-family:var(--mono);font-size:11px;color:var(--tx-3)">${r.fecha}</td>
+    </tr>`).join('');
+}
+
+function renderAlertas() {
+  const el=document.getElementById('alertas-log'); if(!el) return;
+  if(!S.alertas.length){el.innerHTML='<div class="empty">Sin alertas registradas</div>';return;}
+  const dot={red:'a-red',amber:'a-amber',green:'a-green',blue:'a-blue'};
+  el.innerHTML=S.alertas.map(a=>`
+    <div class="alert-row">
+      <div class="alert-dot ${dot[a.tipo]||'a-blue'}"></div>
+      <div class="alert-msg">${a.msg}</div>
+      <div class="alert-ts">${a.ts}</div>
+    </div>`).join('');
+}
+function renderMediador() {
+  const el=document.getElementById('mediador-log'); if(!el) return;
+  el.innerHTML=S.mediadorLog.length
+    ?S.mediadorLog.map(m=>`<div class="med-msg"><div class="med-from">${m.de} · ${m.ts}</div><div class="med-text">${m.msg}</div></div>`).join('')
+    :'<div class="empty">Sin mensajes</div>';
+}
+function renderReglas() {
+  const el=document.getElementById('reglas-list'); if(!el) return;
+  el.innerHTML=REGLAS.map(r=>{
+    const activa=r.f();
+    return `<div class="rule-row">
+      <div class="alert-dot ${activa?'a-red':'a-green'}"></div>
+      <div style="flex:1"><div class="rule-name">${r.n}</div><div class="rule-desc">${r.d}</div></div>
+      <span class="badge ${activa?'b-red':'b-green'}">${activa?'ACTIVA':'OK'}</span>
+    </div>`;
+  }).join('');
+}
+function evaluarReglas() {
+  REGLAS.forEach(r=>{ if(r.f()) BUS.emit('alerta',{tipo:'amber',msg:`Regla activada: ${r.n}`}); });
+  renderReglas(); renderAlertas(); toast('Reglas evaluadas','');
+}
+
+function renderPills() {
+  const pend=S.ordenes.filter(o=>o.estado==='PENDIENTE').length;
+  const alrt=S.alertas.filter(a=>a.tipo==='red'||a.tipo==='amber').length;
+  const po=document.getElementById('pill-ordenes');
+  const pa=document.getElementById('pill-alertas');
+  if(po){po.textContent=pend;po.hidden=pend===0;}
+  if(pa){pa.textContent=alrt;pa.hidden=alrt===0;}
+}
+
+function renderConfigView() {
+  document.getElementById('cfg-turno').value=S.turno.turno;
+  document.getElementById('cfg-oee').value=S.turno.oee;
+  document.getElementById('cfg-cap').value=S.turno.capacidad;
+  document.getElementById('cfg-stock').value=S.turno.stock;
+  renderSnaps();
+}
+function guardarConfig() {
+  S.turno.turno=document.getElementById('cfg-turno').value;
+  S.turno.oee=parseInt(document.getElementById('cfg-oee').value);
+  S.turno.capacidad=parseInt(document.getElementById('cfg-cap').value);
+  S.turno.stock=parseInt(document.getElementById('cfg-stock').value);
+  historial.guardar(S.turno);
+  renderSnaps(); toast('Checkpoint guardado','green');
+  BUS.emit('mediador',{de:'CONFIG',msg:`Turno ${S.turno.turno}: OEE meta ${S.turno.oee}%, cap ${S.turno.capacidad} ud, stock ${S.turno.stock} ud`});
+}
+function deshacerConfig() {
+  if(historial.deshacer(S.turno)){renderConfigView();toast('Configuración restaurada','amber');}
+}
+function renderSnaps() {
+  const el=document.getElementById('snap-list'); if(!el) return;
+  document.getElementById('snap-count').textContent=`${historial.pila.length} guardados`;
+  el.innerHTML=historial.pila.length
+    ?historial.pila.slice().reverse().map((s,i)=>`
+      <div class="snap-item">
+        <div class="snap-label">Snapshot ${historial.pila.length-i}</div>
+        <div class="snap-meta">Turno: ${s.turno} · OEE meta: ${s.oee}% · Cap: ${s.capacidad} ud · Stock: ${s.stock} ud</div>
+      </div>`).join('')
+    :'<div class="empty">No hay checkpoints guardados</div>';
+}
+
+/* ═══ ACTIVITY LOG ═══ */
+function addActivity(msg, tipo) {
+  const dot={red:'a-red',amber:'a-amber',green:'a-green',blue:'a-blue'};
+  const el=document.getElementById('activity-log'); if(!el) return;
+  const d=document.createElement('div'); d.className='alert-row';
+  d.innerHTML=`<div class="alert-dot ${dot[tipo]||'a-blue'}"></div><div class="alert-msg">${msg}</div><div class="alert-ts">${new Date().toLocaleTimeString()}</div>`;
+  el.insertBefore(d,el.firstChild);
+  if(el.children.length>25) el.removeChild(el.lastChild);
+}
+
+/* ═══ MODAL ═══ */
+function openModal(id) { document.getElementById(id).hidden=false; }
+function closeModal(id) {
+  document.getElementById(id).hidden=true;
+  if(id==='modal-orden') document.getElementById('chain-steps').style.display='none';
+}
+
+function crearOrden() {
+  const ref=document.getElementById('f-ref').value.trim();
+  const prod=document.getElementById('f-prod').value.trim();
+  const cant=parseInt(document.getElementById('f-cant').value)||0;
+  const prio=document.getElementById('f-prio').value;
+  if(!ref||!prod||cant<=0){toast('Completa todos los campos','amber');return;}
+  if(S.ordenes.find(o=>o.ref===ref)){toast(`La referencia ${ref} ya existe`,'red');return;}
+  const orden={id:S._id++,ref,producto:prod,cantidad:cant,prioridad:prio,estado:'PENDIENTE',maquinaId:null};
+  const result=validarOrden(orden,S.turno);
+  document.getElementById('chain-steps').style.display='block';
+  document.getElementById('chain-inner').innerHTML=result.steps.map(s=>`
+    <div class="chain-step ${s.ok?'cs-pass':'cs-fail'}">
+      <span class="cs-icon">${s.ok?'✓':'✗'}</span>
+      <div><div class="cs-name">${s.n}</div><div class="cs-msg">${s.m}</div></div>
+    </div>`).join('');
+  if(result.ok) {
+    S.ordenes.push(orden);
+    BUS.emit('mediador',{de:'PRODUCCIÓN',msg:`Nueva orden aprobada: ${ref} — ${cant} ud (${prio})`});
+    toast(`Orden ${ref} creada y aprobada ✓`,'green');
+    renderAll();
+    setTimeout(()=>{ closeModal('modal-orden'); document.getElementById('f-ref').value=''; document.getElementById('f-prod').value=''; document.getElementById('f-cant').value='50'; }, 2000);
+  } else {
+    orden.estado='RECHAZADA'; S.ordenes.push(orden);
+    BUS.emit('alerta',{tipo:'red',msg:`Orden ${ref} rechazada: ${result.razon}`});
+    toast(`Orden ${ref} rechazada — ${result.razon}`,'red');
+    renderAll();
+  }
+}
+
+/* ═══ NAVIGATION ═══ */
+const VIEW_TITLES = {
+  dashboard:'Dashboard', ordenes:'Órdenes de Producción',
+  maquinas:'Máquinas y Equipos', calidad:'Control de Calidad',
+  lotes:'Lotes de Producción', planificacion:'Planificación',
+  alertas:'Alertas y Monitoreo', config:'Configuración del Turno',
+};
+document.querySelectorAll('.nav-item').forEach(el=>{
+  el.addEventListener('click', ()=>{
+    const v=el.dataset.view; if(!v) return;
+    document.querySelectorAll('.nav-item').forEach(x=>x.classList.remove('active'));
+    el.classList.add('active');
+    document.querySelectorAll('.view').forEach(x=>x.classList.remove('active'));
+    document.getElementById('view-'+v).classList.add('active');
+    document.getElementById('tb-title').textContent=VIEW_TITLES[v]||v;
+    if(v==='alertas'){renderAlertas();renderMediador();renderReglas();}
+    if(v==='config'){renderConfigView();}
+    if(v==='calidad'){renderInspLotes();renderTblInsp();}
+    if(v==='maquinas'){renderMachineGrid();}
+  });
+});
+
+/* ═══ TOAST ═══ */
+function toast(msg, tipo) {
+  const c=document.getElementById('toast');
+  const el=document.createElement('div');
+  el.className=`toast${tipo?` t-${tipo}`:''}`;
+  el.textContent=msg;
+  c.appendChild(el);
+  setTimeout(()=>{ el.style.opacity='0'; el.style.transition='opacity .2s'; setTimeout(()=>el.remove(),200); }, 3000);
+}
+
+/* ═══ CLOCK ═══ */
+setInterval(()=>{ document.getElementById('clock').textContent=new Date().toLocaleTimeString('es-CO',{hour12:false}); }, 1000);
+document.getElementById('clock').textContent=new Date().toLocaleTimeString('es-CO',{hour12:false});
+
+/* ═══ INIT ═══ */
+addActivity('FábricaViva MES iniciado','blue');
+addActivity('CNC-01 → EN PRODUCCIÓN (OP-001)','green');
+addActivity('TORN-01 → EN PRODUCCIÓN (OP-004)','green');
+addActivity('SOLD-01: OEE bajo 69% — verificar operación','amber');
+renderAll();
+renderReglas();
+</script>
