@@ -22,7 +22,7 @@ Está escrito en **Java puro** (sin Maven) y cuenta con un **frontend HUD intera
 
 ---
 
-## Patrones GoF implementados (22)
+## Patrones GoF implementados (23)
 
 ### Creacionales (5)
 
