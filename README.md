@@ -16,13 +16,13 @@
 
 ## El proyecto
 
-FábricaViva es un sistema de control y análisis de producción que aplica los **12 patrones de diseño GoF** en un contexto industrial realista. El sistema gestiona órdenes de producción, equipos, costos, reportes OEE y alertas de la planta.
+FábricaViva es un sistema de control y análisis de producción que aplica los **22 patrones de diseño GoF** en un contexto industrial realista. El sistema gestiona órdenes de producción, equipos, costos, reportes OEE, alertas de planta y coordinación de turnos.
 
-Está escrito en **Java puro** (sin Maven) y cuenta con un **frontend HUD interactivo** publicado en GitHub Pages, más una **suite de 55 tests JUnit 5**.
+Está escrito en **Java puro** (sin Maven) y cuenta con un **frontend HUD interactivo** publicado en GitHub Pages, más una **suite de 112 tests JUnit 5**.
 
 ---
 
-## Patrones GoF implementados (12)
+## Patrones GoF implementados (22)
 
 ### Creacionales (5)
 
@@ -44,12 +44,23 @@ Está escrito en **Java puro** (sin Maven) y cuenta con un **frontend HUD intera
 | Adapter | Integración con ERP legado que entrega texto plano | `integracion/AdaptadorErp` |
 | Bridge | Tipos de alerta desacoplados del canal de notificación | `alertas/AlertaProduccion` |
 | Flyweight | Estado intrínseco de piezas compartido en memoria | `materiales/FabricaTipoMaterial` |
+| Proxy | Control de acceso por rol antes de generar reportes OEE | `proxy/ProxyReportesSeguro` |
 
-### De comportamiento (1)
+### De comportamiento (11)
 
 | Patrón | Solución en la planta | Clase principal |
 |---|---|---|
-| Proxy | Control de acceso por rol antes de generar reportes OEE | `proxy/ProxyReportesSeguro` |
+| Observer | Sensores de máquina notifican al panel supervisor cuando el OEE cae | `observador/SensorMaquina` |
+| Command | Comandos de turno (iniciar orden, cerrar turno) encapsulados y deshacibles | `comando/GestorComandos` |
+| Strategy | Planificador de órdenes intercambia estrategias FIFO, prioridad o volumen | `estrategia/PlanificadorOrdenes` |
+| State | Máquina CNC transita entre Idle → Produciendo → Falla sin condicionales | `estado/ContextoMaquina` |
+| Template Method | Proceso de inspección con pasos fijos y puntos de extensión por especialidad | `inspeccion/InspeccionCalidad` |
+| Iterator | Recorrido uniforme de lotes de producción sin exponer la colección interna | `iterador/ColeccionLotes` |
+| Mediator | Central MES coordina módulos de calidad y mantenimiento sin acoplarlos | `mediador/CentralMes` |
+| Memento | Snapshots de configuración de turno para restaurar estados anteriores | `memento/InstantaneTurno` |
+| Chain of Responsibility | Cadena de validadores (stock, capacidad, prioridad) procesa órdenes | `cadena/ValidadorBase` |
+| Visitor | Visitante recorre la jerarquía de planta para calcular costos u OEE | `visitante/VisitanteCostos` |
+| Interpreter | Expresiones de alerta compuestas (OEE, temperatura, AND/OR) evaluadas en contexto | `interprete/ExpresionAlerta` |
 
 ---
 
@@ -57,26 +68,30 @@ Está escrito en **Java puro** (sin Maven) y cuenta con un **frontend HUD intera
 
 Interfaz industrial interactiva publicada en GitHub Pages:
 
-- Grafo hexagonal de los 12 patrones GoF con conexiones animadas
+- Grafo hexagonal de los 22 patrones GoF con conexiones animadas
 - Inspector por patrón: descripción, código fuente, principio SOLID y laboratorio interactivo
-- Panel de 55 tests JUnit 5 con resultados y tiempos
+- Panel de 112 tests JUnit 5 con resultados y tiempos
 - Simulación de turno de producción con métricas OEE en tiempo real
+
+> **Si GitHub Pages no está disponible**, abrir `frontend/index.html` directamente desde el explorador de archivos, o ejecutar:
+> ```powershell
+> python -m http.server 8787 --directory frontend
+> # luego abrir http://localhost:8787
+> ```
 
 ---
 
 ## Tests
 
-Suite JUnit 5 con **55 tests** para los 12 patrones (JDK 17, sin Maven):
+Suite JUnit 5 con **112 tests** para los 22 patrones (JDK 17, sin Maven):
 
 ```powershell
 # Ejecutar todos los tests
 .\test.ps1
 
 # Ejecutar un suite específico
-.\test.ps1 -filtro SingletonTest
+.\test.ps1 -filtro ObservadorTest
 ```
-
-Tiempo de ejecución: ~970ms · Resultado: 55/55 PASSED ✓
 
 ---
 
@@ -97,15 +112,30 @@ src/
 │   ├── integracion/   Adapter
 │   ├── alertas/       Bridge
 │   ├── materiales/    Flyweight
-│   └── proxy/         Proxy
+│   ├── proxy/         Proxy
+│   ├── observador/    Observer
+│   ├── comando/       Command
+│   ├── estrategia/    Strategy
+│   ├── estado/        State
+│   ├── inspeccion/    Template Method
+│   ├── iterador/      Iterator
+│   ├── mediador/      Mediator
+│   ├── memento/       Memento
+│   ├── cadena/        Chain of Responsibility
+│   ├── visitante/     Visitor
+│   └── interprete/    Interpreter
 └── test/java/com/fabricaviva/
-    └── *Test.java     55 tests JUnit 5
+    └── *Test.java     112 tests JUnit 5
 
 frontend/
 └── index.html         HUD interactivo (GitHub Pages)
 
 lib/
 └── junit-platform-console-standalone-1.10.3.jar
+
+Documentos Word Patrones/
+├── Semana 17 - Parcial3.docx   11 patrones de comportamiento (GoF)
+└── ...
 
 docs/uml/              Diagramas PlantUML (01–12)
 ```
@@ -131,7 +161,7 @@ java -cp target/classes com.fabricaviva.pruebas.PruebaSingleton
 
 ## Referencias
 
-- Gamma, E., Helm, R., Johnson, R., & Vlissides, J. (2003). *Patrones de diseño: Elementos de software orientado a objetos reutilizable*. Pearson Educación.
+- Gamma, E., Helm, R., Johnson, R., & Vlissides, J. (1994). *Design Patterns: Elements of Reusable Object-Oriented Software*. Addison-Wesley.
 - Medina Veloz, G., Luna Rosas, F. J., Muñoz Arteaga, J., & Martínez Romo, J. C. (2008). Integrando mediante patrones de software una estrategia fuzzy-logic, en un servicio de balanceo dinámico de carga bajo CORBA. *Conciencia Tecnológica*, (35), 12–20.
 - MESA International. (1997). *MES explained: A high level vision* (White Paper N.º 6). Manufacturing Execution Systems Association.
 - Nakajima, S. (1988). *Introduction to TPM: Total productive maintenance*. Productivity Press.
