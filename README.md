@@ -16,7 +16,7 @@
 
 ## El proyecto
 
-FábricaViva es un sistema de control y análisis de producción que aplica los **22 patrones de diseño GoF** en un contexto industrial realista. El sistema gestiona órdenes de producción, equipos, costos, reportes OEE, alertas de planta y coordinación de turnos.
+FábricaViva es un sistema de control y análisis de producción que aplica los **23 patrones de diseño GoF** en un contexto industrial realista. El sistema gestiona órdenes de producción, equipos, costos, reportes OEE, alertas de planta y coordinación de turnos.
 
 Está escrito en **Java puro** (sin Maven) y cuenta con un **frontend HUD interactivo** publicado en GitHub Pages, más una **suite de 112 tests JUnit 5**.
 
@@ -34,7 +34,7 @@ Está escrito en **Java puro** (sin Maven) y cuenta con un **frontend HUD intera
 | Builder | El mismo OEE entregado como reporte resumido o detallado | `reportes/GeneradorReportes` |
 | Prototype | Fichas técnicas de piezas usadas como plantilla clonable | `prototipo/EspecificacionPieza` |
 
-### Estructurales (6)
+### Estructurales (7)
 
 | Patrón | Solución en la planta | Clase principal |
 |---|---|---|
